@@ -1,0 +1,63 @@
+@import "var";
+
+// @font-face {
+//     font-family: "Inter";
+//     src: url("../fonts/Inter/Inter-VariableFont_slnt\,wght.woff2")
+//         format("woff2");
+//     font-style: normal;
+// }
+
+body, html {
+    margin: 0;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+        "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scrollbar-color: auto !important;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", "Inter",
+        monospace;
+}
+#root {
+    height: 100%;
+}
+
+.limit-function{
+    filter: grayscale(1);
+    p,label, span, h1, h2, h3, h4, h5, h6{
+        color: var(--p-color-text-disabled) !important;
+    
+    }
+    // .Polaris-ShadowBevel{
+    //     background-color: var(--p-color-bg-fill-disabled)
+    // }
+}
+.badge-limit{
+    &:hover{
+        .badge-limit--content{
+            display: block
+        }
+    }
+    .badge-limit--content{
+        width: 200%;
+        min-width: 100%;
+        display: none;
+        z-index: 999;
+        &::before{
+            content: "";
+            width: 100%;
+            height: 0.4rem;
+            position: absolute;
+            bottom: 100%,
+        }
+        .badge-limit--link{
+            &:hover{
+                text-decoration: underline
+            }
+        }
+        
+    }
+}
