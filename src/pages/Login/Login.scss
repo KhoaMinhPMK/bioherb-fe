@@ -1,0 +1,290 @@
+@use '../../assets/scss/var' as *;
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a2f 40%, #14532d 70%, #166534 100%);
+    position: relative;
+    overflow: hidden;
+    padding: $space-4;
+
+    // --- Animated Background Shapes ---
+    &__bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+    }
+
+    &__bg-shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.08;
+
+        &--1 {
+            width: 600px;
+            height: 600px;
+            background: $color-primary-400;
+            top: -200px;
+            right: -150px;
+            animation: float1 20s ease-in-out infinite;
+        }
+
+        &--2 {
+            width: 400px;
+            height: 400px;
+            background: $color-primary-300;
+            bottom: -100px;
+            left: -100px;
+            animation: float2 25s ease-in-out infinite;
+        }
+
+        &--3 {
+            width: 300px;
+            height: 300px;
+            background: $color-primary-500;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: float3 30s ease-in-out infinite;
+        }
+    }
+
+    &__container {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 440px;
+    }
+}
+
+@keyframes float1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+@keyframes float2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-40px, 20px) scale(1.05); }
+    66% { transform: translate(30px, -40px) scale(0.9); }
+}
+
+@keyframes float3 {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.3); }
+}
+
+// --- Login Card ---
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: $radius-xl;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    padding: $space-10;
+    animation: fadeIn 0.5s ease;
+
+    @media (max-width: 480px) {
+        padding: $space-6;
+    }
+
+    // --- Logo ---
+    &__logo {
+        text-align: center;
+        margin-bottom: $space-8;
+    }
+
+    &__logo-img {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+        margin: 0 auto $space-4;
+        border-radius: $radius-lg;
+        filter: drop-shadow(0 4px 14px rgba($color-primary-600, 0.3));
+    }
+
+    &__logo-title {
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-bold;
+        color: $color-text-primary;
+        margin-bottom: $space-1;
+    }
+
+    &__logo-sub {
+        font-size: $font-size-base;
+        color: $color-text-secondary;
+    }
+
+    // --- Form ---
+    &__form {
+        display: flex;
+        flex-direction: column;
+        gap: $space-5;
+    }
+
+    &__error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+        font-size: $font-size-base;
+        padding: $space-3 $space-4;
+        border-radius: $radius-md;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: $space-2;
+    }
+
+    &__label {
+        font-size: $font-size-base;
+        font-weight: $font-weight-medium;
+        color: $color-text-primary;
+    }
+
+    &__input-wrapper {
+        position: relative;
+    }
+
+    &__input {
+        width: 100%;
+        height: 48px;
+        padding: 0 $space-4;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        font-size: $font-size-md;
+        font-family: $font-family;
+        color: $color-text-primary;
+        background: $color-surface;
+        transition: all $transition-fast;
+        outline: none;
+
+        &::placeholder {
+            color: $color-text-muted;
+        }
+
+        &:focus {
+            border-color: $color-brand-primary;
+            box-shadow: 0 0 0 3px rgba($color-brand-primary, 0.15);
+        }
+
+        .login-card__input-wrapper & {
+            padding-right: 48px;
+        }
+    }
+
+    &__eye-btn {
+        position: absolute;
+        right: $space-3;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: $color-text-muted;
+        cursor: pointer;
+        padding: $space-1;
+        display: flex;
+        align-items: center;
+        transition: color $transition-fast;
+
+        &:hover {
+            color: $color-text-secondary;
+        }
+    }
+
+    // --- Options ---
+    &__options {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__checkbox {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        font-size: $font-size-base;
+        color: $color-text-secondary;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: $color-brand-primary;
+            cursor: pointer;
+        }
+    }
+
+    &__forgot {
+        font-size: $font-size-base;
+        color: $color-brand-primary;
+        font-weight: $font-weight-medium;
+
+        &:hover {
+            color: $color-brand-primary-hover;
+            text-decoration: underline;
+        }
+    }
+
+    // --- Submit ---
+    &__submit {
+        width: 100%;
+        height: 48px;
+        border: none;
+        border-radius: $radius-md;
+        background: linear-gradient(135deg, $color-primary-600, $color-primary-700);
+        color: white;
+        font-size: $font-size-md;
+        font-weight: $font-weight-semibold;
+        font-family: $font-family;
+        cursor: pointer;
+        transition: all $transition-base;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba($color-primary-600, 0.35);
+
+        &:hover {
+            background: linear-gradient(135deg, $color-primary-700, $color-primary-800);
+            box-shadow: 0 4px 12px rgba($color-primary-600, 0.5);
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        &--loading {
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+    }
+
+    &__spinner {
+        width: 22px;
+        height: 22px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    // --- Footer ---
+    &__footer {
+        text-align: center;
+        margin-top: $space-6;
+        padding-top: $space-5;
+        border-top: 1px solid $color-border;
+
+        p {
+            font-size: $font-size-xs;
+            color: $color-text-muted;
+        }
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

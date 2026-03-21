@@ -1,0 +1,22 @@
+@use '../../assets/scss/var' as *;
+
+.farm-list__name {
+    font-weight: $font-weight-medium;
+}
+
+.farm-list__address {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+.farm-list__actions {
+    display: flex;
+    gap: $space-2;
+}
+
+.farm-list__table-card {
+    margin-top: $space-6;
+}

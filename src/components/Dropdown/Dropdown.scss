@@ -1,0 +1,119 @@
+@use '../../assets/scss/var' as *;
+
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    min-width: 180px;
+    font-family: $font-family;
+
+    &__trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: $input-height;
+        padding: 0 $space-3;
+        background: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        cursor: pointer;
+        transition: all $transition-fast;
+        outline: none;
+
+        &:hover {
+            border-color: $color-border-strong;
+        }
+
+        &:focus {
+            border-color: $color-brand-primary;
+        }
+
+        &--placeholder {
+            color: $color-text-muted;
+        }
+    }
+
+    &__trigger-text {
+        flex: 1;
+        text-align: left;
+        font-size: $font-size-base;
+        color: $color-text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__trigger-icon {
+        margin-right: $space-2;
+        color: $color-text-secondary;
+    }
+
+    &__trigger-chevron {
+        margin-left: $space-2;
+        color: $color-text-muted;
+        transition: transform $transition-base;
+    }
+
+    &--open {
+        .custom-dropdown__trigger {
+            border-color: $color-brand-primary;
+            box-shadow: 0 0 0 3px rgba($color-brand-primary, 0.12);
+        }
+
+        .custom-dropdown__trigger-chevron {
+            transform: rotate(-180deg);
+        }
+    }
+
+    &__menu {
+        position: absolute;
+        top: calc(100% + #{$space-1});
+        left: 0;
+        width: 100%;
+        max-height: 240px;
+        overflow-y: auto;
+        background: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        box-shadow: $shadow-lg;
+        z-index: $z-dropdown;
+        padding: $space-1 0;
+        margin: 0;
+        list-style: none;
+        animation: dropdownSlideIn 0.15s ease-out forwards;
+        transform-origin: top center;
+    }
+
+    &__item {
+        padding: $space-2 $space-3;
+        font-size: $font-size-base;
+        color: $color-text-primary;
+        cursor: pointer;
+        transition: background $transition-fast;
+
+        &:hover {
+            background: $color-surface-hover;
+        }
+
+        &--selected {
+            background: $color-primary-50;
+            color: $color-brand-primary;
+            font-weight: $font-weight-medium;
+
+            &:hover {
+                background: $color-primary-100;
+            }
+        }
+    }
+}
+
+@keyframes dropdownSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scaleY(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
+}

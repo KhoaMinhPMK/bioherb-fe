@@ -1,0 +1,37 @@
+@use '../../assets/scss/var' as *;
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px $space-2;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    border-radius: $radius-full;
+    white-space: nowrap;
+    line-height: 1.5;
+
+    &--success {
+        background: $color-primary-50;
+        color: $color-primary-700;
+    }
+
+    &--warning {
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    &--error {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    &--info {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    &--neutral {
+        background: $color-neutral-100;
+        color: $color-neutral-600;
+    }
+}

@@ -1,0 +1,104 @@
+@use '../../assets/scss/var' as *;
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: $z-modal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $space-4;
+    animation: modalFadeIn 0.2s ease;
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-xl;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden; // Keep border radius clean
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: $space-4 $space-5;
+        border-bottom: 1px solid $color-border;
+        background: $color-surface;
+    }
+
+    &__title {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+        margin: 0;
+    }
+
+    &__close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: transparent;
+        color: $color-text-secondary;
+        border-radius: $radius-md;
+        cursor: pointer;
+        transition: all $transition-fast;
+
+        &:hover {
+            background: $color-surface-hover;
+            color: $color-text-primary;
+        }
+    }
+
+    &__body {
+        padding: $space-5;
+        overflow-y: auto;
+        flex: 1;
+        // Scrollbar styling for modal
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: $color-border;
+            border-radius: $radius-full;
+        }
+    }
+
+    &__footer {
+        padding: $space-4 $space-5;
+        border-top: 1px solid $color-border;
+        background: $color-surface;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: $space-3;
+    }
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

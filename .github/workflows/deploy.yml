@@ -1,0 +1,35 @@
+name: Deploy SANKIT Frontend to VPS via FTP
+
+on:
+  push:
+    branches:
+      - master # Tự động deploy khi có code mới gộp vào nhánh master
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Sử dụng Node 18 (hoặc đổi thành bản node của bạn)
+
+      - name: 📦 Install Dependencies
+        run: yarn install
+
+      - name: 🔨 Build Project
+        run: yarn build
+      
+      - name: 📂 Clean old files & Sync deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: / # Thay đổi nếu thư mục web không phải là thư mục gốc của tài khoản FTP
+          local-dir: ./build/
+          dangerous-clean-slate: true # Cẩn thận: true sẽ xóa các file cũ trên server không còn trong build/

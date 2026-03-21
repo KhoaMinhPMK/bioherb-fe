@@ -1,0 +1,36 @@
+@use '../../assets/scss/var' as *;
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $space-4;
+    margin-bottom: $space-6;
+    flex-wrap: wrap;
+
+    &__info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__title {
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-bold;
+        color: $color-text-primary;
+        line-height: $line-height-tight;
+        margin: 0;
+    }
+
+    &__subtitle {
+        font-size: $font-size-base;
+        color: $color-text-secondary;
+        margin-top: $space-1;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: $space-3;
+        flex-shrink: 0;
+    }
+}

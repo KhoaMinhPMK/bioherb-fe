@@ -1,0 +1,184 @@
+@use '../../assets/scss/var' as *;
+
+.qr-trace {
+    min-height: 100vh;
+    background: linear-gradient(180deg, $color-primary-50 0%, $color-background 50%);
+    padding: $space-6;
+    display: flex;
+    justify-content: center;
+
+    &__container {
+        max-width: 480px;
+        width: 100%;
+    }
+
+    &__header {
+        text-align: center;
+        margin-bottom: $space-8;
+    }
+
+    &__logo {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, $color-primary-500, $color-primary-700);
+        border-radius: $radius-lg;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin: 0 auto $space-4;
+    }
+
+    &__title {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: $color-text-primary;
+    }
+
+    &__subtitle {
+        font-size: $font-size-base;
+        color: $color-text-secondary;
+        margin-top: $space-1;
+    }
+
+    &__product {
+        text-align: center;
+        margin-bottom: $space-6;
+    }
+
+    &__product-name {
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-bold;
+        color: $color-primary-700;
+    }
+
+    &__lot-code {
+        display: inline-block;
+        margin-top: $space-2;
+        padding: $space-2 $space-4;
+        background: $color-primary-50;
+        border: 1px solid $color-primary-200;
+        border-radius: $radius-md;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        color: $color-primary-700;
+    }
+
+    &__info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $space-3;
+        margin-bottom: $space-6;
+    }
+
+    &__info-item {
+        display: flex;
+        gap: $space-3;
+        padding: $space-4;
+        background: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        color: $color-primary-600;
+
+        > div {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    &__info-label {
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+    }
+
+    &__info-value {
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+    }
+
+    &__info-sub {
+        font-size: $font-size-xs;
+        color: $color-text-secondary;
+        margin-top: 2px;
+    }
+
+    &__section-title {
+        font-size: $font-size-md;
+        font-weight: $font-weight-semibold;
+        margin-bottom: $space-4;
+        color: $color-text-primary;
+    }
+
+    &__timeline {
+        position: relative;
+        padding-left: $space-6;
+        margin-bottom: $space-8;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: $color-primary-200;
+        }
+    }
+
+    &__timeline-item {
+        position: relative;
+        padding-bottom: $space-5;
+
+        &:last-child {
+            padding-bottom: 0;
+        }
+    }
+
+    &__timeline-dot {
+        position: absolute;
+        left: -21px;
+        top: 6px;
+        width: 12px;
+        height: 12px;
+        background: $color-primary-500;
+        border: 2px solid $color-surface;
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px $color-primary-200;
+    }
+
+    &__timeline-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__timeline-date {
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+        font-weight: $font-weight-medium;
+    }
+
+    &__timeline-step {
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+    }
+
+    &__timeline-detail {
+        font-size: $font-size-sm;
+        color: $color-text-secondary;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $space-2;
+        padding: $space-4;
+        background: $color-primary-50;
+        border-radius: $radius-md;
+        font-size: $font-size-sm;
+        color: $color-primary-700;
+        font-weight: $font-weight-medium;
+    }
+}

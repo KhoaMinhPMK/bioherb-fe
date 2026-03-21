@@ -1,2 +1,113 @@
-$text-default-color: #202223;
-$text-warning-color: #B98900;
+// ============================================
+// DESIGN TOKENS - Farm Management System
+// ============================================
+
+// --- Color Palette ---
+// Primary (Green - Agricultural theme)
+$color-primary-50: #f0fdf4;
+$color-primary-100: #dcfce7;
+$color-primary-200: #bbf7d0;
+$color-primary-300: #86efac;
+$color-primary-400: #4ade80;
+$color-primary-500: #22c55e;
+$color-primary-600: #16a34a;
+$color-primary-700: #15803d;
+$color-primary-800: #166534;
+$color-primary-900: #14532d;
+
+// Neutral
+$color-neutral-50: #f8fafc;
+$color-neutral-100: #f1f5f9;
+$color-neutral-200: #e2e8f0;
+$color-neutral-300: #cbd5e1;
+$color-neutral-400: #94a3b8;
+$color-neutral-500: #64748b;
+$color-neutral-600: #475569;
+$color-neutral-700: #334155;
+$color-neutral-800: #1e293b;
+$color-neutral-900: #0f172a;
+
+// Semantic Colors
+$color-success: #22c55e;
+$color-warning: #f59e0b;
+$color-error: #ef4444;
+$color-info: #3b82f6;
+
+// Semantic Tokens
+$color-background: #f8fafc;
+$color-surface: #ffffff;
+$color-surface-hover: #f1f5f9;
+$color-border: #e2e8f0;
+$color-border-strong: #cbd5e1;
+$color-text-primary: #0f172a;
+$color-text-secondary: #64748b;
+$color-text-muted: #94a3b8;
+$color-brand-primary: #16a34a;
+$color-brand-primary-hover: #15803d;
+$color-brand-secondary: #22c55e;
+$color-destructive: #ef4444;
+$color-destructive-hover: #dc2626;
+
+// --- Typography ---
+$font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.8125rem;  // 13px
+$font-size-base: 0.875rem; // 14px
+$font-size-md: 1rem;       // 16px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.5rem;    // 24px
+$font-size-3xl: 1.875rem;  // 30px
+
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// --- Spacing (4px base) ---
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+$space-12: 48px;
+$space-16: 64px;
+
+// --- Border Radius ---
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-full: 9999px;
+
+// --- Shadows ---
+$shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.04);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.04);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.08), 0 8px 10px rgba(0, 0, 0, 0.04);
+
+// --- Layout ---
+$sidebar-width: 260px;
+$sidebar-collapsed-width: 72px;
+$header-height: 64px;
+$input-height: 40px;
+
+// --- Transitions ---
+$transition-fast: 150ms ease;
+$transition-base: 200ms ease;
+$transition-slow: 300ms ease;
+
+// --- Z-index ---
+$z-dropdown: 100;
+$z-sidebar: 200;
+$z-header: 300;
+$z-modal: 400;
+$z-toast: 500;

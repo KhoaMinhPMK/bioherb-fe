@@ -1,0 +1,68 @@
+@use '../../assets/scss/var' as *;
+
+.crop-cycle__crop-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+}
+
+.crop-cycle__cost {
+    font-weight: $font-weight-semibold;
+    font-variant-numeric: tabular-nums;
+}
+
+.crop-cycle__detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-4;
+}
+
+.crop-cycle__detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+
+    label {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $color-text-muted;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    span, strong, code {
+        font-size: $font-size-base;
+        color: $color-text-primary;
+    }
+}
+
+// --- CropCycle Detail ---
+.cycle-detail__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $space-4;
+    margin-bottom: $space-6;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.cycle-detail__stat-card {
+    text-align: center;
+}
+
+.cycle-detail__stat-label {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+}
+
+.cycle-detail__stat-value {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    margin-top: $space-1;
+    color: $color-text-primary;
+    font-variant-numeric: tabular-nums;
+}

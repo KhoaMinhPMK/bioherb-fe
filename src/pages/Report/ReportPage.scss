@@ -1,0 +1,152 @@
+@use '../../assets/scss/var' as *;
+
+// --- Report Page ---
+.report__filters {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    margin-bottom: $space-5;
+}
+
+.report__filter-select {
+    width: 200px;
+}
+
+.report__charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-5;
+    margin-bottom: $space-5;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+// --- Horizontal Bar Chart ---
+.report__bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+}
+
+.report__bar-row {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+}
+
+.report__bar-label {
+    width: 80px;
+    flex-shrink: 0;
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    text-align: right;
+}
+
+.report__bar-track {
+    flex: 1;
+    height: 24px;
+    background: $color-neutral-100;
+    border-radius: $radius-sm;
+    overflow: hidden;
+}
+
+.report__bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, $color-primary-500, $color-primary-600);
+    border-radius: $radius-sm;
+    transition: width 0.5s ease;
+}
+
+.report__bar-value {
+    width: 60px;
+    flex-shrink: 0;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    font-variant-numeric: tabular-nums;
+}
+
+// --- Yield Vertical Bar Chart ---
+.report__yield-chart {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 200px;
+    padding-top: $space-4;
+}
+
+.report__yield-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $space-2;
+}
+
+.report__yield-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 180px;
+}
+
+.report__yield-bar {
+    width: 32px;
+    border-radius: $radius-sm $radius-sm 0 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 4px;
+    transition: height 0.5s ease;
+
+    &--planned {
+        background: $color-neutral-200;
+    }
+
+    &--actual {
+        background: $color-primary-400;
+    }
+}
+
+.report__yield-bar-label {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+}
+
+.report__yield-name {
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+    font-weight: $font-weight-medium;
+}
+
+.report__yield-legend {
+    display: flex;
+    justify-content: center;
+    gap: $space-4;
+    margin-top: $space-4;
+}
+
+.report__legend-item {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+
+    &::before {
+        content: '';
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+    }
+
+    &--planned::before {
+        background: $color-neutral-200;
+    }
+
+    &--actual::before {
+        background: $color-primary-400;
+    }
+}

@@ -1,0 +1,52 @@
+@use '../../assets/scss/var' as *;
+
+.admin-role-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 500px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.admin-role-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    &__icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    &__label {
+        font-size: 13px;
+        color: var(--color-text-secondary);
+    }
+
+    &__count {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0;
+        color: var(--color-text);
+    }
+}
+
+.admin-farms-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}

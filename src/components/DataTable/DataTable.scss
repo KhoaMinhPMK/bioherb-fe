@@ -1,0 +1,204 @@
+@use '../../assets/scss/var' as *;
+
+// --- Container ---
+.data-table__container {
+    display: flex;
+    flex-direction: column;
+}
+
+.data-table__wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: $radius-md;
+}
+
+// --- Table ---
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: $font-size-base;
+
+    &--sticky thead {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    // --- Header ---
+    thead {
+        background: $color-neutral-50;
+
+        th {
+            padding: $space-3 $space-4;
+            text-align: left;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-semibold;
+            color: $color-text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid $color-border;
+            white-space: nowrap;
+            user-select: none;
+        }
+    }
+
+    .data-table__th--sortable {
+        cursor: pointer;
+        transition: color $transition-fast;
+
+        &:hover {
+            color: $color-text-primary;
+        }
+    }
+
+    .data-table__th-content {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-1;
+    }
+
+    .data-table__sort-icon {
+        color: $color-brand-primary;
+        flex-shrink: 0;
+
+        &--inactive {
+            color: $color-text-muted;
+            opacity: 0.5;
+        }
+    }
+
+    // --- Body ---
+    tbody {
+        tr {
+            border-bottom: 1px solid $color-border;
+            transition: background $transition-fast;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:hover {
+                background: $color-surface-hover;
+            }
+        }
+
+        td {
+            padding: $space-3 $space-4;
+            color: $color-text-primary;
+            vertical-align: middle;
+        }
+    }
+
+    .data-table__row--clickable {
+        cursor: pointer;
+
+        &:hover {
+            background: $color-primary-50;
+        }
+
+        &:active {
+            background: $color-primary-100;
+        }
+    }
+}
+
+// --- Skeleton Loading ---
+.data-table__skeleton-row {
+    @keyframes shimmer {
+        0% { background-position: -200px 0; }
+        100% { background-position: 200px 0; }
+    }
+}
+
+.data-table__skeleton {
+    height: 16px;
+    background: linear-gradient(90deg, $color-neutral-100 25%, $color-neutral-200 50%, $color-neutral-100 75%);
+    background-size: 400px 100%;
+    border-radius: $radius-sm;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+// --- Empty State ---
+.data-table__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $space-12 $space-4;
+    text-align: center;
+}
+
+.data-table__empty-icon {
+    color: $color-text-muted;
+    margin-bottom: $space-3;
+}
+
+.data-table__empty-text {
+    font-size: $font-size-base;
+    color: $color-text-secondary;
+}
+
+// --- Pagination ---
+.data-table__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-3 $space-4;
+    border-top: 1px solid $color-border;
+    font-size: $font-size-sm;
+}
+
+.data-table__pagination-info {
+    color: $color-text-secondary;
+}
+
+.data-table__pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+}
+
+.data-table__pagination-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 $space-2;
+    border: 1px solid $color-border;
+    background: $color-surface;
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    font-family: $font-family;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover:not(:disabled) {
+        background: $color-surface-hover;
+        color: $color-text-primary;
+        border-color: $color-border-strong;
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    &--active {
+        background: $color-brand-primary;
+        border-color: $color-brand-primary;
+        color: white;
+
+        &:hover:not(:disabled) {
+            background: $color-brand-primary-hover;
+            border-color: $color-brand-primary-hover;
+            color: white;
+        }
+    }
+}
+
+.data-table__pagination-ellipsis {
+    color: $color-text-muted;
+    padding: 0 $space-1;
+}

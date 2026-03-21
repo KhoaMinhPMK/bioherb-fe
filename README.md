@@ -1,70 +1,59 @@
-# Getting Started with Create React App
+# SANKIT - Hệ Thống Quản Lý Sản Xuất Nông Nghiệp (Frontend)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Dự án frontend phục vụ hệ thống quản lý nông nghiệp SANKIT. Mã nguồn được tổ chức theo module, tách biệt giao diện và dữ liệu.
 
-## Available Scripts
+## 🚀 Công Nghệ Sử Dụng
+- **Framework:** React 19 + React Router v7
+- **CSS Architecture:** SCSS (theo cú pháp BEM)
+- **Icons:** Lucide React
+- **Tooling:** ESLint, Prettier, Husky, Lint-Staged
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 💻 Cài Đặt Khởi Tạo
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+**1. Clone dự án & Cài dependencies:**
+```bash
+git clone ...
+cd sankit-fe
+yarn install
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+**2. Cấu hình môi trường:**
+```bash
+cp .env.example .env
+```
 
-### `npm test`
+**3. Khởi động server:**
+```bash
+yarn start
+```
+Browser sẽ tự khởi động tại `http://localhost:3000`.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🛠️ Danh Sách Câu Lệnh (Scripts)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- `yarn start` - Chạy app ở chế độ development.
+- `yarn build` - Đóng gói app ra thư mục `/build` để deploy.
+- `yarn lint` - Chạy ESLint rà soát code toàn dự án.
+- `yarn format` - Chạy tự động format code (Prettier) cho `.js`, `.jsx`, `.scss`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 📂 Kiến Trúc Thư Mục (Folder Structure)
 
-### `npm run eject`
+Kiến trúc thư mục được chia theo tính năng kết hợp với component dùng chung:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```text
+src/
+├── assets/          # Thư mục chứa hình ảnh, fonts, file SVG (logo, hình nền).
+├── components/      # UI Components dùng chung toàn dự án (DataTable, StatusBadge...).
+├── data/            # Thư mục chứa File Mock Data nội bộ thay vì hardcode ở UI.
+├── hooks/           # Custom React Hooks xử lý logic chung.
+├── layouts/         # Layout tĩnh của hệ thống (MainLayout gồm Sidebar, Header).
+├── pages/           # Màn hình tính năng phân theo domain (Dashboard, Farm, Harvert).
+├── styles/          # File SCSS Global + Khai báo Biến Màu (`_variables.scss`).
+├── App.js           # Khởi tạo App, cấu hình định tuyến và ErrorBoundary.
+└── Routers.jsx      # Thiết lập các route (đường dẫn) vào trang tương ứng.
+```
