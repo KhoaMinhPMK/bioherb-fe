@@ -10,32 +10,11 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     border-radius: $radius-md;
-
-    // Scroll indicator shadow on mobile
-    @include respond-below($bp-md) {
-        position: relative;
-
-        &::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 20px;
-            background: linear-gradient(to left, rgba(0,0,0,0.04), transparent);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity $transition-fast;
-        }
-
-        &:not(:has(+ .data-table__pagination))::after,
-        &.has-scroll::after {
-            opacity: 1;
-        }
-    }
 }
 
-// --- Table ---
+// ============================================
+// DESKTOP: Standard Table
+// ============================================
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -47,7 +26,6 @@
         z-index: 1;
     }
 
-    // --- Header ---
     thead {
         background: $color-neutral-50;
 
@@ -62,11 +40,6 @@
             border-bottom: 1px solid $color-border;
             white-space: nowrap;
             user-select: none;
-
-            @include respond-below($bp-md) {
-                padding: $space-2 $space-3;
-                font-size: 11px;
-            }
         }
     }
 
@@ -95,7 +68,6 @@
         }
     }
 
-    // --- Body ---
     tbody {
         tr {
             border-bottom: 1px solid $color-border;
@@ -114,11 +86,6 @@
             padding: $space-3 $space-4;
             color: $color-text-primary;
             vertical-align: middle;
-
-            @include respond-below($bp-md) {
-                padding: $space-2 $space-3;
-                font-size: $font-size-sm;
-            }
         }
     }
 
@@ -135,7 +102,72 @@
     }
 }
 
-// --- Skeleton Loading ---
+// ============================================
+// MOBILE: Card Layout
+// ============================================
+.data-table__cards {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    padding: $space-1;
+}
+
+.data-table__card {
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    padding: $space-4;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+    transition: box-shadow $transition-fast;
+
+    &--clickable {
+        cursor: pointer;
+
+        &:active {
+            background: $color-primary-50;
+            border-color: rgba($color-brand-primary, 0.3);
+        }
+    }
+}
+
+.data-table__card-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $space-3;
+    padding: $space-1 0;
+
+    // Separator line between fields
+    &:not(:last-child) {
+        border-bottom: 1px solid $color-neutral-100;
+        padding-bottom: $space-2;
+    }
+}
+
+.data-table__card-label {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    color: $color-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 80px;
+}
+
+.data-table__card-value {
+    font-size: $font-size-sm;
+    color: $color-text-primary;
+    text-align: right;
+    word-break: break-word;
+    flex: 1;
+}
+
+// ============================================
+// Skeleton Loading
+// ============================================
 .data-table__skeleton-row {
     @keyframes shimmer {
         0% { background-position: -200px 0; }
@@ -151,7 +183,9 @@
     animation: shimmer 1.5s ease-in-out infinite;
 }
 
-// --- Empty State ---
+// ============================================
+// Empty State
+// ============================================
 .data-table__empty {
     display: flex;
     flex-direction: column;
@@ -175,7 +209,9 @@
     color: $color-text-secondary;
 }
 
-// --- Pagination ---
+// ============================================
+// Pagination
+// ============================================
 .data-table__pagination {
     display: flex;
     align-items: center;
@@ -206,6 +242,13 @@
     @include respond-below($bp-sm) {
         gap: $space-2;
     }
+}
+
+.data-table__pagination-page {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    font-weight: $font-weight-medium;
+    padding: 0 $space-2;
 }
 
 .data-table__pagination-btn {
@@ -249,8 +292,8 @@
 
     // Touch-friendly on mobile
     @include respond-below($bp-md) {
-        min-width: 36px;
-        height: 36px;
+        min-width: 44px;
+        height: 44px;
     }
 }
 
