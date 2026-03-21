@@ -10,6 +10,14 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     display: block;
+
+    @include respond-below($bp-md) {
+        max-width: 180px;
+    }
+
+    @include respond-below($bp-sm) {
+        max-width: 140px;
+    }
 }
 
 .farm-list__actions {
@@ -19,4 +27,8 @@
 
 .farm-list__table-card {
     margin-top: $space-6;
+
+    @include respond-below($bp-md) {
+        margin-top: $space-4;
+    }
 }

@@ -6,6 +6,11 @@
     min-width: 180px;
     font-family: $font-family;
 
+    @include respond-below($bp-sm) {
+        min-width: 0;
+        width: 100%;
+    }
+
     &__trigger {
         display: flex;
         align-items: center;
@@ -30,6 +35,10 @@
 
         &--placeholder {
             color: $color-text-muted;
+        }
+
+        @include respond-below($bp-md) {
+            min-height: 44px;
         }
     }
 
@@ -82,6 +91,10 @@
         list-style: none;
         animation: dropdownSlideIn 0.15s ease-out forwards;
         transform-origin: top center;
+
+        @include respond-below($bp-sm) {
+            max-height: 200px;
+        }
     }
 
     &__item {
@@ -103,6 +116,12 @@
             &:hover {
                 background: $color-primary-100;
             }
+        }
+
+        @include respond-below($bp-md) {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
         }
     }
 }

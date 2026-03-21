@@ -6,10 +6,19 @@
     align-items: center;
     gap: $space-3;
     margin-bottom: $space-5;
+
+    @include respond-below($bp-sm) {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 
 .report__filter-select {
     width: 200px;
+
+    @include respond-below($bp-sm) {
+        width: 100%;
+    }
 }
 
 .report__charts {
@@ -18,7 +27,7 @@
     gap: $space-5;
     margin-bottom: $space-5;
 
-    @media (max-width: 768px) {
+    @include respond-below($bp-md) {
         grid-template-columns: 1fr;
     }
 }
@@ -34,6 +43,10 @@
     display: flex;
     align-items: center;
     gap: $space-3;
+
+    @include respond-below($bp-sm) {
+        gap: $space-2;
+    }
 }
 
 .report__bar-label {
@@ -42,6 +55,11 @@
     font-size: $font-size-sm;
     color: $color-text-secondary;
     text-align: right;
+
+    @include respond-below($bp-sm) {
+        width: 60px;
+        font-size: $font-size-xs;
+    }
 }
 
 .report__bar-track {
@@ -66,6 +84,11 @@
     font-weight: $font-weight-semibold;
     color: $color-text-primary;
     font-variant-numeric: tabular-nums;
+
+    @include respond-below($bp-sm) {
+        width: 50px;
+        font-size: $font-size-xs;
+    }
 }
 
 // --- Yield Vertical Bar Chart ---
@@ -75,6 +98,14 @@
     align-items: flex-end;
     height: 200px;
     padding-top: $space-4;
+
+    @include respond-below($bp-sm) {
+        height: 160px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+        gap: $space-3;
+    }
 }
 
 .report__yield-group {
@@ -82,6 +113,10 @@
     flex-direction: column;
     align-items: center;
     gap: $space-2;
+
+    @include respond-below($bp-sm) {
+        flex-shrink: 0;
+    }
 }
 
 .report__yield-bars {
@@ -89,6 +124,10 @@
     align-items: flex-end;
     gap: 4px;
     height: 180px;
+
+    @include respond-below($bp-sm) {
+        height: 140px;
+    }
 }
 
 .report__yield-bar {
@@ -106,6 +145,10 @@
 
     &--actual {
         background: $color-primary-400;
+    }
+
+    @include respond-below($bp-sm) {
+        width: 24px;
     }
 }
 

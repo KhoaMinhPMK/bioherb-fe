@@ -11,6 +11,11 @@
     padding: $space-4;
     animation: modalFadeIn 0.2s ease;
     backdrop-filter: blur(2px);
+
+    @include respond-below($bp-sm) {
+        padding: 0;
+        align-items: flex-end;
+    }
 }
 
 .modal-content {
@@ -22,7 +27,14 @@
     display: flex;
     flex-direction: column;
     animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow: hidden; // Keep border radius clean
+    overflow: hidden;
+
+    // Mobile: full-width bottom-sheet
+    @include respond-below($bp-sm) {
+        max-height: 95vh;
+        border-radius: $radius-xl $radius-xl 0 0;
+        animation: modalSlideFromBottom 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
     &__header {
         display: flex;
@@ -31,6 +43,10 @@
         padding: $space-4 $space-5;
         border-bottom: 1px solid $color-border;
         background: $color-surface;
+
+        @include respond-below($bp-sm) {
+            padding: $space-3 $space-4;
+        }
     }
 
     &__title {
@@ -38,6 +54,10 @@
         font-weight: $font-weight-semibold;
         color: $color-text-primary;
         margin: 0;
+
+        @include respond-below($bp-sm) {
+            font-size: $font-size-md;
+        }
     }
 
     &__close {
@@ -57,13 +77,18 @@
             background: $color-surface-hover;
             color: $color-text-primary;
         }
+
+        @include respond-below($bp-md) {
+            min-width: 44px;
+            min-height: 44px;
+        }
     }
 
     &__body {
         padding: $space-5;
         overflow-y: auto;
         flex: 1;
-        // Scrollbar styling for modal
+
         &::-webkit-scrollbar {
             width: 6px;
         }
@@ -73,6 +98,10 @@
         &::-webkit-scrollbar-thumb {
             background: $color-border;
             border-radius: $radius-full;
+        }
+
+        @include respond-below($bp-sm) {
+            padding: $space-4;
         }
     }
 
@@ -84,6 +113,17 @@
         align-items: center;
         justify-content: flex-end;
         gap: $space-3;
+
+        @include respond-below($bp-sm) {
+            padding: $space-3 $space-4;
+
+            // Stack buttons on small mobile
+            flex-direction: column-reverse;
+
+            button {
+                width: 100%;
+            }
+        }
     }
 }
 
@@ -100,5 +140,16 @@
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes modalSlideFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

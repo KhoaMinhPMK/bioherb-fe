@@ -11,7 +11,7 @@
     left: 0;
     top: 0;
     z-index: $z-sidebar;
-    transition: width $transition-slow;
+    transition: width $transition-slow, transform $transition-slow;
     overflow: hidden;
 
     &--collapsed {
@@ -81,6 +81,15 @@
         flex: 1;
         overflow-y: auto;
         padding: $space-3;
+
+        // Scrollbar
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: $color-neutral-200;
+            border-radius: $radius-full;
+        }
     }
 
     &__group {
@@ -120,6 +129,7 @@
         position: relative;
         white-space: nowrap;
         font-family: $font-family;
+        min-height: 40px;
 
         &:hover {
             background: $color-surface-hover;
@@ -143,6 +153,12 @@
                 background: $color-primary-100;
                 color: $color-brand-primary;
             }
+        }
+
+        // Touch-friendly on mobile
+        @include respond-below($bp-md) {
+            min-height: 44px;
+            padding: $space-3;
         }
     }
 
@@ -191,17 +207,98 @@
             outline: 2px solid $color-brand-primary;
             outline-offset: -2px;
         }
+
+        // Hide toggle on mobile (use hamburger instead)
+        @include respond-below($bp-md) {
+            display: none;
+        }
+    }
+
+    // --- Mobile Close Button ---
+    &__close-btn {
+        display: none;
+
+        @include respond-below($bp-md) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: $color-text-secondary;
+            border-radius: $radius-md;
+            cursor: pointer;
+            margin-left: auto;
+
+            &:hover {
+                background: $color-surface-hover;
+                color: $color-text-primary;
+            }
+        }
     }
 }
 
-// --- Mobile Responsive ---
-@media (max-width: 768px) {
+// --- Tablet: auto-collapse ---
+@include respond-below($bp-lg) {
+    .sidebar:not(.sidebar--open) {
+        width: $sidebar-collapsed-width;
+
+        .sidebar__group-label,
+        .sidebar__item-label,
+        .sidebar__logo-text {
+            display: none;
+        }
+
+        .sidebar__item {
+            justify-content: center;
+            padding: $space-3;
+        }
+
+        .sidebar__logo {
+            justify-content: center;
+            padding: $space-3;
+        }
+
+        .sidebar__logo-img {
+            width: 32px;
+            height: 32px;
+        }
+    }
+}
+
+// --- Mobile: off-canvas slide-in ---
+@include respond-below($bp-md) {
     .sidebar {
+        width: $sidebar-mobile-width;
         transform: translateX(-100%);
-        box-shadow: $shadow-xl;
+        box-shadow: none;
+        transition: transform $transition-slow;
 
         &--open {
             transform: translateX(0);
+            box-shadow: $shadow-xl;
+        }
+
+        // Always show full sidebar content on mobile when open
+        .sidebar__group-label,
+        .sidebar__item-label,
+        .sidebar__logo-text {
+            display: block;
+        }
+
+        .sidebar__item {
+            justify-content: flex-start;
+        }
+
+        .sidebar__logo {
+            justify-content: flex-start;
+            padding: $space-4;
+        }
+
+        .sidebar__logo-img {
+            width: 38px;
+            height: 38px;
         }
     }
 }

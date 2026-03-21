@@ -36,6 +36,10 @@
         background: rgba($color-brand-primary, 0.04);
         border-color: rgba($color-brand-primary, 0.1);
     }
+
+    @include respond-below($bp-sm) {
+        padding: $space-3;
+    }
 }
 
 .task-log__detail-title {
@@ -51,6 +55,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: $space-4 $space-5;
+
+    @include respond-below($bp-sm) {
+        grid-template-columns: 1fr;
+        gap: $space-3;
+    }
 }
 
 .task-log__detail-field {
@@ -74,9 +83,9 @@
 }
 
 .task-log__detail-cost {
-    font-size: $font-size-lg !important;
-    font-weight: $font-weight-bold !important;
-    color: $color-brand-primary !important;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $color-brand-primary;
     font-variant-numeric: tabular-nums;
 }
 
@@ -89,6 +98,12 @@
     background: $color-neutral-100;
     border-radius: $radius-md;
     width: fit-content;
+
+    @include respond-below($bp-sm) {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 .task-log__tab {
@@ -103,7 +118,8 @@
     border: none;
     border-radius: $radius-sm;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all $transition-fast;
+    white-space: nowrap;
 
     &:hover {
         color: $color-text-primary;
@@ -114,6 +130,10 @@
         color: $color-primary-600;
         font-weight: $font-weight-semibold;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    @include respond-below($bp-md) {
+        min-height: 44px;
     }
 }
 
@@ -130,6 +150,10 @@
     display: flex;
     flex-wrap: wrap;
     gap: $space-3;
+
+    @include respond-below($bp-sm) {
+        gap: $space-2;
+    }
 }
 
 .task-log-form__worker-chip {
@@ -142,10 +166,15 @@
     cursor: pointer;
     font-size: $font-size-base;
     transition: all $transition-fast;
+    min-height: 40px;
 
     &:hover {
         border-color: $color-brand-primary;
         background: $color-primary-50;
+    }
+
+    @include respond-below($bp-md) {
+        min-height: 44px;
     }
 }
 
@@ -155,5 +184,8 @@
 
 .task-log-form__notes {
     grid-column: span 2;
-}
 
+    @include respond-below($bp-sm) {
+        grid-column: span 1;
+    }
+}

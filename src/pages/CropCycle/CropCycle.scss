@@ -17,6 +17,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: $space-4;
+
+    @include respond-below($bp-sm) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .crop-cycle__detail-field {
@@ -45,8 +49,13 @@
     gap: $space-4;
     margin-bottom: $space-6;
 
-    @media (max-width: 768px) {
+    @include respond-below($bp-md) {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include respond-below($bp-sm) {
+        grid-template-columns: 1fr;
+        gap: $space-3;
     }
 }
 

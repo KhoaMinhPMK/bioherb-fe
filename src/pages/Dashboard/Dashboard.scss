@@ -407,7 +407,7 @@
 // ============================
 // RESPONSIVE
 // ============================
-@media (max-width: 1024px) {
+@include respond-below($bp-lg) {
     .dashboard {
         &__main {
             grid-template-columns: 1fr;
@@ -423,10 +423,14 @@
     }
 }
 
-@media (max-width: 640px) {
+@include respond-below($bp-sm) {
     .dashboard {
         &__stats {
             grid-template-columns: 1fr;
+        }
+
+        &__stat-value {
+            font-size: $font-size-xl;
         }
 
         &__task-item {
@@ -435,6 +439,11 @@
 
         &__task-time {
             min-width: auto;
+            width: 100%;
+        }
+
+        &__week-chart {
+            gap: $space-2;
         }
     }
 }

@@ -1,19 +1,23 @@
 @use '../../assets/scss/var' as *;
 
 .section-heading {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 12px;
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    margin: 0 0 $space-3;
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: var(--color-text);
+    gap: $space-2;
+    color: $color-text-primary;
+
+    @include respond-below($bp-sm) {
+        font-size: $font-size-base;
+    }
 }
 
 .cycle-code {
-    font-size: 12px;
-    background: var(--color-surface);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: var(--font-mono, 'Roboto Mono', monospace);
+    font-size: $font-size-xs;
+    background: $color-neutral-100;
+    padding: 2px $space-2;
+    border-radius: $radius-sm;
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }

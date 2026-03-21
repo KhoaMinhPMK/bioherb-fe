@@ -8,6 +8,15 @@
     margin-bottom: $space-6;
     flex-wrap: wrap;
 
+    @include respond-below($bp-md) {
+        margin-bottom: $space-4;
+    }
+
+    @include respond-below($bp-sm) {
+        flex-direction: column;
+        gap: $space-3;
+    }
+
     &__info {
         flex: 1;
         min-width: 0;
@@ -19,12 +28,20 @@
         color: $color-text-primary;
         line-height: $line-height-tight;
         margin: 0;
+
+        @include respond-below($bp-sm) {
+            font-size: $font-size-xl;
+        }
     }
 
     &__subtitle {
         font-size: $font-size-base;
         color: $color-text-secondary;
         margin-top: $space-1;
+
+        @include respond-below($bp-sm) {
+            font-size: $font-size-sm;
+        }
     }
 
     &__actions {
@@ -32,5 +49,13 @@
         align-items: center;
         gap: $space-3;
         flex-shrink: 0;
+
+        @include respond-below($bp-sm) {
+            width: 100%;
+
+            button {
+                flex: 1;
+            }
+        }
     }
 }

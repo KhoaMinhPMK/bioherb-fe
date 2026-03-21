@@ -8,12 +8,22 @@
     margin-bottom: $space-4;
     flex-wrap: wrap;
 
+    @include respond-below($bp-sm) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
     &__left {
         display: flex;
         align-items: center;
         gap: $space-3;
         flex: 1;
         flex-wrap: wrap;
+
+        @include respond-below($bp-sm) {
+            flex-direction: column;
+            align-items: stretch;
+        }
     }
 
     &__search {
@@ -22,6 +32,11 @@
         align-items: center;
         min-width: 240px;
         max-width: 360px;
+
+        @include respond-below($bp-sm) {
+            max-width: none;
+            min-width: 0;
+        }
     }
 
     &__search-icon {
@@ -53,6 +68,11 @@
         &:focus {
             border-color: $color-brand-primary;
         }
+
+        @include respond-below($bp-md) {
+            // Prevent iOS zoom on focus
+            font-size: 16px;
+        }
     }
 
     &__search-clear {
@@ -61,8 +81,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
         border: none;
         background: $color-neutral-100;
         color: $color-text-secondary;
@@ -80,6 +100,14 @@
         align-items: center;
         gap: $space-2;
         flex-wrap: wrap;
+
+        @include respond-below($bp-sm) {
+            width: 100%;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: $space-1;
+        }
     }
 
     &__select {
@@ -101,6 +129,10 @@
         &:focus {
             border-color: $color-brand-primary;
         }
+
+        @include respond-below($bp-sm) {
+            flex-shrink: 0;
+        }
     }
 
     &__clear-all {
@@ -115,6 +147,7 @@
         font-family: $font-family;
         cursor: pointer;
         border-radius: $radius-md;
+        white-space: nowrap;
 
         &:hover {
             background: $color-neutral-100;
@@ -127,17 +160,10 @@
         align-items: center;
         gap: $space-2;
         flex-shrink: 0;
-    }
-}
 
-@media (max-width: 640px) {
-    .filter-bar {
-        flex-direction: column;
-        align-items: stretch;
-
-        &__search {
-            max-width: none;
-            min-width: 0;
+        @include respond-below($bp-sm) {
+            width: 100%;
+            justify-content: flex-end;
         }
     }
 }

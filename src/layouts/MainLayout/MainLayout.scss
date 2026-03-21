@@ -17,18 +17,58 @@
     &__content {
         flex: 1;
         overflow-y: auto;
+        padding: $space-6;
+
+        @include respond-below($bp-md) {
+            padding: $space-4;
+        }
+
+        @include respond-below($bp-sm) {
+            padding: $space-3;
+        }
     }
 
-    // --- FIX: Collapse state on parent container ---
+    // --- Collapse state ---
     &--collapsed {
         .app-layout__main {
             margin-left: $sidebar-collapsed-width;
         }
     }
+
+    // --- Tablet ---
+    @include respond-below($bp-lg) {
+        &__main {
+            margin-left: $sidebar-collapsed-width;
+        }
+    }
+
+    // --- Mobile ---
+    @include respond-below($bp-md) {
+        &__main {
+            margin-left: 0;
+        }
+    }
 }
 
-@media (max-width: 768px) {
-    .app-layout__main {
-        margin-left: 0 !important;
+// --- Mobile overlay backdrop ---
+.app-layout__overlay {
+    display: none;
+
+    @include respond-below($bp-md) {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: $z-sidebar - 1;
+        animation: overlayFadeIn 200ms ease;
+        cursor: pointer;
+
+        &--visible {
+            display: block;
+        }
     }
+}
+
+@keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

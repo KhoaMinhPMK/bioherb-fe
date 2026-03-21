@@ -3,14 +3,14 @@
 .admin-role-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: $space-4;
+    margin-bottom: $space-6;
 
-    @media (max-width: 900px) {
+    @include respond-below($bp-lg) {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    @media (max-width: 500px) {
+    @include respond-below($bp-sm) {
         grid-template-columns: 1fr;
     }
 }
@@ -18,12 +18,12 @@
 .admin-role-card {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: $space-3;
 
     &__icon {
         width: 40px;
         height: 40px;
-        border-radius: 8px;
+        border-radius: $radius-md;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -31,15 +31,15 @@
     }
 
     &__label {
-        font-size: 13px;
-        color: var(--color-text-secondary);
+        font-size: $font-size-sm;
+        color: $color-text-secondary;
     }
 
     &__count {
-        font-size: 20px;
-        font-weight: 700;
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
         margin: 0;
-        color: var(--color-text);
+        color: $color-text-primary;
     }
 }
 
@@ -49,4 +49,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     display: block;
+
+    @include respond-below($bp-md) {
+        max-width: 140px;
+    }
 }

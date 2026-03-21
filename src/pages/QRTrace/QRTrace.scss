@@ -7,6 +7,10 @@
     display: flex;
     justify-content: center;
 
+    @include respond-below($bp-sm) {
+        padding: $space-4;
+    }
+
     &__container {
         max-width: 480px;
         width: 100%;
@@ -15,6 +19,10 @@
     &__header {
         text-align: center;
         margin-bottom: $space-8;
+
+        @include respond-below($bp-sm) {
+            margin-bottom: $space-6;
+        }
     }
 
     &__logo {
@@ -33,6 +41,10 @@
         font-size: $font-size-xl;
         font-weight: $font-weight-bold;
         color: $color-text-primary;
+
+        @include respond-below($bp-sm) {
+            font-size: $font-size-lg;
+        }
     }
 
     &__subtitle {
@@ -50,6 +62,10 @@
         font-size: $font-size-2xl;
         font-weight: $font-weight-bold;
         color: $color-primary-700;
+
+        @include respond-below($bp-sm) {
+            font-size: $font-size-xl;
+        }
     }
 
     &__lot-code {
@@ -69,6 +85,10 @@
         grid-template-columns: 1fr 1fr;
         gap: $space-3;
         margin-bottom: $space-6;
+
+        @include respond-below($bp-sm) {
+            grid-template-columns: 1fr;
+        }
     }
 
     &__info-item {
@@ -83,6 +103,10 @@
         > div {
             display: flex;
             flex-direction: column;
+        }
+
+        @include respond-below($bp-sm) {
+            padding: $space-3;
         }
     }
 
@@ -123,6 +147,10 @@
             bottom: 8px;
             width: 2px;
             background: $color-primary-200;
+        }
+
+        @include respond-below($bp-sm) {
+            margin-bottom: $space-6;
         }
     }
 

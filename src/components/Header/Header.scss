@@ -13,18 +13,27 @@
     z-index: $z-header;
     gap: $space-4;
 
+    @include respond-below($bp-md) {
+        padding: 0 $space-4;
+        gap: $space-2;
+    }
+
     &__left {
         display: flex;
         align-items: center;
         gap: $space-4;
+
+        @include respond-below($bp-md) {
+            gap: $space-2;
+        }
     }
 
     &__menu-btn {
         display: none;
         align-items: center;
         justify-content: center;
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         border: none;
         background: transparent;
         color: $color-text-secondary;
@@ -37,8 +46,10 @@
             color: $color-text-primary;
         }
 
-        @media (max-width: 768px) {
+        @include respond-below($bp-md) {
             display: flex;
+            min-width: 44px;
+            min-height: 44px;
         }
     }
 
@@ -46,12 +57,20 @@
         font-size: $font-size-lg;
         font-weight: $font-weight-semibold;
         color: $color-text-primary;
+
+        @include respond-below($bp-sm) {
+            font-size: $font-size-md;
+        }
     }
 
     &__right {
         display: flex;
         align-items: center;
         gap: $space-4;
+
+        @include respond-below($bp-md) {
+            gap: $space-2;
+        }
     }
 
     // --- Search ---
@@ -60,7 +79,7 @@
         display: flex;
         align-items: center;
 
-        @media (max-width: 768px) {
+        @include respond-below($bp-md) {
             display: none;
         }
     }
@@ -96,6 +115,14 @@
             background: $color-surface;
             width: 300px;
         }
+
+        @include respond-below($bp-lg) {
+            width: 180px;
+
+            &:focus {
+                width: 220px;
+            }
+        }
     }
 
     // --- Icon Buttons ---
@@ -116,6 +143,11 @@
         &:hover {
             background: $color-surface-hover;
             color: $color-text-primary;
+        }
+
+        @include respond-below($bp-md) {
+            min-width: 44px;
+            min-height: 44px;
         }
     }
 
@@ -143,6 +175,10 @@
         &:hover, &--active {
             background: $color-surface-hover;
         }
+
+        @include respond-below($bp-md) {
+            padding: $space-2;
+        }
     }
 
     &__avatar {
@@ -161,7 +197,7 @@
         display: flex;
         flex-direction: column;
 
-        @media (max-width: 1024px) {
+        @include respond-below($bp-lg) {
             display: none;
         }
     }
@@ -197,11 +233,20 @@
 
         &--notif {
             width: 380px;
+
+            @include respond-below($bp-sm) {
+                width: calc(100vw - #{$space-8});
+                right: -#{$space-4};
+            }
         }
 
         &--profile {
             width: 260px;
             padding-bottom: $space-1;
+
+            @include respond-below($bp-sm) {
+                width: 220px;
+            }
         }
     }
 
@@ -244,6 +289,10 @@
     &__notif-list {
         max-height: 360px;
         overflow-y: auto;
+
+        @include respond-below($bp-sm) {
+            max-height: 50vh;
+        }
     }
 
     &__notif-item {
@@ -296,6 +345,7 @@
 
     &__notif-content {
         flex: 1;
+        min-width: 0;
 
         p {
             margin: 0 0 $space-1 0;
@@ -369,6 +419,7 @@
         text-align: left;
         cursor: pointer;
         transition: all $transition-fast;
+        min-height: 40px;
 
         &:hover {
             background: $color-surface-hover;

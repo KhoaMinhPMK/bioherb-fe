@@ -111,3 +111,17 @@ $z-sidebar: 200;
 $z-header: 300;
 $z-modal: 400;
 $z-toast: 500;
+
+// --- Breakpoints ---
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+
+// --- Responsive Mixins ---
+@mixin respond-below($bp) {
+    @media (max-width: $bp) { @content; }
+}
+
+// --- Mobile Layout ---
+$sidebar-mobile-width: 280px;

@@ -119,8 +119,12 @@ a {
   padding: $space-6;
   max-width: 1400px;
   
-  @media (max-width: 768px) {
+  @include respond-below($bp-md) {
     padding: $space-4;
+  }
+
+  @include respond-below($bp-sm) {
+    padding: $space-3;
   }
 }
 
@@ -170,10 +174,20 @@ a {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    @include respond-below($bp-sm) {
+      padding: $space-3 $space-4;
+      flex-wrap: wrap;
+      gap: $space-2;
+    }
   }
 
   &__body {
     padding: $space-6;
+
+    @include respond-below($bp-sm) {
+      padding: $space-4;
+    }
   }
 
   &__footer {
@@ -183,6 +197,15 @@ a {
     align-items: center;
     justify-content: flex-end;
     gap: $space-3;
+
+    @include respond-below($bp-sm) {
+      padding: $space-3 $space-4;
+      flex-direction: column-reverse;
+
+      button {
+        width: 100%;
+      }
+    }
   }
 }
 
@@ -289,6 +312,11 @@ a {
   border: 1px solid transparent;
   white-space: nowrap;
 
+  // Touch-friendly on mobile
+  @include respond-below($bp-md) {
+    min-height: 44px;
+  }
+
   &--primary {
     background: linear-gradient(135deg, $color-primary-600, $color-primary-700);
     color: white;
@@ -354,6 +382,11 @@ a {
     background: #fef2f2;
     color: $color-destructive;
   }
+
+  @include respond-below($bp-md) {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 // --- Filter Bar ---
@@ -405,6 +438,11 @@ a {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: $space-4;
+
+  @include respond-below($bp-sm) {
+    grid-template-columns: 1fr;
+    gap: $space-3;
+  }
 }
 
 .form-group {
@@ -464,6 +502,11 @@ a {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: $space-5;
+
+  @include respond-below($bp-sm) {
+    grid-template-columns: 1fr;
+    gap: $space-4;
+  }
 }
 
 .farm-card {
@@ -599,3 +642,45 @@ a {
   color: $color-text-secondary;
 }
 
+// ============================================
+// RESPONSIVE UTILITY CLASSES
+// ============================================
+
+// Hide/Show on mobile
+@include respond-below($bp-md) {
+  .hide-mobile { display: none !important; }
+}
+
+@media (min-width: #{$bp-md + 1}) {
+  .show-mobile-only { display: none !important; }
+}
+
+// Hide/Show on tablet
+@include respond-below($bp-lg) {
+  .hide-tablet { display: none !important; }
+}
+
+// Prevent horizontal scroll on body
+html, body {
+  overflow-x: hidden;
+}
+
+// Touch optimization
+@include respond-below($bp-md) {
+  input, select, textarea, button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  // Prevent iOS zoom on input focus
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
