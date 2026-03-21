@@ -214,12 +214,21 @@
         color: $color-text-muted;
     }
 
-    // --- Dropdown Overlays ---
+    // --- Dropdown Wrappers ---
     &__icon-wrapper,
     &__user-wrapper {
         position: relative;
     }
 
+    // --- Mobile dropdown overlay ---
+    &__dropdown-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: $z-dropdown - 1;
+    }
+
+    // --- Dropdown ---
     &__dropdown {
         position: absolute;
         top: calc(100% + #{$space-2});
@@ -231,12 +240,24 @@
         z-index: $z-dropdown;
         animation: dropdownFadeIn 0.2s ease-out;
 
+        // MOBILE: fixed position bottom-sheet style
+        @include respond-below($bp-md) {
+            position: fixed;
+            top: auto;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-radius: $radius-xl $radius-xl 0 0;
+            animation: dropdownSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
         &--notif {
             width: 380px;
 
-            @include respond-below($bp-sm) {
-                width: calc(100vw - #{$space-8});
-                right: -#{$space-4};
+            @include respond-below($bp-md) {
+                width: 100%;
             }
         }
 
@@ -244,12 +265,13 @@
             width: 260px;
             padding-bottom: $space-1;
 
-            @include respond-below($bp-sm) {
-                width: 220px;
+            @include respond-below($bp-md) {
+                width: 100%;
             }
         }
     }
 
+    // --- Dropdown Header ---
     &__dropdown-header,
     &__profile-header {
         display: flex;
@@ -260,12 +282,23 @@
         background: $color-neutral-50;
         border-radius: $radius-lg $radius-lg 0 0;
 
+        @include respond-below($bp-md) {
+            border-radius: $radius-xl $radius-xl 0 0;
+            padding: $space-4;
+        }
+
         h3 {
             font-size: $font-size-base;
             font-weight: $font-weight-semibold;
             margin: 0;
             color: $color-text-primary;
         }
+    }
+
+    &__dropdown-header-actions {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
     }
 
     &__profile-header {
@@ -280,17 +313,37 @@
         border: none;
         cursor: pointer;
         padding: 0;
-        
+
         &:hover {
             text-decoration: underline;
         }
     }
 
+    // --- Mobile close button inside dropdown ---
+    &__dropdown-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: transparent;
+        color: $color-text-secondary;
+        border-radius: $radius-md;
+        cursor: pointer;
+
+        &:hover {
+            background: $color-surface-hover;
+            color: $color-text-primary;
+        }
+    }
+
+    // --- Notification List ---
     &__notif-list {
         max-height: 360px;
         overflow-y: auto;
 
-        @include respond-below($bp-sm) {
+        @include respond-below($bp-md) {
             max-height: 50vh;
         }
     }
@@ -313,10 +366,14 @@
 
         &--unread {
             background: rgba($color-brand-primary, 0.04);
-            
+
             &:hover {
                 background: rgba($color-brand-primary, 0.08);
             }
+        }
+
+        @include respond-below($bp-md) {
+            padding: $space-4;
         }
     }
 
@@ -367,6 +424,12 @@
         background: $color-neutral-50;
         border-radius: 0 0 $radius-lg $radius-lg;
 
+        @include respond-below($bp-md) {
+            padding: $space-3 $space-4;
+            // Safe area for bottom-sheet
+            padding-bottom: calc(#{$space-3} + env(safe-area-inset-bottom, 0px));
+        }
+
         button {
             background: none;
             border: none;
@@ -375,7 +438,8 @@
             font-weight: $font-weight-medium;
             cursor: pointer;
             padding: $space-1;
-            
+            min-height: 44px;
+
             &:hover {
                 text-decoration: underline;
             }
@@ -385,6 +449,7 @@
     &__profile-info {
         display: flex;
         flex-direction: column;
+        flex: 1;
     }
 
     &__profile-name {
@@ -419,7 +484,7 @@
         text-align: left;
         cursor: pointer;
         transition: all $transition-fast;
-        min-height: 40px;
+        min-height: 44px;
 
         &:hover {
             background: $color-surface-hover;
@@ -428,11 +493,15 @@
 
         &--danger {
             color: $color-error;
-            
+
             &:hover {
                 background: rgba($color-error, 0.04);
                 color: $color-error;
             }
+        }
+
+        @include respond-below($bp-md) {
+            padding: $space-3 $space-4;
         }
     }
 }
@@ -441,6 +510,17 @@
     from {
         opacity: 0;
         transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes dropdownSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
     }
     to {
         opacity: 1;

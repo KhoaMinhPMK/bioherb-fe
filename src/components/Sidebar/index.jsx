@@ -1,8 +1,13 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, MapPin, Sprout, CalendarDays, BookOpen, Package, Users, Bug, Wheat, QrCode, BarChart3, Shield, ChevronLeft, ChevronRight, Building2, } from 'lucide-react';
+import {
+    LayoutDashboard, MapPin, Sprout, CalendarDays, BookOpen,
+    Package, Users, Bug, Wheat, QrCode, BarChart3, Shield,
+    ChevronLeft, ChevronRight, Building2, X,
+} from 'lucide-react';
 import logo from '../../assets/images/logo.svg';
 import './Sidebar.scss';
+
 const menuItems = [
     {
         group: 'Tổng quan',
@@ -48,41 +53,94 @@ const menuItems = [
         ],
     },
 ];
-const Sidebar = ({ collapsed, onToggle }) => {
+
+const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
     const location = useLocation();
     const navigate = useNavigate();
+
     const isActive = (path) => {
-        if (path === '/')
-            return location.pathname === '/' || location.pathname === '/dashboard';
+        if (path === '/') return location.pathname === '/' || location.pathname === '/dashboard';
         return location.pathname.startsWith(path);
     };
-    return (<aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`} role="navigation" aria-label="Sidebar navigation">
+
+    const handleNavigation = (path) => {
+        navigate(path);
+        // Auto-close sidebar on mobile after navigation
+        if (onMobileClose) {
+            onMobileClose();
+        }
+    };
+
+    // Build class names
+    const sidebarClasses = [
+        'sidebar',
+        collapsed ? 'sidebar--collapsed' : '',
+        mobileOpen ? 'sidebar--open' : '',
+    ].filter(Boolean).join(' ');
+
+    return (
+        <aside className={sidebarClasses} role="navigation" aria-label="Sidebar navigation">
             <div className="sidebar__logo">
-                <img src={logo} alt="SANKIT logo" className="sidebar__logo-img"/>
-                {!collapsed && (<div className="sidebar__logo-text">
+                <img src={logo} alt="SANKIT logo" className="sidebar__logo-img" />
+                {!collapsed && (
+                    <div className="sidebar__logo-text">
                         <span className="sidebar__logo-name">SANKIT</span>
                         <span className="sidebar__logo-version">v1.0</span>
-                    </div>)}
+                    </div>
+                )}
+                {/* Mobile close button */}
+                <button
+                    className="sidebar__close-btn"
+                    onClick={onMobileClose}
+                    aria-label="Đóng menu"
+                >
+                    <X size={20} aria-hidden="true" />
+                </button>
             </div>
 
             <nav className="sidebar__nav" aria-label="Main navigation">
-                {menuItems.map((group, gi) => (<div key={gi} className="sidebar__group" role="group" aria-label={group.group}>
-                        {!collapsed && (<div className="sidebar__group-label">{group.group}</div>)}
+                {menuItems.map((group, gi) => (
+                    <div key={gi} className="sidebar__group" role="group" aria-label={group.group}>
+                        {!collapsed && (
+                            <div className="sidebar__group-label">{group.group}</div>
+                        )}
                         {group.items.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.path);
-                return (<button key={item.path} className={`sidebar__item ${active ? 'sidebar__item--active' : ''}`} onClick={() => navigate(item.path)} title={collapsed ? item.label : undefined} aria-label={item.label} aria-current={active ? 'page' : undefined}>
-                                    <Icon size={20} className="sidebar__item-icon" aria-hidden="true"/>
-                                    {!collapsed && (<span className="sidebar__item-label">{item.label}</span>)}
-                                    {active && <div className="sidebar__item-indicator"/>}
-                                </button>);
-            })}
-                    </div>))}
+                            const Icon = item.icon;
+                            const active = isActive(item.path);
+                            return (
+                                <button
+                                    key={item.path}
+                                    className={`sidebar__item ${active ? 'sidebar__item--active' : ''}`}
+                                    onClick={() => handleNavigation(item.path)}
+                                    title={collapsed ? item.label : undefined}
+                                    aria-label={item.label}
+                                    aria-current={active ? 'page' : undefined}
+                                >
+                                    <Icon size={20} className="sidebar__item-icon" aria-hidden="true" />
+                                    {!collapsed && (
+                                        <span className="sidebar__item-label">{item.label}</span>
+                                    )}
+                                    {active && <div className="sidebar__item-indicator" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+                ))}
             </nav>
 
-            <button className="sidebar__toggle" onClick={onToggle} aria-label={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}>
-                {collapsed ? <ChevronRight size={18} aria-hidden="true"/> : <ChevronLeft size={18} aria-hidden="true"/>}
+            {/* Desktop collapse toggle (hidden on mobile via CSS) */}
+            <button
+                className="sidebar__toggle"
+                onClick={onToggle}
+                aria-label={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+            >
+                {collapsed
+                    ? <ChevronRight size={18} aria-hidden="true" />
+                    : <ChevronLeft size={18} aria-hidden="true" />
+                }
             </button>
-        </aside>);
+        </aside>
+    );
 };
+
 export default Sidebar;
