@@ -1,57 +1,63 @@
 @use '../../assets/scss/var' as *;
 
 .timesheet {
+
+    // --- Header / Day Navigator ---
     &__header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: $space-4;
-        padding: $space-4 0;
-
-        @include respond-below($bp-sm) {
-            gap: $space-3;
-        }
+        justify-content: space-between;
+        padding: $space-3 0;
+        margin-bottom: $space-4;
     }
 
     &__nav-btn {
         padding: $space-2;
-        border-radius: $radius-md;
-
-        @include respond-below($bp-md) {
-            min-width: 44px;
-            min-height: 44px;
-        }
+        min-width: 36px;
+        min-height: 36px;
     }
 
     &__week-label {
-        display: flex;
-        align-items: center;
-        gap: $space-3;
-        font-size: $font-size-base;
-        font-weight: $font-weight-semibold;
-        color: $color-text-primary;
-
-        @include respond-below($bp-sm) {
-            font-size: $font-size-sm;
-            gap: $space-2;
-        }
+        text-align: center;
     }
 
+    &__date-main {
+        display: block;
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+        color: $color-text-primary;
+    }
+
+    &__date-sub {
+        font-size: $font-size-sm;
+        color: $color-text-secondary;
+    }
+
+    &__exception-count {
+        color: $color-warning;
+        font-weight: $font-weight-semibold;
+    }
+
+    &__pending-count {
+        color: $color-error;
+        font-weight: $font-weight-semibold;
+    }
+
+    // --- Scrollable Table ---
     &__scroll {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        border: 1px solid $color-border;
         border-radius: $radius-lg;
+        border: 1px solid $color-border;
     }
 
     &__table {
         width: 100%;
-        min-width: 700px;
         border-collapse: collapse;
-        font-size: $font-size-base;
+        min-width: 520px;
 
         th, td {
-            padding: $space-3;
+            padding: $space-3 $space-4;
             text-align: center;
             border-bottom: 1px solid $color-border;
         }
@@ -61,134 +67,153 @@
             font-size: $font-size-xs;
             font-weight: $font-weight-semibold;
             text-transform: uppercase;
-            letter-spacing: 0.03em;
+            letter-spacing: 0.5px;
             color: $color-text-secondary;
         }
     }
 
-    &__task-col {
-        text-align: left;
-        min-width: 160px;
+    &__name-col {
+        text-align: left !important;
+        min-width: 140px;
     }
 
-    &__day-col {
-        width: 80px;
-    }
-
-    &__day-name {
-        font-weight: $font-weight-bold;
-        color: $color-text-primary;
-    }
-
-    &__day-date {
-        font-size: 11px;
-        color: $color-text-secondary;
-        font-weight: $font-weight-normal;
-    }
-
-    &__total-col {
+    &__shift-col {
         width: 70px;
-        background: $color-primary-50;
     }
 
-    &__task-name {
-        text-align: left;
+    &__status-col {
+        width: 100px;
+    }
+
+    &__action-col {
+        width: 100px;
+    }
+
+    // --- Cells ---
+    &__name-cell {
+        text-align: left !important;
         font-weight: $font-weight-medium;
-        color: $color-text-primary;
     }
 
-    &__cell {
-        color: $color-text-secondary;
-        font-variant-numeric: tabular-nums;
-
-        &--filled {
-            color: $color-text-primary;
-            font-weight: $font-weight-semibold;
-            background: $color-primary-50;
-        }
-    }
-
-    &__row-total {
-        font-weight: $font-weight-bold;
-        color: $color-brand-primary;
-        background: $color-primary-50;
-    }
-
-    &__empty {
-        padding: $space-10 0;
-        color: $color-text-secondary;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: $space-2;
-        font-size: $font-size-base;
-    }
-
-    &__footer-row {
-        td {
-            border-top: 2px solid $color-border;
-            border-bottom: none;
-            background: $color-neutral-50;
-            font-weight: $font-weight-semibold;
-        }
-    }
-
-    &__footer-label {
-        text-align: left;
-        font-size: $font-size-xs;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        color: $color-text-secondary;
-    }
-
-    &__footer-cell {
-        color: $color-text-secondary;
-        font-variant-numeric: tabular-nums;
-
-        &--has {
-            color: $color-text-primary;
-        }
-    }
-
-    &__grand-total {
-        font-weight: $font-weight-bold;
-        font-size: $font-size-base;
-        color: $color-brand-primary;
-        background: $color-primary-50;
-    }
-
-    &__actions {
-        display: flex;
-        justify-content: flex-end;
-        padding: $space-4 0 0;
-
-        @include respond-below($bp-sm) {
-            flex-direction: column;
-
-            button {
-                width: 100%;
+    &__shift-cell {
+        &--checked {
+            .timesheet__check-icon {
+                color: $color-success;
             }
         }
+
+        &--empty {
+            color: $color-text-muted;
+        }
     }
 
-    &__status-msg {
+    &__dash {
+        font-size: $font-size-sm;
+        color: $color-text-muted;
+    }
+
+    // --- Exception row highlight ---
+    &__row--exception {
+        background: rgba($color-warning, 0.05);
+    }
+
+    // --- Approval actions ---
+    &__approval-actions {
         display: flex;
-        align-items: center;
-        gap: $space-2;
+        gap: $space-1;
+        justify-content: center;
+    }
+
+    &__approved-tag {
+        font-size: $font-size-xs;
+        color: $color-success;
+        font-weight: $font-weight-semibold;
+    }
+
+    &__rejected-tag {
+        font-size: $font-size-xs;
+        color: $color-error;
+        font-weight: $font-weight-semibold;
+    }
+
+    &__no-action {
+        color: $color-text-muted;
+    }
+
+    // --- Empty state ---
+    &__empty {
+        text-align: center;
+        padding: $space-8 !important;
+        color: $color-text-muted;
+
+        svg {
+            margin-bottom: $space-2;
+            opacity: 0.5;
+        }
+
+        span {
+            display: block;
+            font-size: $font-size-sm;
+        }
+    }
+
+    // --- Exception detail cards ---
+    &__exception-card {
+        display: flex;
+        align-items: flex-start;
+        gap: $space-3;
         padding: $space-3 $space-4;
+        margin-top: $space-3;
+        background: rgba($color-warning, 0.08);
+        border: 1px solid rgba($color-warning, 0.2);
         border-radius: $radius-md;
-        font-size: $font-size-base;
-        font-weight: $font-weight-medium;
-        margin-top: $space-4;
+    }
 
-        &--submitted {
-            background: #fef3c7;
-            color: #92400e;
-        }
+    &__exception-icon {
+        flex-shrink: 0;
+        color: $color-warning;
+        margin-top: 2px;
+    }
 
-        &--approved {
-            background: #dcfce7;
-            color: #166534;
+    &__exception-info {
+        font-size: $font-size-sm;
+        color: $color-text-primary;
+
+        strong {
+            font-weight: $font-weight-semibold;
         }
+    }
+
+    &__exception-pending {
+        color: $color-error;
+        font-weight: $font-weight-semibold;
+    }
+
+    &__exception-approved {
+        color: $color-success;
+        font-weight: $font-weight-semibold;
+    }
+}
+
+// --- Button variants for approval ---
+.btn--success {
+    background: $color-success;
+    color: white;
+    border: none;
+    border-radius: $radius-sm;
+
+    &:hover {
+        background: darken($color-success, 8%);
+    }
+}
+
+.btn--danger {
+    background: $color-error;
+    color: white;
+    border: none;
+    border-radius: $radius-sm;
+
+    &:hover {
+        background: darken($color-error, 8%);
     }
 }

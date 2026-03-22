@@ -104,13 +104,27 @@ export const taskLogs = [
 // =============================================
 // ATTENDANCE (CHẤM CÔNG) — Theo buổi
 // =============================================
+// status: full (đủ công) | partial (thiếu công) | exception (rời sớm có lý do)
 export const attendance = [
-    { id: 'CC01', date: '21/03/2026', workerId: 'U04', workerName: 'Nguyễn An', morning: true, afternoon: true, evening: false, status: 'full', exception: null },
-    { id: 'CC02', date: '21/03/2026', workerId: 'U05', workerName: 'Trần Văn Tài', morning: true, afternoon: false, evening: false, status: 'early_leave', exception: { reason: 'Con ốm phải đưa đi bệnh viện', approved: true, approvedBy: 'U06' } },
-    { id: 'CC03', date: '21/03/2026', workerId: 'U07', workerName: 'Nguyễn Văn Phương', morning: true, afternoon: true, evening: false, status: 'full', exception: null },
-    { id: 'CC04', date: '20/03/2026', workerId: 'U04', workerName: 'Nguyễn An', morning: true, afternoon: true, evening: false, status: 'full', exception: null },
-    { id: 'CC05', date: '20/03/2026', workerId: 'U05', workerName: 'Trần Văn Tài', morning: true, afternoon: true, evening: false, status: 'full', exception: null },
+    // 22/03/2026
+    { id: 'ATT01', date: '22/03/2026', userId: 'U04', userName: 'Nguyễn An', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: false }, status: 'full', exception: null },
+    { id: 'ATT02', date: '22/03/2026', userId: 'U05', userName: 'Trần Văn Tài', farmId: 'F01', shifts: { morning: true, afternoon: false, evening: false }, status: 'exception', exception: { type: 'early_leave', reason: 'Con ốm phải đưa đi khám', approved: null } },
+    { id: 'ATT03', date: '22/03/2026', userId: 'U06', userName: 'Lê Thị Cúc', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: true }, status: 'full', exception: null },
+    // 21/03/2026
+    { id: 'ATT04', date: '21/03/2026', userId: 'U04', userName: 'Nguyễn An', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: false }, status: 'full', exception: null },
+    { id: 'ATT05', date: '21/03/2026', userId: 'U05', userName: 'Trần Văn Tài', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: false }, status: 'full', exception: null },
+    { id: 'ATT06', date: '21/03/2026', userId: 'U06', userName: 'Lê Thị Cúc', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: false }, status: 'full', exception: null },
+    // 20/03/2026
+    { id: 'ATT07', date: '20/03/2026', userId: 'U04', userName: 'Nguyễn An', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: false }, status: 'full', exception: null },
+    { id: 'ATT08', date: '20/03/2026', userId: 'U05', userName: 'Trần Văn Tài', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: false }, status: 'full', exception: null },
+    { id: 'ATT09', date: '20/03/2026', userId: 'U06', userName: 'Lê Thị Cúc', farmId: 'F01', shifts: { morning: false, afternoon: true, evening: true }, status: 'exception', exception: { type: 'early_leave', reason: 'Phải về sớm do mưa lớn', approved: true } },
+    // 19/03/2026
+    { id: 'ATT10', date: '19/03/2026', userId: 'U04', userName: 'Nguyễn An', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: false }, status: 'full', exception: null },
+    { id: 'ATT11', date: '19/03/2026', userId: 'U05', userName: 'Trần Văn Tài', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: false }, status: 'full', exception: null },
+    { id: 'ATT12', date: '19/03/2026', userId: 'U06', userName: 'Lê Thị Cúc', farmId: 'F01', shifts: { morning: true, afternoon: true, evening: false }, status: 'full', exception: null },
 ];
+
+export const getAttendanceByFarm = (farmId) => attendance.filter((a) => a.farmId === farmId);
 
 // =============================================
 // PEST INCIDENTS (SÂU BỆNH)
