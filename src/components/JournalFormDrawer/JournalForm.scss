@@ -1,0 +1,139 @@
+@use '../../assets/scss/var' as *;
+
+// --- Overlay ---
+.journal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: $z-modal - 1;
+    animation: fadeIn 200ms ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+// --- Drawer ---
+.journal-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 480px;
+    max-width: 100vw;
+    height: 100vh;
+    background: $color-surface;
+    z-index: $z-modal;
+    display: flex;
+    flex-direction: column;
+    box-shadow: $shadow-xl;
+    animation: slideIn 250ms ease;
+
+    @include respond-below($bp-sm) {
+        width: 100vw;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: $space-4 $space-5;
+        border-bottom: 1px solid $color-border;
+        flex-shrink: 0;
+    }
+
+    &__title {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+        margin: 0;
+    }
+
+    &__close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: none;
+        color: $color-text-secondary;
+        cursor: pointer;
+        border-radius: $radius-md;
+
+        &:hover {
+            background: $color-surface-hover;
+            color: $color-text-primary;
+        }
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    &__content {
+        flex: 1;
+        overflow-y: auto;
+        padding: $space-5;
+        display: flex;
+        flex-direction: column;
+        gap: $space-4;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: $space-3;
+        padding: $space-4 $space-5;
+        border-top: 1px solid $color-border;
+        flex-shrink: 0;
+        background: $color-surface;
+    }
+}
+
+// --- Form section divider ---
+.journal-section {
+    &__title {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        color: $color-text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: $space-2 0 0;
+        padding-bottom: $space-2;
+        border-bottom: 1px solid $color-border;
+    }
+}
+
+// --- Form grid ---
+.journal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-4;
+
+    @include respond-below($bp-sm) {
+        grid-template-columns: 1fr;
+    }
+
+    &--full {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Spinner for submit button
+.spin {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

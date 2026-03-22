@@ -1,0 +1,104 @@
+@use '../../assets/scss/var' as *;
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+
+    &__label {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $color-text-primary;
+        display: flex;
+        align-items: center;
+        gap: $space-1;
+    }
+
+    &__required {
+        color: $color-error;
+        font-weight: $font-weight-bold;
+    }
+
+    &__input {
+        height: $input-height;
+        padding: 0 $space-3;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        font-family: $font-family;
+        font-size: $font-size-base;
+        color: $color-text-primary;
+        background: $color-surface;
+        outline: none;
+        transition: border-color $transition-fast, box-shadow $transition-fast;
+        // Prevent iOS zoom
+        @include respond-below($bp-sm) {
+            font-size: 16px;
+        }
+
+        &::placeholder {
+            color: $color-text-muted;
+        }
+
+        &:focus {
+            border-color: $color-brand-primary;
+            box-shadow: 0 0 0 3px rgba($color-brand-primary, 0.12);
+        }
+
+        &:disabled {
+            background: $color-neutral-100;
+            cursor: not-allowed;
+        }
+
+        &--textarea {
+            height: auto;
+            padding: $space-3;
+            resize: vertical;
+            min-height: 80px;
+        }
+    }
+
+    &__hint {
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+    }
+
+    &__error {
+        font-size: $font-size-xs;
+        color: $color-error;
+        font-weight: $font-weight-medium;
+    }
+
+    &--error .form-field__input {
+        border-color: $color-error;
+        &:focus {
+            box-shadow: 0 0 0 3px rgba($color-error, 0.12);
+        }
+    }
+
+    // Auto-computed value display
+    &__auto {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        padding: 0 $space-3;
+        height: $input-height;
+        background: $color-neutral-50;
+        border: 1px dashed $color-border;
+        border-radius: $radius-md;
+    }
+
+    &__auto-value {
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: $color-brand-primary;
+    }
+
+    &__auto-tag {
+        font-size: 11px;
+        padding: 1px $space-2;
+        background: rgba($color-brand-primary, 0.1);
+        color: $color-brand-primary;
+        border-radius: $radius-sm;
+        font-weight: $font-weight-semibold;
+    }
+}

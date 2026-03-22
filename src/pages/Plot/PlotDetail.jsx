@@ -11,6 +11,10 @@ import StatusBadge from '../../components/StatusBadge';
 import TabNav from '../../components/TabNav';
 import { useToast } from '../../contexts/ToastContext';
 import {
+    SeedJournalForm, FertilizerJournalForm, PestJournalForm,
+    FarmingJournalForm, HarvestJournalForm, ProcessingJournalForm,
+} from '../Journal/JournalForms';
+import {
     plots, farms, getCyclesByPlot, getLogsByPlot, getPestByPlot,
     harvestBatches, cropCycles,
 } from '../../data/mockData';
@@ -89,6 +93,7 @@ const PlotDetail = () => {
     const navigate = useNavigate();
     const { addToast } = useToast();
     const [activeTab, setActiveTab] = useState('overview');
+    const [openForm, setOpenForm] = useState(null); // 'seed' | 'fertilizer' | etc.
 
     // Find plot data
     const plot = useMemo(() => plots.find((p) => p.id === id), [id]);
@@ -131,12 +136,22 @@ const PlotDetail = () => {
         );
     }
 
-    const renderEmptyState = (label) => (
+    const renderAddButton = (formKey, label) => (
+        <button
+            className="btn btn--primary btn--sm"
+            onClick={() => setOpenForm(formKey)}
+            style={{ marginBottom: '12px' }}
+        >
+            <Plus size={14} /> Thêm {label}
+        </button>
+    );
+
+    const renderEmptyState = (formKey, label) => (
         <div className="plot-detail__empty">
             <p>Chưa có dữ liệu {label}.</p>
             <button
                 className="btn btn--outline btn--sm"
-                onClick={() => addToast(`Thêm ${label} đang phát triển`, 'info')}
+                onClick={() => setOpenForm(formKey)}
             >
                 <Plus size={14} /> Thêm {label}
             </button>
@@ -193,32 +208,62 @@ const PlotDetail = () => {
                 );
 
             case 'seed':
-                return seedLogs.length > 0
-                    ? <div className="card"><DataTable columns={journalColumns} data={seedLogs} pageSize={10} /></div>
-                    : renderEmptyState('nhật ký giống');
+                return (
+                    <>
+                        {renderAddButton('seed', 'nhật ký giống')}
+                        {seedLogs.length > 0
+                            ? <div className="card"><DataTable columns={journalColumns} data={seedLogs} pageSize={10} /></div>
+                            : renderEmptyState('seed', 'nhật ký giống')}
+                    </>
+                );
 
             case 'fertilizer':
-                return fertilizerLogs.length > 0
-                    ? <div className="card"><DataTable columns={journalColumns} data={fertilizerLogs} pageSize={10} /></div>
-                    : renderEmptyState('nhật ký phân bón');
+                return (
+                    <>
+                        {renderAddButton('fertilizer', 'nhật ký phân bón')}
+                        {fertilizerLogs.length > 0
+                            ? <div className="card"><DataTable columns={journalColumns} data={fertilizerLogs} pageSize={10} /></div>
+                            : renderEmptyState('fertilizer', 'nhật ký phân bón')}
+                    </>
+                );
 
             case 'pest':
-                return pests.length > 0
-                    ? <div className="card"><DataTable columns={pestColumns} data={pests} pageSize={10} /></div>
-                    : renderEmptyState('nhật ký sâu bệnh');
+                return (
+                    <>
+                        {renderAddButton('pest', 'nhật ký sâu bệnh')}
+                        {pests.length > 0
+                            ? <div className="card"><DataTable columns={pestColumns} data={pests} pageSize={10} /></div>
+                            : renderEmptyState('pest', 'nhật ký sâu bệnh')}
+                    </>
+                );
 
             case 'farming':
-                return farmingLogs.length > 0
-                    ? <div className="card"><DataTable columns={journalColumns} data={farmingLogs} pageSize={10} /></div>
-                    : renderEmptyState('nhật ký canh tác');
+                return (
+                    <>
+                        {renderAddButton('farming', 'nhật ký canh tác')}
+                        {farmingLogs.length > 0
+                            ? <div className="card"><DataTable columns={journalColumns} data={farmingLogs} pageSize={10} /></div>
+                            : renderEmptyState('farming', 'nhật ký canh tác')}
+                    </>
+                );
 
             case 'harvest':
-                return harvests.length > 0
-                    ? <div className="card"><DataTable columns={harvestColumns} data={harvests} pageSize={10} /></div>
-                    : renderEmptyState('nhật ký thu hoạch');
+                return (
+                    <>
+                        {renderAddButton('harvest', 'nhật ký thu hoạch')}
+                        {harvests.length > 0
+                            ? <div className="card"><DataTable columns={harvestColumns} data={harvests} pageSize={10} /></div>
+                            : renderEmptyState('harvest', 'nhật ký thu hoạch')}
+                    </>
+                );
 
             case 'processing':
-                return renderEmptyState('nhật ký sơ chế');
+                return (
+                    <>
+                        {renderAddButton('processing', 'nhật ký sơ chế')}
+                        {renderEmptyState('processing', 'nhật ký sơ chế')}
+                    </>
+                );
 
             default:
                 return null;
@@ -260,6 +305,14 @@ const PlotDetail = () => {
             <div className="plot-detail__content" role="tabpanel" id={`tabpanel-${activeTab}`}>
                 {renderTabContent()}
             </div>
+
+            {/* Journal Form Drawers */}
+            <SeedJournalForm isOpen={openForm === 'seed'} onClose={() => setOpenForm(null)} plotId={id} />
+            <FertilizerJournalForm isOpen={openForm === 'fertilizer'} onClose={() => setOpenForm(null)} plotId={id} />
+            <PestJournalForm isOpen={openForm === 'pest'} onClose={() => setOpenForm(null)} plotId={id} />
+            <FarmingJournalForm isOpen={openForm === 'farming'} onClose={() => setOpenForm(null)} plotId={id} />
+            <HarvestJournalForm isOpen={openForm === 'harvest'} onClose={() => setOpenForm(null)} plotId={id} />
+            <ProcessingJournalForm isOpen={openForm === 'processing'} onClose={() => setOpenForm(null)} plotId={id} />
         </div>
     );
 };
