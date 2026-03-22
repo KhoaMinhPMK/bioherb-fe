@@ -1,0 +1,102 @@
+@use '../../assets/scss/var' as *;
+
+.plot-detail {
+
+    // --- Info grid (Overview tab) ---
+    &__info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: $space-4 $space-6;
+        padding: $space-5;
+
+        @include respond-below($bp-sm) {
+            grid-template-columns: 1fr 1fr;
+            padding: $space-4;
+            gap: $space-3;
+        }
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: $space-1;
+
+        label {
+            font-size: $font-size-sm;
+            color: $color-text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: $font-weight-medium;
+            display: flex;
+            align-items: center;
+            gap: $space-1;
+        }
+    }
+
+    &__value {
+        font-size: $font-size-md;
+        font-weight: $font-weight-semibold;
+        color: $color-brand-primary;
+    }
+
+    // --- Section title ---
+    &__section-title {
+        font-size: $font-size-md;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+        margin: $space-6 0 $space-3;
+    }
+
+    // --- Tab content area ---
+    &__content {
+        min-height: 200px;
+    }
+
+    // --- Shift badge ---
+    &__shift {
+        display: inline-block;
+        padding: 2px $space-2;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        background: $color-neutral-100;
+        border-radius: $radius-sm;
+        color: $color-text-secondary;
+    }
+
+    // --- Isolation badge ---
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-1;
+        padding: 2px $space-2;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        border-radius: $radius-sm;
+
+        &--ok {
+            background: #f0fdf4;
+            color: $color-success;
+        }
+
+        &--warn {
+            background: #fffbeb;
+            color: $color-warning;
+        }
+    }
+
+    // --- Empty state ---
+    &__empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: $space-12 $space-4;
+        text-align: center;
+        color: $color-text-muted;
+
+        p {
+            margin: 0 0 $space-4;
+            font-size: $font-size-base;
+        }
+    }
+}

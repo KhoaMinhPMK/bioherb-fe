@@ -1,0 +1,87 @@
+@use '../../assets/scss/var' as *;
+
+.tab-nav {
+    margin-bottom: $space-4;
+    border-bottom: 1px solid $color-border;
+    overflow: hidden;
+
+    &__track {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 0;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    &__item {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-2;
+        padding: $space-3 $space-4;
+        border: none;
+        background: none;
+        font-family: $font-family;
+        font-size: $font-size-base;
+        font-weight: $font-weight-medium;
+        color: $color-text-secondary;
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+        border-bottom: 2px solid transparent;
+        transition: color $transition-fast, border-color $transition-fast;
+        // Touch-friendly
+        min-height: 44px;
+
+        &:hover {
+            color: $color-text-primary;
+            background: $color-surface-hover;
+        }
+
+        &--active {
+            color: $color-brand-primary;
+            border-bottom-color: $color-brand-primary;
+            font-weight: $font-weight-semibold;
+        }
+    }
+
+    &__icon {
+        flex-shrink: 0;
+    }
+
+    &__label {
+        // Hidden on very small mobile; show icon only  
+    }
+
+    &__count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 $space-1;
+        background: $color-neutral-200;
+        color: $color-text-secondary;
+        font-size: 11px;
+        font-weight: $font-weight-bold;
+        border-radius: $radius-full;
+
+        .tab-nav__item--active & {
+            background: rgba($color-brand-primary, 0.12);
+            color: $color-brand-primary;
+        }
+    }
+}
+
+// Mobile: show icons only on very small screens, label stays
+@include respond-below($bp-sm) {
+    .tab-nav {
+        &__item {
+            padding: $space-2 $space-3;
+            font-size: $font-size-sm;
+        }
+    }
+}
