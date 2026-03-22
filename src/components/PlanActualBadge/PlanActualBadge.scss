@@ -1,0 +1,37 @@
+@use '../../assets/scss/var' as *;
+
+.plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: $radius-full;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    white-space: nowrap;
+    line-height: 1.4;
+
+    svg {
+        flex-shrink: 0;
+    }
+
+    &--planned {
+        background: rgba($color-success, 0.1);
+        color: $color-success;
+    }
+
+    &--unplanned {
+        background: rgba($color-warning, 0.12);
+        color: darken($color-warning, 10%);
+    }
+
+    &--deviation-minor {
+        background: rgba($color-warning, 0.12);
+        color: darken($color-warning, 15%);
+    }
+
+    &--deviation-major {
+        background: rgba($color-error, 0.1);
+        color: $color-error;
+    }
+}
