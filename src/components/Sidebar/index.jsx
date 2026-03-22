@@ -5,9 +5,14 @@ import {
     Package, Users, Bug, Wheat, QrCode, BarChart3, Shield,
     ChevronLeft, ChevronRight, Building2, X,
 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import logo from '../../assets/images/logo.svg';
 import './Sidebar.scss';
 
+/**
+ * Menu items with role-based visibility.
+ * `roles`: array of roles that can see this item. If omitted, all roles can see it.
+ */
 const menuItems = [
     {
         group: 'Tổng quan',
@@ -18,7 +23,7 @@ const menuItems = [
     {
         group: 'Quản lý Farm',
         items: [
-            { path: '/farms', icon: Building2, label: 'Farm' },
+            { path: '/farms', icon: Building2, label: 'Farm', roles: ['admin', 'htx_manager', 'farm_manager'] },
             { path: '/plots', icon: MapPin, label: 'Vùng trồng' },
             { path: '/crop-cycles', icon: Sprout, label: 'Mùa vụ' },
         ],
@@ -32,6 +37,7 @@ const menuItems = [
     },
     {
         group: 'Danh mục',
+        roles: ['admin', 'htx_manager', 'farm_manager', 'approver'],
         items: [
             { path: '/input-items', icon: Package, label: 'Vật tư' },
             { path: '/resources', icon: Users, label: 'Nhân công & Thiết bị' },
@@ -47,9 +53,10 @@ const menuItems = [
     },
     {
         group: 'Hệ thống',
+        roles: ['admin', 'htx_manager', 'farm_manager'],
         items: [
             { path: '/reports', icon: BarChart3, label: 'Báo cáo' },
-            { path: '/admin/users', icon: Shield, label: 'Quản trị' },
+            { path: '/admin/users', icon: Shield, label: 'Quản trị', roles: ['admin'] },
         ],
     },
 ];
@@ -57,6 +64,7 @@ const menuItems = [
 const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { role } = useAuth();
 
     const isActive = (path) => {
         if (path === '/') return location.pathname === '/' || location.pathname === '/dashboard';
@@ -65,13 +73,17 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
 
     const handleNavigation = (path) => {
         navigate(path);
-        // Auto-close sidebar on mobile after navigation
         if (onMobileClose) {
             onMobileClose();
         }
     };
 
-    // Build class names
+    /** Check if a group or item is visible for the current role */
+    const isVisible = (entry) => {
+        if (!entry.roles) return true;
+        return entry.roles.includes(role);
+    };
+
     const sidebarClasses = [
         'sidebar',
         collapsed ? 'sidebar--collapsed' : '',
@@ -88,7 +100,6 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
                         <span className="sidebar__logo-version">v1.0</span>
                     </div>
                 )}
-                {/* Mobile close button */}
                 <button
                     className="sidebar__close-btn"
                     onClick={onMobileClose}
@@ -99,36 +110,44 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
             </div>
 
             <nav className="sidebar__nav" aria-label="Main navigation">
-                {menuItems.map((group, gi) => (
-                    <div key={gi} className="sidebar__group" role="group" aria-label={group.group}>
-                        {!collapsed && (
-                            <div className="sidebar__group-label">{group.group}</div>
-                        )}
-                        {group.items.map((item) => {
-                            const Icon = item.icon;
-                            const active = isActive(item.path);
-                            return (
-                                <button
-                                    key={item.path}
-                                    className={`sidebar__item ${active ? 'sidebar__item--active' : ''}`}
-                                    onClick={() => handleNavigation(item.path)}
-                                    title={collapsed ? item.label : undefined}
-                                    aria-label={item.label}
-                                    aria-current={active ? 'page' : undefined}
-                                >
-                                    <Icon size={20} className="sidebar__item-icon" aria-hidden="true" />
-                                    {!collapsed && (
-                                        <span className="sidebar__item-label">{item.label}</span>
-                                    )}
-                                    {active && <div className="sidebar__item-indicator" />}
-                                </button>
-                            );
-                        })}
-                    </div>
-                ))}
+                {menuItems.map((group, gi) => {
+                    // Skip entire group if role doesn't match
+                    if (!isVisible(group)) return null;
+
+                    // Filter items within the group by role
+                    const visibleItems = group.items.filter(isVisible);
+                    if (visibleItems.length === 0) return null;
+
+                    return (
+                        <div key={gi} className="sidebar__group" role="group" aria-label={group.group}>
+                            {!collapsed && (
+                                <div className="sidebar__group-label">{group.group}</div>
+                            )}
+                            {visibleItems.map((item) => {
+                                const Icon = item.icon;
+                                const active = isActive(item.path);
+                                return (
+                                    <button
+                                        key={item.path}
+                                        className={`sidebar__item ${active ? 'sidebar__item--active' : ''}`}
+                                        onClick={() => handleNavigation(item.path)}
+                                        title={collapsed ? item.label : undefined}
+                                        aria-label={item.label}
+                                        aria-current={active ? 'page' : undefined}
+                                    >
+                                        <Icon size={20} className="sidebar__item-icon" aria-hidden="true" />
+                                        {!collapsed && (
+                                            <span className="sidebar__item-label">{item.label}</span>
+                                        )}
+                                        {active && <div className="sidebar__item-indicator" />}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    );
+                })}
             </nav>
 
-            {/* Desktop collapse toggle (hidden on mobile via CSS) */}
             <button
                 className="sidebar__toggle"
                 onClick={onToggle}
