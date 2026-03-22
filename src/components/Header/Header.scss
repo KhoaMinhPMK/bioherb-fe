@@ -527,3 +527,29 @@
         transform: translateY(0);
     }
 }
+
+// Language Switcher
+.app-header__lang-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 32px;
+    padding: 0 $space-2;
+    border: 1px solid $color-neutral-300;
+    border-radius: $radius-full;
+    background: $color-surface;
+    color: $color-text-secondary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+        background: $color-neutral-100;
+        color: $color-text-primary;
+        border-color: $color-neutral-400;
+    }
+}
+

@@ -56,6 +56,7 @@ const menuItems = [
         roles: ['admin', 'htx_manager', 'farm_manager'],
         items: [
             { path: '/reports', icon: BarChart3, label: 'Báo cáo' },
+            { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard Admin', roles: ['admin'] },
             { path: '/admin/users', icon: Shield, label: 'Quản trị', roles: ['admin'] },
         ],
     },

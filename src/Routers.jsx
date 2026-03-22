@@ -19,6 +19,7 @@ const HarvestList = lazy(() => import('./pages/Harvest/HarvestList'));
 const QRTrace = lazy(() => import('./pages/QRTrace/QRTrace'));
 const ReportPage = lazy(() => import('./pages/Report/ReportPage'));
 const AdminUsers = lazy(() => import('./pages/Admin/AdminUsers'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const LoadingFallback = () => (<div className="loading-fallback">
         <div className="loading-spinner"/>
     </div>);
@@ -50,6 +51,7 @@ function Routers() {
                                 <Route path="/qr" element={<QRTrace />}/>
                                 <Route path="/reports" element={<ReportPage />}/>
                                 <Route path="/admin/users" element={<AdminUsers />}/>
+                                <Route path="/admin/dashboard" element={<AdminDashboard />}/>
                             </Routes>
                         </Suspense>
                     </MainLayout>}/>

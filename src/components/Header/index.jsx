@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Search, User, Menu, Settings, LogOut, CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
+import { useI18n } from '../../contexts/I18nContext';
 import useIsMobile from '../../hooks/useIsMobile';
 import './Header.scss';
 
@@ -25,6 +26,7 @@ const Header = ({ onMenuToggle }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { addToast } = useToast();
+    const { locale, toggleLocale } = useI18n();
     const isMobile = useIsMobile(768);
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -93,6 +95,16 @@ const Header = ({ onMenuToggle }) => {
                         className="app-header__search-input"
                     />
                 </div>
+
+                {/* Language Switcher */}
+                <button
+                    className="app-header__lang-btn"
+                    onClick={toggleLocale}
+                    title={locale === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}
+                    aria-label="Toggle language"
+                >
+                    {locale === 'vi' ? 'VI' : 'EN'}
+                </button>
 
                 {/* Notifications */}
                 <div className="app-header__icon-wrapper" ref={notifRef}>
