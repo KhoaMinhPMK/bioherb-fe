@@ -33,6 +33,13 @@ $color-warning: #f59e0b;
 $color-error: #ef4444;
 $color-info: #3b82f6;
 
+// Business-Semantic Status Colors (Requirement #16)
+// Xanh = đạt/ổn định, Vàng = cần chú ý, Đỏ = lỗi/trễ, Xám = chờ duyệt
+$color-status-ok: $color-success;
+$color-status-warning: $color-warning;
+$color-status-error: $color-error;
+$color-status-neutral: $color-neutral-400;
+
 // Semantic Tokens
 $color-background: #f8fafc;
 $color-surface: #ffffff;

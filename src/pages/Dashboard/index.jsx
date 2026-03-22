@@ -1,126 +1,248 @@
-import React from 'react';
-import { AlertTriangle, Calendar, ArrowRight, Clock, CheckCircle2, AlertCircle, FileCheck, TrendingUp } from 'lucide-react';
+import React, { useMemo } from 'react';
+import {
+    MapPin, CheckCircle2, Users, FileCheck,
+    AlertTriangle, ArrowRight, Calendar, TrendingUp,
+    Sprout, ClipboardList,
+} from 'lucide-react';
 import StatusBadge from '../../components/StatusBadge';
 import PageHeader from '../../components/PageHeader';
-import Dropdown from '../../components/Dropdown';
+import { useAuth } from '../../contexts/AuthContext';
+import {
+    plots, getPlotsByFarm, taskLogs, attendance,
+    taskPlans, cropCycles, pestIncidents,
+} from '../../data/mockData';
 import './Dashboard.scss';
-// --- Mock data: role-appropriate for operations overview ---
-const stats = [
-    { label: 'Trễ hạn', value: '3', icon: AlertCircle, variant: 'error' },
-    { label: 'Hôm nay', value: '5', icon: Calendar, variant: 'info' },
-    { label: 'Giờ tuần này', value: '32h', icon: Clock, variant: 'neutral' },
-    { label: 'Chờ duyệt', value: '4', icon: FileCheck, variant: 'warning' },
-];
-const todayTasks = [
-    { id: 1, time: '07:00–09:00', task: 'Tưới nước — Ruộng cà chua VT02', assignee: 'Nguyễn An', status: 'in-progress', priority: 'high' },
-    { id: 2, time: '08:00–11:00', task: 'Bón phân đợt 2 — Lúa ST25 VT01', assignee: 'Trần Văn Tài', status: 'pending', priority: 'high' },
-    { id: 3, time: '08:00–10:00', task: 'Kiểm tra sâu bệnh — VT03', assignee: 'Lê Thị Cúc', status: 'pending', priority: 'medium' },
-    { id: 4, time: '13:00–15:00', task: 'Phun thuốc phòng — Ruộng cà chua', assignee: 'Nguyễn Văn Phương', status: 'pending', priority: 'medium' },
-    { id: 5, time: '14:00–16:00', task: 'Ghi nhật ký tuần — Mùa vụ 2026-DX', assignee: 'Nguyễn Thị Bình', status: 'pending', priority: 'low' },
-];
-const alerts = [
-    { type: 'error', message: 'Tồn kho Sieubymsa 75WP dưới mức tối thiểu', time: '1 giờ trước' },
-    { type: 'warning', message: 'Phát hiện đạo ôn tại VT03 — cần xử lý', time: '2 giờ trước' },
-    { type: 'info', message: 'Mùa vụ 2026-DX sắp đến giai đoạn thu hoạch', time: '5 giờ trước' },
-];
-const upcomingTasks = [
-    { date: '22/03', task: 'Bón phân đợt 2', plot: 'Ruộng lúa ST25' },
-    { date: '24/03', task: 'Phun thuốc phòng', plot: 'Ruộng cà chua' },
-    { date: '26/03', task: 'Kiểm tra sinh trưởng', plot: 'Ruộng lúa ST25' },
-    { date: '28/03', task: 'Tưới nước định kỳ', plot: 'Ruộng cà chua' },
-];
-const weeklyHours = [
-    { day: 'T2', hours: 6, max: 8 },
-    { day: 'T3', hours: 7, max: 8 },
-    { day: 'T4', hours: 5, max: 8 },
-    { day: 'T5', hours: 8, max: 8 },
-    { day: 'T6', hours: 6, max: 8 },
-    { day: 'T7', hours: 0, max: 8 },
-    { day: 'CN', hours: 0, max: 8 },
-];
-const recentLogs = [
-    { date: '21/03', task: 'Bón phân — Lúa ST25', user: 'Nguyễn An', status: 'approved' },
-    { date: '20/03', task: 'Phun thuốc đạo ôn', user: 'Lê Thị Cúc', status: 'approved' },
-    { date: '20/03', task: 'Kiểm tra sâu bệnh', user: 'Trần Văn Tài', status: 'pending' },
-];
-const getPriorityClass = (p) => {
-    if (p === 'high')
-        return 'dashboard__task-priority--high';
-    if (p === 'medium')
-        return 'dashboard__task-priority--medium';
-    return 'dashboard__task-priority--low';
-};
-const Dashboard = () => {
-    return (<div className="dashboard page-container">
-            <PageHeader title="Dashboard" subtitle="Tổng quan hoạt động sản xuất nông nghiệp" actions={<div style={{ width: 180 }}>
-                        <Dropdown options={[
-                    { value: 'all', label: 'Tất cả Farm' },
-                    { value: 'f1', label: 'Farm Long An' },
-                    { value: 'f2', label: 'Farm Đồng Tháp' },
-                ]} value="all" onChange={() => { }} placeholder="Chọn Farm"/>
-                    </div>}/>
 
-            {/* KPI Row — 4 compact stat cards */}
+// --- Severity labels for alerts ---
+const SEVERITY = {
+    warning: { label: 'Lệch nhẹ', className: 'dashboard__severity--warning' },
+    error: { label: 'Nghiêm trọng', className: 'dashboard__severity--error' },
+    info: { label: 'Thông tin', className: 'dashboard__severity--info' },
+};
+
+const Dashboard = () => {
+    const { currentFarm, canSeeAllFarms } = useAuth();
+
+    // --- Compute KPIs from real mock data ---
+    const farmPlots = useMemo(() => {
+        if (canSeeAllFarms()) return plots;
+        if (!currentFarm) return [];
+        return getPlotsByFarm(currentFarm.id);
+    }, [currentFarm, canSeeAllFarms]);
+
+    const totalPlots = farmPlots.length;
+    const activePlots = farmPlots.filter((p) => p.status === 'active').length;
+    const activePercent = totalPlots > 0 ? Math.round((activePlots / totalPlots) * 100) : 0;
+
+    // Attendance: % valid workdays (full or approved exception)
+    const validAttendance = useMemo(() => {
+        const total = attendance.length;
+        if (total === 0) return 0;
+        const valid = attendance.filter(
+            (a) => a.status === 'full' || (a.exception && a.exception.approved)
+        ).length;
+        return Math.round((valid / total) * 100);
+    }, []);
+
+    // Pending approvals
+    const pendingLogs = taskLogs.filter((l) => l.status === 'pending').length;
+    const pendingAttendance = attendance.filter(
+        (a) => a.exception && a.exception.approved === null
+    ).length;
+    const totalPending = pendingLogs + pendingAttendance;
+
+    const stats = [
+        { label: 'Vùng trồng', value: totalPlots, icon: MapPin, variant: 'info' },
+        { label: 'VT hoạt động', value: `${activePercent}%`, icon: CheckCircle2, variant: activePercent >= 80 ? 'success' : activePercent >= 50 ? 'warning' : 'error' },
+        { label: 'Ngày công hợp lệ', value: `${validAttendance}%`, icon: Users, variant: validAttendance >= 90 ? 'success' : validAttendance >= 70 ? 'warning' : 'error' },
+        { label: 'Chờ duyệt', value: totalPending, icon: FileCheck, variant: totalPending > 0 ? 'warning' : 'success' },
+    ];
+
+    // --- Alerts with severity badges ---
+    const alerts = useMemo(() => {
+        const result = [];
+
+        // Check pest incidents still monitoring
+        pestIncidents
+            .filter((p) => p.status === 'monitoring')
+            .forEach((p) => {
+                result.push({
+                    severity: 'error',
+                    message: `${p.type} tại ${p.plotName} — mức ${p.severity === 'high' ? 'nặng' : 'trung bình'}, đang theo dõi`,
+                    time: p.date,
+                });
+            });
+
+        // Check plan deviations: tasks done in wrong shift
+        taskLogs.forEach((log) => {
+            if (!log.planId) return;
+            const plan = taskPlans.find((p) => p.id === log.planId);
+            if (plan && plan.shift !== log.shift) {
+                const shiftLabel = { morning: 'Sáng', afternoon: 'Trưa', evening: 'Chiều' };
+                result.push({
+                    severity: 'warning',
+                    message: `${log.task} thực hiện buổi ${shiftLabel[log.shift]} (KH: ${shiftLabel[plan.shift]})`,
+                    time: log.date,
+                });
+            }
+        });
+
+        // Pending logs need approval
+        if (pendingLogs > 0) {
+            result.push({
+                severity: 'info',
+                message: `${pendingLogs} nhật ký đang chờ duyệt`,
+                time: 'Hôm nay',
+            });
+        }
+
+        return result;
+    }, [pendingLogs]);
+
+    // --- Today's tasks from plan ---
+    const todayTasks = useMemo(() => {
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const yyyy = today.getFullYear();
+        const todayStr = `${dd}/${mm}/${yyyy}`;
+
+        return taskPlans
+            .filter((p) => p.date === todayStr || p.date === '22/03/2026') // fallback for demo
+            .map((plan) => {
+                const plot = plots.find((p) => p.id === plan.plotId);
+                const log = taskLogs.find((l) => l.planId === plan.id);
+                return {
+                    id: plan.id,
+                    shift: plan.shift,
+                    task: `${plan.task} — ${plot?.name || plan.plotId}`,
+                    status: log ? log.status : 'planned',
+                    isPlanned: true,
+                };
+            });
+    }, []);
+
+    // Unplanned tasks (no planId)
+    const unplannedRecent = taskLogs
+        .filter((l) => !l.planId && l.status === 'pending')
+        .slice(0, 3)
+        .map((l) => ({
+            id: `unplanned-${l.id}`,
+            shift: l.shift,
+            task: `${l.task} — ${l.workerName}`,
+            status: 'pending',
+            isPlanned: false,
+        }));
+
+    const allTodayTasks = [...todayTasks, ...unplannedRecent];
+
+    // --- Upcoming from plans ---
+    const upcomingTasks = taskPlans.slice(2, 6).map((plan) => {
+        const plot = plots.find((p) => p.id === plan.plotId);
+        return { date: plan.date.slice(0, 5), task: plan.task, plot: plot?.name || '' };
+    });
+
+    const shiftLabel = { morning: 'Sáng', afternoon: 'Trưa', evening: 'Chiều' };
+
+    // --- Recent approved logs ---
+    const recentLogs = taskLogs
+        .filter((l) => l.status === 'approved')
+        .slice(0, 3)
+        .map((l) => ({
+            date: l.date.slice(0, 5),
+            task: l.task,
+            user: l.workerName,
+            status: l.status,
+        }));
+
+    return (
+        <div className="dashboard page-container">
+            <PageHeader
+                title="Dashboard"
+                subtitle="Tổng quan hoạt động sản xuất"
+            />
+
+            {/* KPI Row */}
             <div className="dashboard__stats">
                 {stats.map((stat, i) => {
-            const Icon = stat.icon;
-            return (<div key={i} className={`dashboard__stat dashboard__stat--${stat.variant}`}>
+                    const Icon = stat.icon;
+                    return (
+                        <div key={i} className={`dashboard__stat dashboard__stat--${stat.variant}`}>
                             <div className="dashboard__stat-icon">
-                                <Icon size={20} aria-hidden="true"/>
+                                <Icon size={20} aria-hidden="true" />
                             </div>
                             <div className="dashboard__stat-info">
                                 <span className="dashboard__stat-value">{stat.value}</span>
                                 <span className="dashboard__stat-label">{stat.label}</span>
                             </div>
-                        </div>);
-        })}
+                        </div>
+                    );
+                })}
             </div>
 
-            {/* Main Row: Focal Block + Right Sidebar */}
+            {/* Main Row */}
             <div className="dashboard__main">
-                {/* FOCAL BLOCK: Việc hôm nay */}
+                {/* FOCAL: Việc hôm nay */}
                 <div className="card dashboard__focal">
                     <div className="card__header">
                         <h2 className="dashboard__section-title">
-                            <Calendar size={18} aria-hidden="true"/>
+                            <Calendar size={18} aria-hidden="true" />
                             Việc hôm nay
-                            <span className="dashboard__count">{todayTasks.length}</span>
+                            <span className="dashboard__count">{allTodayTasks.length}</span>
                         </h2>
                         <a href="/task-plans" className="dashboard__view-all">
-                            Xem tất cả <ArrowRight size={14}/>
+                            Xem kế hoạch <ArrowRight size={14} />
                         </a>
                     </div>
                     <div className="dashboard__task-list">
-                        {todayTasks.map((task) => (<div key={task.id} className="dashboard__task-item">
-                                <div className={`dashboard__task-priority ${getPriorityClass(task.priority)}`}/>
-                                <div className="dashboard__task-time">{task.time}</div>
+                        {allTodayTasks.map((task) => (
+                            <div key={task.id} className="dashboard__task-item">
+                                <div className="dashboard__task-shift">
+                                    {shiftLabel[task.shift] || '—'}
+                                </div>
                                 <div className="dashboard__task-info">
                                     <span className="dashboard__task-name">{task.task}</span>
-                                    <span className="dashboard__task-assignee">{task.assignee}</span>
+                                    {task.isPlanned ? (
+                                        <span className="dashboard__badge dashboard__badge--planned">Theo KH</span>
+                                    ) : (
+                                        <span className="dashboard__badge dashboard__badge--unplanned">Phát sinh</span>
+                                    )}
                                 </div>
-                                <StatusBadge status={task.status}/>
-                            </div>))}
+                                <StatusBadge status={task.status} />
+                            </div>
+                        ))}
+                        {allTodayTasks.length === 0 && (
+                            <p className="dashboard__empty-msg">Không có công việc hôm nay</p>
+                        )}
                     </div>
                 </div>
 
-                {/* Right Sidebar */}
+                {/* Right sidebar */}
                 <div className="dashboard__sidebar">
-                    {/* Alerts */}
+                    {/* Alerts with severity */}
                     <div className="card">
                         <div className="card__header">
                             <h3 className="dashboard__section-title dashboard__section-title--sm">
-                                <AlertTriangle size={16} aria-hidden="true"/>
+                                <AlertTriangle size={16} aria-hidden="true" />
                                 Cảnh báo
                             </h3>
                         </div>
                         <div className="dashboard__alerts">
-                            {alerts.map((alert, i) => (<div key={i} className={`dashboard__alert dashboard__alert--${alert.type}`}>
-                                    <div className="dashboard__alert-dot"/>
-                                    <div className="dashboard__alert-content">
-                                        <p className="dashboard__alert-msg">{alert.message}</p>
-                                        <span className="dashboard__alert-time">{alert.time}</span>
+                            {alerts.map((alert, i) => (
+                                <div key={i} className={`dashboard__alert dashboard__alert--${alert.severity}`}>
+                                    <div className="dashboard__alert-top">
+                                        <div className="dashboard__alert-dot" />
+                                        <span className={`dashboard__severity ${SEVERITY[alert.severity]?.className || ''}`}>
+                                            {SEVERITY[alert.severity]?.label}
+                                        </span>
                                     </div>
-                                </div>))}
+                                    <p className="dashboard__alert-msg">{alert.message}</p>
+                                    <span className="dashboard__alert-time">{alert.time}</span>
+                                </div>
+                            ))}
+                            {alerts.length === 0 && (
+                                <p className="dashboard__empty-msg">Không có cảnh báo</p>
+                            )}
                         </div>
                     </div>
 
@@ -128,68 +250,91 @@ const Dashboard = () => {
                     <div className="card">
                         <div className="card__header">
                             <h3 className="dashboard__section-title dashboard__section-title--sm">
-                                <TrendingUp size={16} aria-hidden="true"/>
+                                <TrendingUp size={16} aria-hidden="true" />
                                 Sắp tới
                             </h3>
                         </div>
                         <div className="dashboard__upcoming">
-                            {upcomingTasks.map((task, i) => (<div key={i} className="dashboard__upcoming-item">
+                            {upcomingTasks.map((task, i) => (
+                                <div key={i} className="dashboard__upcoming-item">
                                     <span className="dashboard__upcoming-date">{task.date}</span>
                                     <div className="dashboard__upcoming-info">
                                         <span className="dashboard__upcoming-task">{task.task}</span>
                                         <span className="dashboard__upcoming-plot">{task.plot}</span>
                                     </div>
-                                </div>))}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Bottom Row: Weekly Hours + Recent Logs */}
+            {/* Bottom: Recent Logs + Plot Status */}
             <div className="dashboard__bottom">
-                {/* Weekly worklog summary */}
-                <div className="card">
-                    <div className="card__header">
-                        <h3 className="dashboard__section-title dashboard__section-title--sm">
-                            <Clock size={16} aria-hidden="true"/>
-                            Giờ công tuần này
-                        </h3>
-                        <span className="dashboard__week-total">
-                            {weeklyHours.reduce((s, d) => s + d.hours, 0)}h / {weeklyHours.reduce((s, d) => s + d.max, 0)}h
-                        </span>
-                    </div>
-                    <div className="dashboard__week-chart">
-                        {weeklyHours.map((d, i) => (<div key={i} className="dashboard__week-day">
-                                <div className="dashboard__week-bar-track">
-                                    <div className={`dashboard__week-bar-fill ${d.hours === 0 ? 'dashboard__week-bar-fill--empty' : ''}`} style={{ height: `${d.max > 0 ? (d.hours / d.max) * 100 : 0}%` }}/>
-                                </div>
-                                <span className="dashboard__week-hours">{d.hours}h</span>
-                                <span className="dashboard__week-label">{d.day}</span>
-                            </div>))}
-                    </div>
-                </div>
-
                 {/* Recent logs */}
                 <div className="card">
                     <div className="card__header">
                         <h3 className="dashboard__section-title dashboard__section-title--sm">
-                            <CheckCircle2 size={16} aria-hidden="true"/>
+                            <ClipboardList size={16} aria-hidden="true" />
                             Nhật ký gần đây
                         </h3>
                         <a href="/task-logs" className="dashboard__view-all">
-                            Xem tất cả <ArrowRight size={14}/>
+                            Xem tất cả <ArrowRight size={14} />
                         </a>
                     </div>
                     <div className="dashboard__recent-logs">
-                        {recentLogs.map((log, i) => (<div key={i} className="dashboard__log-item">
+                        {recentLogs.map((log, i) => (
+                            <div key={i} className="dashboard__log-item">
                                 <span className="dashboard__log-date">{log.date}</span>
                                 <span className="dashboard__log-task">{log.task}</span>
                                 <span className="dashboard__log-user">{log.user}</span>
-                                <StatusBadge status={log.status}/>
-                            </div>))}
+                                <StatusBadge status={log.status} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Plot status overview */}
+                <div className="card">
+                    <div className="card__header">
+                        <h3 className="dashboard__section-title dashboard__section-title--sm">
+                            <Sprout size={16} aria-hidden="true" />
+                            Trạng thái vùng trồng
+                        </h3>
+                        <a href="/plots" className="dashboard__view-all">
+                            Xem tất cả <ArrowRight size={14} />
+                        </a>
+                    </div>
+                    <div className="dashboard__plot-status">
+                        {farmPlots.slice(0, 5).map((plot) => {
+                            const cycle = cropCycles.find((c) => c.id === plot.activeCycle);
+                            return (
+                                <div key={plot.id} className="dashboard__plot-item">
+                                    <div className="dashboard__plot-info">
+                                        <span className="dashboard__plot-name">{plot.name}</span>
+                                        <span className="dashboard__plot-crop">{plot.crop}</span>
+                                    </div>
+                                    {cycle ? (
+                                        <div className="dashboard__plot-progress">
+                                            <div className="dashboard__plot-bar-track">
+                                                <div
+                                                    className="dashboard__plot-bar-fill"
+                                                    style={{ width: `${cycle.progress}%` }}
+                                                />
+                                            </div>
+                                            <span className="dashboard__plot-percent">{cycle.progress}%</span>
+                                        </div>
+                                    ) : (
+                                        <StatusBadge status="idle" />
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>
-        </div>);
+        </div>
+    );
 };
+
 export default Dashboard;

@@ -2,29 +2,6 @@
 
 .dashboard {
 
-    // --- Farm Select ---
-    &__farm-select {
-        height: $input-height;
-        padding: 0 $space-8 0 $space-3;
-        border: 1px solid $color-border;
-        border-radius: $radius-md;
-        font-size: $font-size-base;
-        font-family: $font-family;
-        color: $color-text-primary;
-        background: $color-surface;
-        cursor: pointer;
-        outline: none;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right $space-3 center;
-
-        &:focus {
-            border-color: $color-brand-primary;
-            box-shadow: 0 0 0 3px rgba($color-brand-primary, 0.12);
-        }
-    }
-
     // ============================
     // KPI STATS ROW
     // ============================
@@ -69,8 +46,9 @@
 
     &__stat--error .dashboard__stat-icon { background: #fef2f2; color: $color-error; }
     &__stat--info .dashboard__stat-icon { background: #eff6ff; color: $color-info; }
-    &__stat--neutral .dashboard__stat-icon { background: $color-neutral-100; color: $color-neutral-600; }
+    &__stat--success .dashboard__stat-icon { background: #f0fdf4; color: $color-success; }
     &__stat--warning .dashboard__stat-icon { background: #fffbeb; color: $color-warning; }
+    &__stat--neutral .dashboard__stat-icon { background: $color-neutral-100; color: $color-neutral-600; }
 
     &__stat-value {
         font-size: $font-size-2xl;
@@ -168,32 +146,29 @@
         }
     }
 
-    &__task-priority {
-        width: 4px;
-        height: 32px;
-        border-radius: $radius-full;
-        flex-shrink: 0;
-
-        &--high { background: $color-error; }
-        &--medium { background: $color-warning; }
-        &--low { background: $color-neutral-300; }
-    }
-
-    &__task-time {
+    // Shift label (Sáng / Trưa / Chiều)
+    &__task-shift {
         font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
         color: $color-text-muted;
         white-space: nowrap;
-        min-width: 90px;
-        font-variant-numeric: tabular-nums;
+        min-width: 44px;
+        text-align: center;
+        padding: $space-1 $space-2;
+        background: $color-neutral-100;
+        border-radius: $radius-sm;
     }
 
     &__task-info {
         flex: 1;
         min-width: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: $space-2;
     }
 
     &__task-name {
-        display: block;
         font-size: $font-size-base;
         font-weight: $font-weight-medium;
         color: $color-text-primary;
@@ -202,10 +177,35 @@
         white-space: nowrap;
     }
 
-    &__task-assignee {
-        display: block;
-        font-size: $font-size-xs;
+    // Plan vs Unplanned badges
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px $space-2;
+        font-size: 11px;
+        font-weight: $font-weight-semibold;
+        border-radius: $radius-sm;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        &--planned {
+            background: #f0fdf4;
+            color: $color-success;
+            border: 1px solid rgba($color-success, 0.2);
+        }
+
+        &--unplanned {
+            background: #fffbeb;
+            color: $color-warning;
+            border: 1px solid rgba($color-warning, 0.2);
+        }
+    }
+
+    &__empty-msg {
+        padding: $space-6 $space-4;
+        text-align: center;
         color: $color-text-muted;
+        font-size: $font-size-sm;
     }
 
     // --- Right Sidebar ---
@@ -215,15 +215,15 @@
         gap: $space-4;
     }
 
-    // --- Alerts ---
+    // --- Alerts with severity ---
     &__alerts {
         padding: 0;
     }
 
     &__alert {
         display: flex;
-        align-items: flex-start;
-        gap: $space-3;
+        flex-direction: column;
+        gap: $space-1;
         padding: $space-3 $space-4;
         border-bottom: 1px solid $color-border;
 
@@ -232,23 +232,52 @@
         }
     }
 
+    &__alert-top {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+    }
+
     &__alert-dot {
         width: 8px;
         height: 8px;
         border-radius: $radius-full;
         flex-shrink: 0;
-        margin-top: 6px;
     }
 
     &__alert--error .dashboard__alert-dot { background: $color-error; }
     &__alert--warning .dashboard__alert-dot { background: $color-warning; }
     &__alert--info .dashboard__alert-dot { background: $color-info; }
 
+    // Severity badge (🟡 Lệch nhẹ, 🔴 Nghiêm trọng)
+    &__severity {
+        font-size: 11px;
+        font-weight: $font-weight-semibold;
+        padding: 1px $space-2;
+        border-radius: $radius-sm;
+
+        &--warning {
+            color: darken($color-warning, 10%);
+            background: #fffbeb;
+        }
+
+        &--error {
+            color: $color-error;
+            background: #fef2f2;
+        }
+
+        &--info {
+            color: $color-info;
+            background: #eff6ff;
+        }
+    }
+
     &__alert-msg {
         font-size: $font-size-sm;
         color: $color-text-primary;
         line-height: $line-height-normal;
         margin: 0;
+        padding-left: $space-4 + 2px; // align with text after dot
     }
 
     &__alert-time {
@@ -256,6 +285,7 @@
         font-size: $font-size-xs;
         color: $color-text-muted;
         margin-top: 2px;
+        padding-left: $space-4 + 2px;
     }
 
     // --- Upcoming ---
@@ -305,68 +335,6 @@
         gap: $space-4;
     }
 
-    // --- Weekly Hours Bar ---
-    &__week-total {
-        font-size: $font-size-sm;
-        color: $color-text-secondary;
-        font-weight: $font-weight-medium;
-        font-variant-numeric: tabular-nums;
-    }
-
-    &__week-chart {
-        display: flex;
-        align-items: flex-end;
-        gap: $space-3;
-        padding: $space-4;
-        height: 140px;
-    }
-
-    &__week-day {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: $space-1;
-        height: 100%;
-    }
-
-    &__week-bar-track {
-        flex: 1;
-        width: 100%;
-        max-width: 32px;
-        background: $color-neutral-100;
-        border-radius: $radius-sm;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        overflow: hidden;
-    }
-
-    &__week-bar-fill {
-        background: $color-brand-primary;
-        border-radius: $radius-sm;
-        transition: height $transition-slow;
-        min-height: 2px;
-
-        &--empty {
-            background: transparent;
-            min-height: 0;
-        }
-    }
-
-    &__week-hours {
-        font-size: 11px;
-        font-weight: $font-weight-semibold;
-        color: $color-text-secondary;
-        font-variant-numeric: tabular-nums;
-    }
-
-    &__week-label {
-        font-size: 11px;
-        color: $color-text-muted;
-        font-weight: $font-weight-medium;
-    }
-
     // --- Recent Logs ---
     &__recent-logs {
         padding: 0;
@@ -401,6 +369,75 @@
     &__log-user {
         font-size: $font-size-sm;
         color: $color-text-secondary;
+    }
+
+    // --- Plot Status Overview ---
+    &__plot-status {
+        padding: 0;
+    }
+
+    &__plot-item {
+        display: flex;
+        align-items: center;
+        gap: $space-4;
+        padding: $space-3 $space-4;
+        border-bottom: 1px solid $color-border;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    &__plot-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__plot-name {
+        display: block;
+        font-size: $font-size-base;
+        font-weight: $font-weight-medium;
+        color: $color-text-primary;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__plot-crop {
+        display: block;
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+    }
+
+    &__plot-progress {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        min-width: 120px;
+    }
+
+    &__plot-bar-track {
+        flex: 1;
+        height: 6px;
+        background: $color-neutral-100;
+        border-radius: $radius-full;
+        overflow: hidden;
+    }
+
+    &__plot-bar-fill {
+        height: 100%;
+        background: $color-brand-primary;
+        border-radius: $radius-full;
+        transition: width $transition-slow;
+    }
+
+    &__plot-percent {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $color-text-secondary;
+        min-width: 32px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
     }
 }
 
@@ -437,13 +474,12 @@
             flex-wrap: wrap;
         }
 
-        &__task-time {
+        &__task-shift {
             min-width: auto;
-            width: 100%;
         }
 
-        &__week-chart {
-            gap: $space-2;
+        &__plot-progress {
+            min-width: 80px;
         }
     }
 }
