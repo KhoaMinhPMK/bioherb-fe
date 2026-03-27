@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { users, farms, cooperatives } from '../data/mockData';
+import { users as allUsers, farms, cooperatives, roleLabels } from '../data/mockData';
 
 const AuthContext = createContext(null);
 
@@ -13,27 +13,34 @@ const AuthContext = createContext(null);
  *   worker         → Nhập nhật ký, xem thông tin Farm mình
  */
 
+const STORAGE_KEY = 'bioherb_auth_user';
+
 export function AuthProvider({ children }) {
-    // Default: farm_manager (U03 — Lê Văn Hùng, Farm Long An)
-    // Change this to simulate different roles during development
-    const [currentUserId, setCurrentUserId] = useState('U03');
+    const [currentUserId, setCurrentUserId] = useState(() => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved || null;
+    });
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return !!localStorage.getItem(STORAGE_KEY);
+    });
 
     const currentUser = useMemo(() => {
-        return users.find((u) => u.id === currentUserId) || users[0];
+        if (!currentUserId) return null;
+        return allUsers.find((u) => u.id === currentUserId) || null;
     }, [currentUserId]);
 
     const currentFarm = useMemo(() => {
-        if (!currentUser.farmId) return null;
+        if (!currentUser?.farmId) return null;
         return farms.find((f) => f.id === currentUser.farmId) || null;
     }, [currentUser]);
 
     const currentHtx = useMemo(() => {
-        if (!currentUser.htxId) return null;
+        if (!currentUser?.htxId) return null;
         return cooperatives.find((c) => c.id === currentUser.htxId) || null;
     }, [currentUser]);
 
     // --- Permission helpers ---
-    const role = currentUser.role;
+    const role = currentUser?.role || null;
 
     const isAdmin = useCallback(() => role === 'admin', [role]);
     const isHtxManager = useCallback(() => role === 'htx_manager', [role]);
@@ -61,35 +68,101 @@ export function AuthProvider({ children }) {
         return ['admin', 'htx_manager'].includes(role);
     }, [role]);
 
-    const switchUser = useCallback((userId) => {
-        setCurrentUserId(userId);
+    /** Login: match email + password from mockData */
+    const login = useCallback((email, password) => {
+        const user = allUsers.find((u) => u.email === email && u.password === password && u.status === 'active');
+        if (!user) {
+            return { success: false, error: 'Sai tên đăng nhập hoặc mật khẩu' };
+        }
+        setCurrentUserId(user.id);
+        setIsAuthenticated(true);
+        localStorage.setItem(STORAGE_KEY, user.id);
+        return { success: true, user };
     }, []);
 
-    const value = useMemo(() => ({
-        currentUser,
-        currentFarm,
-        currentHtx,
-        role,
-        // Role checks
-        isAdmin,
-        isHtxManager,
-        isFarmManager,
-        isApprover,
-        isWorker,
-        // Permission checks
-        canApprove,
-        canEdit,
-        canManageSystem,
-        canSeeAllFarms,
-        // Dev tool
-        switchUser,
-    }), [currentUser, currentFarm, currentHtx, role, isAdmin, isHtxManager, isFarmManager, isApprover, isWorker, canApprove, canEdit, canManageSystem, canSeeAllFarms, switchUser]);
+    /** Quick login by userId (for demo selector) */
+    const loginAsUser = useCallback((userId) => {
+        const user = allUsers.find((u) => u.id === userId);
+        if (!user) return false;
+        setCurrentUserId(user.id);
+        setIsAuthenticated(true);
+        localStorage.setItem(STORAGE_KEY, user.id);
+        return true;
+    }, []);
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
+    /** Logout */
+    const logout = useCallback(() => {
+        setCurrentUserId(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem(STORAGE_KEY);
+    }, []);
+
+    /** Check if a route is accessible for current role */
+    const canAccessRoute = useCallback(
+        (path) => {
+            if (!role) return false;
+            // Admin can access everything
+            if (role === 'admin') return true;
+            // Admin-only routes
+            const adminOnly = ['/admin/users', '/admin/dashboard'];
+            if (adminOnly.includes(path)) return role === 'admin';
+            // Manager+ routes
+            const managerPlus = ['/settings'];
+            if (managerPlus.includes(path)) return ['admin', 'htx_manager', 'farm_manager'].includes(role);
+            // All authenticated users
+            return true;
+        },
+        [role],
     );
+
+    const value = useMemo(
+        () => ({
+            currentUser,
+            currentFarm,
+            currentHtx,
+            role,
+            roleLabel: role ? roleLabels[role] : '',
+            isAuthenticated,
+            // Role checks
+            isAdmin,
+            isHtxManager,
+            isFarmManager,
+            isApprover,
+            isWorker,
+            // Permission checks
+            canApprove,
+            canEdit,
+            canManageSystem,
+            canSeeAllFarms,
+            canAccessRoute,
+            // Auth actions
+            login,
+            loginAsUser,
+            logout,
+        }),
+        [
+            currentUser,
+            currentFarm,
+            currentHtx,
+            role,
+            isAuthenticated,
+            isAdmin,
+            isHtxManager,
+            isFarmManager,
+            isApprover,
+            isWorker,
+            canApprove,
+            canEdit,
+            canManageSystem,
+            canSeeAllFarms,
+            canAccessRoute,
+            login,
+            loginAsUser,
+            logout,
+        ],
+    );
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 AuthProvider.propTypes = {

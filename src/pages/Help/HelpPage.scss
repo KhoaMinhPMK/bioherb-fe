@@ -1,0 +1,104 @@
+@use '../../assets/scss/var' as *;
+
+.help-page__grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: $space-5;
+
+    @include respond-below($bp-md) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.help-page__faq {
+    border-bottom: 1px solid $color-neutral-100;
+    padding: $space-3 0;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &[open] .help-page__faq-q::after {
+        transform: rotate(180deg);
+    }
+}
+
+.help-page__faq-q {
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-sm;
+    cursor: pointer;
+    list-style: none; /* Firefox */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-2 0;
+    transition: color 0.2s;
+
+    &:hover {
+        color: $color-primary-600;
+    }
+
+    &::after {
+        content: '▼';
+        font-size: 10px;
+        color: $color-text-secondary;
+        transition: transform 0.2s;
+    }
+
+    &::-webkit-details-marker {
+        display: none;
+    }
+}
+
+.help-page__faq-a {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    margin-top: $space-2;
+    line-height: 1.6;
+}
+
+.help-page__contact {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+}
+
+.help-page__contact-item {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    color: $color-text-primary;
+}
+
+.help-page__contact-label {
+    display: block;
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+}
+
+.help-page__contact-value {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+}
+
+.help-page__docs {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+}
+
+.help-page__doc-link {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-sm;
+    color: $color-primary-500;
+    text-decoration: none;
+    padding: $space-2;
+    border-radius: $radius-sm;
+    transition: background 0.15s;
+
+    &:hover {
+        background: rgba($color-primary-500, 0.08);
+    }
+}

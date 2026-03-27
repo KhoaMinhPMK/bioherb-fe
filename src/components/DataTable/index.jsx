@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
 import useIsMobile from '../../hooks/useIsMobile';
 import './DataTable.scss';
@@ -56,9 +57,15 @@ function DataTable({
         if (sortConfig.key !== columnKey) {
             return <ChevronsUpDown size={14} className="data-table__sort-icon data-table__sort-icon--inactive" />;
         }
-        return sortConfig.direction === 'asc'
-            ? <ChevronUp size={14} className="data-table__sort-icon" />
-            : <ChevronDown size={14} className="data-table__sort-icon" />;
+        return sortConfig.direction === 'asc' ? (
+            <ChevronUp size={14} className="data-table__sort-icon" />
+        ) : (
+            <ChevronDown size={14} className="data-table__sort-icon" />
+        );
+    };
+
+    SortIcon.propTypes = {
+        columnKey: PropTypes.string.isRequired,
     };
 
     // --- Pagination Component ---
@@ -87,7 +94,7 @@ function DataTable({
                     ) : (
                         /* Desktop: full pagination */
                         Array.from({ length: totalPages }, (_, i) => i + 1)
-                            .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                            .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
                             .map((page, i, arr) => (
                                 <React.Fragment key={page}>
                                     {i > 0 && arr[i - 1] !== page - 1 && (
@@ -125,14 +132,19 @@ function DataTable({
                 <table className="data-table">
                     <thead>
                         <tr>
-                            {columns.map((col) => (<th key={col.key}>{col.label}</th>))}
+                            {columns.map((col) => (
+                                <th key={col.key}>{col.label}</th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody>
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <tr key={i} className="data-table__skeleton-row">
+                            // eslint-disable-next-line react/no-array-index-key
+                            <tr key={`skeleton-${i}`} className="data-table__skeleton-row">
                                 {columns.map((col) => (
-                                    <td key={col.key}><div className="data-table__skeleton" /></td>
+                                    <td key={col.key}>
+                                        <div className="data-table__skeleton" />
+                                    </td>
                                 ))}
                             </tr>
                         ))}
@@ -203,7 +215,9 @@ function DataTable({
                                     onClick={col.sortable ? () => handleSort(col.key) : undefined}
                                     aria-sort={
                                         sortConfig.key === col.key
-                                            ? sortConfig.direction === 'asc' ? 'ascending' : 'descending'
+                                            ? sortConfig.direction === 'asc'
+                                                ? 'ascending'
+                                                : 'descending'
                                             : undefined
                                     }
                                     style={col.width ? { width: col.width } : undefined}
@@ -237,5 +251,26 @@ function DataTable({
         </div>
     );
 }
+
+DataTable.propTypes = {
+    columns: PropTypes.arrayOf(
+        PropTypes.shape({
+            key: PropTypes.string.isRequired,
+            label: PropTypes.string.isRequired,
+            sortable: PropTypes.bool,
+            render: PropTypes.func,
+            width: PropTypes.string,
+            hideOnMobile: PropTypes.bool,
+            className: PropTypes.string,
+        }),
+    ).isRequired,
+    data: PropTypes.array.isRequired,
+    pageSize: PropTypes.number,
+    onRowClick: PropTypes.func,
+    emptyMessage: PropTypes.string,
+    emptyIcon: PropTypes.elementType,
+    loading: PropTypes.bool,
+    stickyHeader: PropTypes.bool,
+};
 
 export default DataTable;

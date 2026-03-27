@@ -1,12 +1,33 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-    LayoutDashboard, MapPin, Sprout, CalendarDays, BookOpen,
-    Package, Users, Bug, Wheat, QrCode, BarChart3, Shield,
-    ChevronLeft, ChevronRight, Building2, X,
+    LayoutDashboard,
+    MapPin,
+    Sprout,
+    CalendarDays,
+    BookOpen,
+    Package,
+    Bug,
+    Wheat,
+    QrCode,
+    BarChart3,
+    Shield,
+    ChevronLeft,
+    ChevronRight,
+    Building2,
+    X,
+    Calendar,
+    Warehouse,
+    Boxes,
+    Lock,
+    HelpCircle,
+    Activity,
+    Handshake,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import logo from '../../assets/images/logo.svg';
+import logoImg from '../../assets/images/logo_img.svg';
+import logoChar from '../../assets/images/logo_char.svg';
 import './Sidebar.scss';
 
 /**
@@ -18,11 +39,13 @@ const menuItems = [
         group: 'Tổng quan',
         items: [
             { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+            { path: '/calendar', icon: Calendar, label: 'Lịch canh tác' },
         ],
     },
     {
         group: 'Quản lý Farm',
         items: [
+            { path: '/cooperatives', icon: Handshake, label: 'Hợp tác xã', roles: ['admin', 'htx_manager'] },
             { path: '/farms', icon: Building2, label: 'Farm', roles: ['admin', 'htx_manager', 'farm_manager'] },
             { path: '/plots', icon: MapPin, label: 'Vùng trồng' },
             { path: '/crop-cycles', icon: Sprout, label: 'Mùa vụ' },
@@ -40,7 +63,7 @@ const menuItems = [
         roles: ['admin', 'htx_manager', 'farm_manager', 'approver'],
         items: [
             { path: '/input-items', icon: Package, label: 'Vật tư' },
-            { path: '/resources', icon: Users, label: 'Nhân công & Thiết bị' },
+            { path: '/warehouse', icon: Warehouse, label: 'Kho vật tư' },
         ],
     },
     {
@@ -48,6 +71,7 @@ const menuItems = [
         items: [
             { path: '/pest-incidents', icon: Bug, label: 'Sâu bệnh' },
             { path: '/harvests', icon: Wheat, label: 'Thu hoạch' },
+            { path: '/lots', icon: Boxes, label: 'Lô hàng', roles: ['admin', 'htx_manager', 'farm_manager'] },
             { path: '/qr', icon: QrCode, label: 'QR Truy xuất' },
         ],
     },
@@ -57,8 +81,14 @@ const menuItems = [
         items: [
             { path: '/reports', icon: BarChart3, label: 'Báo cáo' },
             { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard Admin', roles: ['admin'] },
-            { path: '/admin/users', icon: Shield, label: 'Quản trị', roles: ['admin'] },
+            { path: '/admin/users', icon: Shield, label: 'Quản trị user', roles: ['admin'] },
+            { path: '/admin/permissions', icon: Lock, label: 'Phân quyền', roles: ['admin'] },
+            { path: '/admin/audit-log', icon: Activity, label: 'Nhật ký HT', roles: ['admin'] },
         ],
+    },
+    {
+        group: 'Hỗ trợ',
+        items: [{ path: '/help', icon: HelpCircle, label: 'Hướng dẫn' }],
     },
 ];
 
@@ -85,33 +115,27 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
         return entry.roles.includes(role);
     };
 
-    const sidebarClasses = [
-        'sidebar',
-        collapsed ? 'sidebar--collapsed' : '',
-        mobileOpen ? 'sidebar--open' : '',
-    ].filter(Boolean).join(' ');
+    const sidebarClasses = ['sidebar', collapsed ? 'sidebar--collapsed' : '', mobileOpen ? 'sidebar--open' : '']
+        .filter(Boolean)
+        .join(' ');
 
     return (
         <aside className={sidebarClasses} role="navigation" aria-label="Sidebar navigation">
             <div className="sidebar__logo">
-                <img src={logo} alt="SANKIT logo" className="sidebar__logo-img" />
+                <img src={logoImg} alt="BioHerb logo" className="sidebar__logo-img" />
                 {!collapsed && (
                     <div className="sidebar__logo-text">
-                        <span className="sidebar__logo-name">SANKIT</span>
+                        <img src={logoChar} alt="BioHerb" className="sidebar__logo-char" />
                         <span className="sidebar__logo-version">v1.0</span>
                     </div>
                 )}
-                <button
-                    className="sidebar__close-btn"
-                    onClick={onMobileClose}
-                    aria-label="Đóng menu"
-                >
+                <button className="sidebar__close-btn" onClick={onMobileClose} aria-label="Đóng menu">
                     <X size={20} aria-hidden="true" />
                 </button>
             </div>
 
             <nav className="sidebar__nav" aria-label="Main navigation">
-                {menuItems.map((group, gi) => {
+                {menuItems.map((group) => {
                     // Skip entire group if role doesn't match
                     if (!isVisible(group)) return null;
 
@@ -120,10 +144,8 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
                     if (visibleItems.length === 0) return null;
 
                     return (
-                        <div key={gi} className="sidebar__group" role="group" aria-label={group.group}>
-                            {!collapsed && (
-                                <div className="sidebar__group-label">{group.group}</div>
-                            )}
+                        <div key={group.group} className="sidebar__group" role="group" aria-label={group.group}>
+                            {!collapsed && <div className="sidebar__group-label">{group.group}</div>}
                             {visibleItems.map((item) => {
                                 const Icon = item.icon;
                                 const active = isActive(item.path);
@@ -137,9 +159,7 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
                                         aria-current={active ? 'page' : undefined}
                                     >
                                         <Icon size={20} className="sidebar__item-icon" aria-hidden="true" />
-                                        {!collapsed && (
-                                            <span className="sidebar__item-label">{item.label}</span>
-                                        )}
+                                        {!collapsed && <span className="sidebar__item-label">{item.label}</span>}
                                         {active && <div className="sidebar__item-indicator" />}
                                     </button>
                                 );
@@ -154,13 +174,21 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
                 onClick={onToggle}
                 aria-label={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
             >
-                {collapsed
-                    ? <ChevronRight size={18} aria-hidden="true" />
-                    : <ChevronLeft size={18} aria-hidden="true" />
-                }
+                {collapsed ? (
+                    <ChevronRight size={18} aria-hidden="true" />
+                ) : (
+                    <ChevronLeft size={18} aria-hidden="true" />
+                )}
             </button>
         </aside>
     );
+};
+
+Sidebar.propTypes = {
+    collapsed: PropTypes.bool.isRequired,
+    mobileOpen: PropTypes.bool.isRequired,
+    onToggle: PropTypes.func.isRequired,
+    onMobileClose: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

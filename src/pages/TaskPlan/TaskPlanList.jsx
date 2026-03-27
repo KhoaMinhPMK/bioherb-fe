@@ -1,13 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import {
-    Plus, CalendarDays, ChevronLeft, ChevronRight,
-    AlertTriangle, CheckCircle2, Clock, MapPin,
-} from 'lucide-react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Plus, CalendarDays, ChevronLeft, ChevronRight, AlertTriangle, Clock, MapPin, Save, X } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import PlanActualBadge from '../../components/PlanActualBadge';
-import StatusBadge from '../../components/StatusBadge';
+import Modal from '../../components/Modal';
 import { useToast } from '../../contexts/ToastContext';
-import { taskPlans, taskLogs, plots } from '../../data/mockData';
+import { useData } from '../../contexts/DataContext';
 import './TaskPlan.scss';
 
 const SHIFT_LABELS = { morning: 'Sáng', afternoon: 'Trưa', evening: 'Chiều' };
@@ -33,12 +30,6 @@ function parseDateVN(str) {
     return new Date(y, m - 1, d);
 }
 
-function daysDiff(dateStr1, dateStr2) {
-    const d1 = parseDateVN(dateStr1);
-    const d2 = parseDateVN(dateStr2);
-    return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
-}
-
 // Compute deviations by comparing logs vs plans
 function computeDeviations(plans, logs) {
     const deviations = [];
@@ -57,9 +48,10 @@ function computeDeviations(plans, logs) {
                     id: `dev-${plan.id}`,
                     type: diffDays >= 3 ? 'major' : 'minor',
                     planId: plan.id,
-                    message: diffDays >= 3
-                        ? `🔴 "${plan.task}" trễ ${diffDays} ngày so với KH (${plan.date})`
-                        : `🟡 "${plan.task}" chưa thực hiện (KH: ${plan.date})`,
+                    message:
+                        diffDays >= 3
+                            ? `🔴 "${plan.task}" trễ ${diffDays} ngày so với KH (${plan.date})`
+                            : `🟡 "${plan.task}" chưa thực hiện (KH: ${plan.date})`,
                     plotId: plan.plotId,
                 });
             }
@@ -94,7 +86,17 @@ function computeDeviations(plans, logs) {
 
 const TaskPlanList = () => {
     const { addToast } = useToast();
+    const { taskPlans, taskLogs, plots, addTaskPlan, isLoading } = useData();
     const [weekOffset, setWeekOffset] = useState(0);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [planForm, setPlanForm] = useState({
+        task: '',
+        date: '',
+        shift: 'morning',
+        plotId: '',
+        assignee: '',
+        status: 'planned',
+    });
 
     // Compute the week range
     const monday = useMemo(() => {
@@ -122,7 +124,7 @@ const TaskPlanList = () => {
             const d = parseDateVN(p.date);
             return d >= monday && d <= sunday;
         });
-    }, [monday, weekDates]);
+    }, [monday, weekDates, taskPlans]);
 
     // Filter logs for this week
     const weekLogs = useMemo(() => {
@@ -132,7 +134,7 @@ const TaskPlanList = () => {
             const d = parseDateVN(l.date);
             return d >= monday && d <= sunday;
         });
-    }, [monday, weekDates]);
+    }, [monday, weekDates, taskLogs]);
 
     // Deviation alerts
     const deviations = useMemo(() => computeDeviations(weekPlans, weekLogs), [weekPlans, weekLogs]);
@@ -157,16 +159,25 @@ const TaskPlanList = () => {
 
     const dayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 
+    const handleAddPlan = useCallback(async () => {
+        if (!planForm.task.trim() || !planForm.date || !planForm.plotId) {
+            addToast('Vui lòng nhập đủ thông tin', 'error');
+            return;
+        }
+        const newId = `TP${String(taskPlans.length + 1).padStart(2, '0')}`;
+        await addTaskPlan({ id: newId, ...planForm });
+        addToast(`Đã thêm kế hoạch "${planForm.task}"`, 'success');
+        setModalOpen(false);
+        setPlanForm({ task: '', date: '', shift: 'morning', plotId: '', assignee: '', status: 'planned' });
+    }, [planForm, taskPlans.length, addTaskPlan, addToast]);
+
     return (
         <div className="page-container">
             <PageHeader
                 title="Kế hoạch sản xuất"
                 subtitle="Timeline công việc theo buổi — đối chiếu thực hiện"
                 actions={
-                    <button
-                        className="btn btn--primary"
-                        onClick={() => addToast('Thêm kế hoạch đang phát triển', 'info')}
-                    >
+                    <button className="btn btn--primary" onClick={() => setModalOpen(true)}>
                         <Plus size={16} /> Thêm kế hoạch
                     </button>
                 }
@@ -199,10 +210,7 @@ const TaskPlanList = () => {
             {/* Week Navigator */}
             <div className="plan-timeline card">
                 <div className="plan-timeline__header">
-                    <button
-                        className="btn btn--ghost"
-                        onClick={() => setWeekOffset((o) => o - 1)}
-                    >
+                    <button className="btn btn--ghost" onClick={() => setWeekOffset((o) => o - 1)}>
                         <ChevronLeft size={18} />
                     </button>
                     <div className="plan-timeline__week-label">
@@ -212,10 +220,7 @@ const TaskPlanList = () => {
                             {weekPlans.length} KH · {weekLogs.length} thực tế
                         </span>
                     </div>
-                    <button
-                        className="btn btn--ghost"
-                        onClick={() => setWeekOffset((o) => o + 1)}
-                    >
+                    <button className="btn btn--ghost" onClick={() => setWeekOffset((o) => o + 1)}>
                         <ChevronRight size={18} />
                     </button>
                 </div>
@@ -235,10 +240,7 @@ const TaskPlanList = () => {
                             {timeline.map((day, i) => {
                                 const isToday = day.dateStr === formatDateVN(new Date());
                                 return (
-                                    <tr
-                                        key={day.dateStr}
-                                        className={isToday ? 'plan-timeline__row--today' : ''}
-                                    >
+                                    <tr key={day.dateStr} className={isToday ? 'plan-timeline__row--today' : ''}>
                                         <td className="plan-timeline__date-cell">
                                             <span className="plan-timeline__day-name">{dayLabels[i]}</span>
                                             <span className="plan-timeline__day-num">
@@ -254,7 +256,6 @@ const TaskPlanList = () => {
                                                     key={shiftKey}
                                                     className={`plan-timeline__cell ${hasContent ? 'plan-timeline__cell--has' : ''}`}
                                                 >
-                                                    {/* Planned tasks */}
                                                     {planned.map((p) => {
                                                         const executed = actual.find((l) => l.planId === p.id);
                                                         return (
@@ -278,7 +279,6 @@ const TaskPlanList = () => {
                                                             </div>
                                                         );
                                                     })}
-                                                    {/* Unplanned logs */}
                                                     {actual
                                                         .filter((l) => !l.planId)
                                                         .map((l) => (
@@ -308,6 +308,80 @@ const TaskPlanList = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Add Plan Modal */}
+            <Modal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title="Thêm kế hoạch mới"
+                footer={
+                    <div className="modal-actions">
+                        <button className="btn btn--outline" onClick={() => setModalOpen(false)}>
+                            <X size={16} /> Hủy
+                        </button>
+                        <button className="btn btn--primary" onClick={handleAddPlan} disabled={isLoading}>
+                            <Save size={16} /> Thêm
+                        </button>
+                    </div>
+                }
+            >
+                <div className="form-fields">
+                    <div className="form-field">
+                        <label className="form-field__label">Công việc *</label>
+                        <input
+                            className="form-field__input"
+                            value={planForm.task}
+                            onChange={(e) => setPlanForm((p) => ({ ...p, task: e.target.value }))}
+                            placeholder="VD: Bón phân, Phun thuốc..."
+                        />
+                    </div>
+                    <div className="form-field">
+                        <label className="form-field__label">Ngày *</label>
+                        <input
+                            className="form-field__input"
+                            value={planForm.date}
+                            onChange={(e) => setPlanForm((p) => ({ ...p, date: e.target.value }))}
+                            placeholder="DD/MM/YYYY"
+                        />
+                    </div>
+                    <div className="form-field">
+                        <label className="form-field__label">Buổi</label>
+                        <select
+                            className="form-field__input"
+                            value={planForm.shift}
+                            onChange={(e) => setPlanForm((p) => ({ ...p, shift: e.target.value }))}
+                        >
+                            <option value="morning">Sáng</option>
+                            <option value="afternoon">Trưa</option>
+                            <option value="evening">Chiều</option>
+                        </select>
+                    </div>
+                    <div className="form-field">
+                        <label className="form-field__label">Vùng trồng *</label>
+                        <select
+                            className="form-field__input"
+                            value={planForm.plotId}
+                            onChange={(e) => setPlanForm((p) => ({ ...p, plotId: e.target.value }))}
+                        >
+                            <option value="">-- Chọn --</option>
+                            {plots.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.name} ({p.id})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="form-field">
+                        <label className="form-field__label">Người thực hiện</label>
+                        <input
+                            className="form-field__input"
+                            value={planForm.assignee}
+                            onChange={(e) => setPlanForm((p) => ({ ...p, assignee: e.target.value }))}
+                            placeholder="Tên người thực hiện"
+                        />
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };

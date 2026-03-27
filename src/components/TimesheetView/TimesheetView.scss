@@ -1,7 +1,6 @@
 @use '../../assets/scss/var' as *;
 
 .timesheet {
-
     // --- Header / Day Navigator ---
     &__header {
         display: flex;
@@ -56,7 +55,8 @@
         border-collapse: collapse;
         min-width: 520px;
 
-        th, td {
+        th,
+        td {
             padding: $space-3 $space-4;
             text-align: center;
             border-bottom: 1px solid $color-border;
@@ -73,8 +73,11 @@
     }
 
     &__name-col {
-        text-align: left !important;
         min-width: 140px;
+    }
+
+    &__table th.timesheet__name-col {
+        text-align: left;
     }
 
     &__shift-col {
@@ -91,8 +94,11 @@
 
     // --- Cells ---
     &__name-cell {
-        text-align: left !important;
         font-weight: $font-weight-medium;
+    }
+
+    &__table td.timesheet__name-cell {
+        text-align: left;
     }
 
     &__shift-cell {
@@ -143,7 +149,6 @@
     // --- Empty state ---
     &__empty {
         text-align: center;
-        padding: $space-8 !important;
         color: $color-text-muted;
 
         svg {
@@ -155,6 +160,10 @@
             display: block;
             font-size: $font-size-sm;
         }
+    }
+
+    &__table td.timesheet__empty {
+        padding: $space-8;
     }
 
     // --- Exception detail cards ---

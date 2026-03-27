@@ -1,0 +1,9 @@
+@use '../../assets/scss/var' as *;
+
+.lot__code {
+    font-family: monospace;
+    font-size: $font-size-xs;
+    background: $color-neutral-100;
+    padding: 2px 6px;
+    border-radius: $radius-sm;
+}

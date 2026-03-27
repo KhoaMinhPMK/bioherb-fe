@@ -1,0 +1,474 @@
+@use '../../../assets/scss/var' as v;
+
+.pricing-page {
+    &__container {
+        max-width: v.$landing-max-width;
+        margin: 0 auto;
+        padding: v.$landing-section-padding v.$space-8;
+    }
+
+    &__gold-line {
+        width: 48px;
+        height: 3px;
+        background: v.$color-landing-gold;
+        margin-bottom: v.$space-5;
+    }
+
+    &__section-header {
+        margin-bottom: v.$space-10;
+    }
+
+    &__section-title {
+        font-size: v.$font-size-4xl;
+        font-weight: v.$font-weight-bold;
+        color: v.$color-landing-text;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    // ===== HERO =====
+    &__hero {
+        background: v.$color-landing-bg-alt;
+        padding-top: v.$space-16;
+    }
+
+    &__hero-title {
+        font-size: v.$font-size-5xl;
+        font-weight: v.$font-weight-bold;
+        color: v.$color-landing-text;
+        margin: 0 0 v.$space-5;
+        letter-spacing: -1px;
+        line-height: 1.1;
+        max-width: 720px;
+
+        @include v.respond-below(v.$bp-md) {
+            font-size: v.$font-size-3xl;
+        }
+    }
+
+    &__hero-subtitle {
+        font-size: v.$font-size-md;
+        color: v.$color-landing-text-secondary;
+        max-width: 560px;
+        margin: 0;
+        line-height: v.$line-height-relaxed;
+    }
+
+    // ===== PLANS =====
+    &__plans {
+        background: #fff;
+    }
+
+    &__plans-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+
+        @include v.respond-below(v.$bp-md) {
+            grid-template-columns: 1fr;
+            max-width: 420px;
+            margin: 0 auto;
+            gap: v.$space-6;
+        }
+    }
+
+    &__plan-card {
+        @include v.sharp-border;
+        padding: v.$space-10;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition:
+            box-shadow v.$transition-hover,
+            transform v.$transition-hover;
+
+        // Merge borders on desktop
+        & + & {
+            border-left: none;
+        }
+        @include v.respond-below(v.$bp-md) {
+            & + & {
+                border-left: 1px solid v.$color-landing-border;
+            }
+        }
+
+        &:hover {
+            box-shadow: v.$shadow-landing-elevated;
+            transform: translateY(-4px);
+            z-index: 1;
+        }
+
+        &--featured {
+            border: 2px solid v.$color-landing-green-dark;
+            background: #fff;
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: v.$color-landing-gold;
+            }
+
+            & + .pricing-page__plan-card {
+                border-left: none;
+            }
+
+            &:hover {
+                box-shadow: v.$shadow-landing-sharp-hover;
+                transform: translate(-2px, -4px);
+            }
+        }
+    }
+
+    &__plan-badge {
+        display: inline-block;
+        font-size: v.$font-size-xs;
+        font-weight: v.$font-weight-bold;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: v.$color-landing-gold;
+        margin-bottom: v.$space-4;
+    }
+
+    &__plan-name {
+        font-size: v.$font-size-lg;
+        font-weight: v.$font-weight-bold;
+        color: v.$color-landing-text;
+        margin: 0 0 v.$space-2;
+        letter-spacing: 0.5px;
+    }
+
+    &__plan-subtitle {
+        font-size: v.$font-size-sm;
+        color: v.$color-landing-text-secondary;
+        margin: 0 0 v.$space-8;
+        line-height: v.$line-height-relaxed;
+    }
+
+    &__plan-features {
+        list-style: none;
+        margin: 0 0 v.$space-8;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: v.$space-3;
+        flex: 1;
+    }
+
+    &__plan-feature {
+        display: flex;
+        align-items: flex-start;
+        gap: v.$space-3;
+        font-size: v.$font-size-base;
+        color: v.$color-landing-text;
+        line-height: 1.4;
+    }
+
+    &__plan-check {
+        color: v.$color-landing-green-medium;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    &__plan-cta {
+        display: block;
+        text-align: center;
+        padding: 12px v.$space-6;
+        font-size: v.$font-size-xs;
+        font-weight: v.$font-weight-bold;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all v.$transition-hover;
+        color: v.$color-landing-text;
+        border: 1px solid v.$color-landing-border;
+
+        &:hover {
+            border-color: v.$color-landing-green-dark;
+            color: v.$color-landing-green-dark;
+        }
+
+        &--primary {
+            background: v.$color-landing-green-dark;
+            color: #fff;
+            border-color: v.$color-landing-green-dark;
+
+            &:hover {
+                background: v.$color-landing-green-darker;
+                color: #fff;
+                transform: translateY(-2px);
+            }
+        }
+    }
+
+    // ===== SETUP FEE =====
+    &__setup {
+        background: v.$color-landing-bg-alt;
+    }
+
+    &__setup-card {
+        @include v.landing-dark-block;
+        padding: v.$space-12;
+        text-align: center;
+        position: relative;
+    }
+
+    &__setup-accent {
+        width: 48px;
+        height: 3px;
+        background: v.$color-landing-gold;
+        margin: 0 auto v.$space-6;
+    }
+
+    &__setup-title {
+        font-size: v.$font-size-2xl;
+        font-weight: v.$font-weight-bold;
+        color: #fff;
+        margin: 0 0 v.$space-4;
+    }
+
+    &__setup-desc {
+        font-size: v.$font-size-md;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0 0 v.$space-3;
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: v.$line-height-relaxed;
+    }
+
+    &__setup-note {
+        font-size: v.$font-size-sm;
+        color: rgba(255, 255, 255, 0.3);
+        font-style: italic;
+        margin: 0;
+    }
+
+    // ===== FAQ — Two-column editorial =====
+    &__faq {
+        background: v.$color-landing-bg-alt;
+    }
+
+    &__faq-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.8fr;
+        gap: v.$space-16;
+        align-items: start;
+
+        @include v.respond-below(v.$bp-md) {
+            grid-template-columns: 1fr;
+            gap: v.$space-8;
+        }
+    }
+
+    &__faq-left {
+        position: sticky;
+        top: 120px;
+
+        @include v.respond-below(v.$bp-md) {
+            position: static;
+        }
+    }
+
+    &__faq-heading {
+        font-size: v.$font-size-5xl;
+        font-weight: v.$font-weight-bold;
+        color: v.$color-landing-text;
+        margin: 0 0 v.$space-4;
+        letter-spacing: -1px;
+        line-height: 1.1;
+
+        @include v.respond-below(v.$bp-md) {
+            font-size: v.$font-size-3xl;
+        }
+    }
+
+    &__faq-subtext {
+        font-size: v.$font-size-base;
+        color: v.$color-landing-text-secondary;
+        margin: 0;
+        line-height: v.$line-height-relaxed;
+    }
+
+    &__faq-right {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__faq-item {
+        border-bottom: 1px solid v.$color-landing-border;
+        position: relative;
+        transition: border-color v.$transition-hover;
+
+        // Gold left accent when open
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: v.$color-landing-gold;
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 400ms v.$ease-out-expo;
+        }
+
+        &--open {
+            &::before {
+                transform: scaleY(1);
+            }
+
+            .pricing-page__faq-answer-wrap {
+                max-height: 300px;
+                opacity: 1;
+                padding-bottom: v.$space-6;
+            }
+
+            .pricing-page__faq-num {
+                color: v.$color-landing-gold;
+            }
+
+            .pricing-page__faq-toggle {
+                transform: rotate(90deg);
+                color: v.$color-landing-gold;
+            }
+        }
+    }
+
+    &__faq-question {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: v.$space-4;
+        padding: v.$space-6 0 v.$space-6 v.$space-5;
+        background: none;
+        border: none;
+        color: v.$color-landing-text;
+        cursor: pointer;
+        text-align: left;
+        font-family: v.$font-family;
+        transition: color v.$transition-hover;
+
+        &:hover {
+            color: v.$color-landing-green-medium;
+
+            .pricing-page__faq-num {
+                color: v.$color-landing-gold;
+            }
+        }
+    }
+
+    &__faq-num {
+        font-size: v.$font-size-xs;
+        font-weight: v.$font-weight-bold;
+        color: v.$color-landing-text-secondary;
+        letter-spacing: 1px;
+        flex-shrink: 0;
+        width: 28px;
+        transition: color v.$transition-hover;
+    }
+
+    &__faq-q-text {
+        flex: 1;
+        font-size: v.$font-size-md;
+        font-weight: v.$font-weight-semibold;
+        line-height: 1.4;
+    }
+
+    &__faq-toggle {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        color: v.$color-landing-text-secondary;
+        transition:
+            transform v.$transition-hover,
+            color v.$transition-hover;
+    }
+
+    &__faq-answer-wrap {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition:
+            max-height 500ms v.$ease-out-expo,
+            opacity 400ms ease,
+            padding 400ms ease;
+        padding-bottom: 0;
+    }
+
+    &__faq-answer {
+        padding: 0 v.$space-10 0 calc(v.$space-5 + 28px + v.$space-4);
+
+        p {
+            margin: 0;
+            font-size: v.$font-size-base;
+            color: v.$color-landing-text-secondary;
+            line-height: v.$line-height-relaxed;
+        }
+    }
+
+    // ===== CTA =====
+    &__cta {
+        @include v.landing-dark-block;
+    }
+
+    &__cta-inner {
+        text-align: center;
+    }
+
+    &__cta-title {
+        font-size: v.$font-size-3xl;
+        font-weight: v.$font-weight-bold;
+        color: #fff;
+        margin: 0 0 v.$space-4;
+        font-family: v.$font-family-serif;
+        font-style: italic;
+        max-width: 640px;
+        margin-left: auto;
+        margin-right: auto;
+
+        @include v.respond-below(v.$bp-md) {
+            font-size: v.$font-size-2xl;
+        }
+    }
+
+    &__cta-desc {
+        font-size: v.$font-size-md;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0 0 v.$space-8;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    &__cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: v.$space-2;
+        padding: 14px v.$space-10;
+        background: #fff;
+        color: v.$color-landing-green-dark;
+        font-size: v.$font-size-xs;
+        font-weight: v.$font-weight-bold;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all v.$transition-hover;
+
+        span {
+            position: relative;
+        }
+
+        &:hover {
+            background: v.$color-landing-bg-alt;
+            transform: translateY(-2px);
+        }
+    }
+}

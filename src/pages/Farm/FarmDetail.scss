@@ -1,0 +1,39 @@
+@use '../../assets/scss/var' as *;
+
+.farm-detail__stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: $space-4;
+    margin-bottom: $space-5;
+
+    @include respond-below($bp-md) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    @include respond-below($bp-sm) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.farm-detail__stat-card {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+}
+
+.farm-detail__stat-icon {
+    color: $color-primary-500;
+    flex-shrink: 0;
+}
+
+.farm-detail__stat-label {
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+    display: block;
+}
+
+.farm-detail__stat-value {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    margin: 0;
+}

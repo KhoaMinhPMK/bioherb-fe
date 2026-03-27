@@ -1,0 +1,132 @@
+@use '../../../assets/scss/var' as *;
+
+// ─── Entry Card ─────────────────────────────────
+.gacp-entry-card {
+    display: flex;
+    gap: $space-3;
+
+    &__icon-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 36px;
+        flex-shrink: 0;
+    }
+
+    &__icon {
+        font-size: 1.3rem;
+        line-height: 1;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $color-surface-hover;
+        border-radius: $radius-md;
+    }
+
+    &__line {
+        width: 2px;
+        flex: 1;
+        background: $color-border;
+        margin-top: $space-2;
+        min-height: $space-4;
+    }
+
+    &__content {
+        flex: 1;
+        background: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        padding: $space-3;
+        margin-bottom: $space-3;
+        transition: box-shadow $transition-base;
+
+        &:hover {
+            box-shadow: $shadow-sm;
+        }
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: $space-2;
+    }
+
+    &__badge {
+        display: inline-block;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $color-surface;
+        padding: 2px $space-2;
+        border-radius: $radius-sm;
+        letter-spacing: 0.02em;
+    }
+
+    &__time {
+        font-size: $font-size-xs;
+        color: $color-text-secondary;
+    }
+
+    &__summary {
+        font-size: $font-size-base;
+        font-weight: $font-weight-medium;
+        color: $color-text-primary;
+        margin: 0 0 $space-1;
+        line-height: $line-height-normal;
+    }
+
+    &__note {
+        font-size: $font-size-xs;
+        color: $color-text-secondary;
+        margin: 0 0 $space-2;
+        line-height: $line-height-normal;
+        font-style: italic;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__creator {
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+    }
+
+    &__actions {
+        display: flex;
+        gap: $space-1;
+        opacity: 0;
+        transition: opacity $transition-fast;
+
+        .gacp-entry-card__content:hover & {
+            opacity: 1;
+        }
+    }
+
+    &__btn {
+        background: none;
+        border: 1px solid $color-border;
+        border-radius: $radius-sm;
+        padding: $space-1 $space-2;
+        cursor: pointer;
+        color: $color-text-secondary;
+        transition: all $transition-fast;
+        display: flex;
+        align-items: center;
+
+        &:hover {
+            background: $color-surface-hover;
+            color: $color-brand-primary;
+        }
+
+        &--danger:hover {
+            background: #fff1f0;
+            color: $color-destructive;
+            border-color: #ffccc7;
+        }
+    }
+}

@@ -11,7 +11,9 @@
     left: 0;
     top: 0;
     z-index: $z-sidebar;
-    transition: width $transition-slow, transform $transition-slow;
+    transition:
+        width $transition-slow,
+        transform $transition-slow;
     overflow: hidden;
 
     &--collapsed {
@@ -61,13 +63,16 @@
         object-fit: contain;
         flex-shrink: 0;
         border-radius: $radius-md;
-        transition: width $transition-fast, height $transition-fast;
+        transition:
+            width $transition-fast,
+            height $transition-fast;
     }
 
-    &__logo-name {
-        font-size: $font-size-md;
-        font-weight: $font-weight-bold;
-        color: $color-text-primary;
+    &__logo-char {
+        height: 20px;
+        width: auto;
+        object-fit: contain;
+        display: block;
     }
 
     &__logo-version {

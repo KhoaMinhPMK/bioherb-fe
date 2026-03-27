@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import Header from '../../components/Header';
@@ -52,6 +53,17 @@ const MainLayout = ({ children }) => {
         };
     }, [mobileOpen]);
 
+    // Listen for sidebar collapse request (e.g. from GACP workspace)
+    useEffect(() => {
+        const handleCollapseRequest = (e) => {
+            if (!isMobile) {
+                setCollapsed(!!e.detail);
+            }
+        };
+        window.addEventListener('sidebar:request-collapse', handleCollapseRequest);
+        return () => window.removeEventListener('sidebar:request-collapse', handleCollapseRequest);
+    }, [isMobile]);
+
     return (
         <div className={`app-layout ${collapsed ? 'app-layout--collapsed' : ''}`}>
             <Sidebar
@@ -78,6 +90,10 @@ const MainLayout = ({ children }) => {
             </div>
         </div>
     );
+};
+
+MainLayout.propTypes = {
+    children: PropTypes.node.isRequired,
 };
 
 export default MainLayout;

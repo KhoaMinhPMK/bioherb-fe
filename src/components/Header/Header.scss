@@ -172,7 +172,8 @@
         cursor: pointer;
         transition: background $transition-fast;
 
-        &:hover, &--active {
+        &:hover,
+        &--active {
             background: $color-surface-hover;
         }
 
@@ -351,7 +352,7 @@
     &__notif-item {
         display: flex;
         gap: $space-3;
-        padding: $space-3 $space-4;
+        padding: $space-2 $space-3;
         border-bottom: 1px solid $color-border;
         cursor: pointer;
         transition: background $transition-fast;
@@ -503,6 +504,11 @@
         @include respond-below($bp-md) {
             padding: $space-3 $space-4;
         }
+
+        & > svg {
+            width: 16px;
+            height: 16px;
+        }
     }
 }
 
@@ -552,4 +558,3 @@
         border-color: $color-neutral-400;
     }
 }
-

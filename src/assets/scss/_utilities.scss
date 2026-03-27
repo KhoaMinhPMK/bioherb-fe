@@ -1,0 +1,86 @@
+@use './var' as *;
+
+// ============================================
+// UTILITY CLASSES
+// ============================================
+
+// --- Text Colors ---
+.text-primary {
+    color: $color-text-primary;
+}
+.text-secondary {
+    color: $color-text-secondary;
+}
+.text-muted {
+    color: $color-text-muted;
+}
+.text-brand {
+    color: $color-brand-primary;
+}
+.text-success {
+    color: $color-success;
+}
+.text-warning {
+    color: $color-warning;
+}
+.text-error {
+    color: $color-error;
+}
+
+// --- Font Weights ---
+.font-medium {
+    font-weight: $font-weight-medium;
+}
+.font-semibold {
+    font-weight: $font-weight-semibold;
+}
+.font-bold {
+    font-weight: $font-weight-bold;
+}
+
+// --- Animations ---
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.animate-slideInLeft {
+    animation: slideInLeft 0.3s ease forwards;
+}
+
+// --- Inline Icon ---
+.icon-inline {
+    display: inline;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+// --- Cycle Code ---
+.cycle-code {
+    display: inline-block;
+    font-size: $font-size-xs;
+    background: $color-neutral-100;
+    padding: 2px $space-2;
+    border-radius: $radius-sm;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: $color-text-secondary;
+}
+
+// --- Responsive Show/Hide ---
+// NOTE: !important is intentional for utility overrides
+@include respond-below($bp-md) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+@media (min-width: #{$bp-md + 1}) {
+    .show-mobile-only {
+        display: none !important;
+    }
+}
+
+@include respond-below($bp-lg) {
+    .hide-tablet {
+        display: none !important;
+    }
+}

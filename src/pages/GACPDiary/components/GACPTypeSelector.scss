@@ -1,0 +1,148 @@
+@use '../../../assets/scss/var' as *;
+
+// ─── Overlay ────────────────────────────────────
+.gacp-type-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: $z-modal - 1;
+    animation: gacpFadeIn 200ms ease;
+}
+
+// ─── Selector Panel ─────────────────────────────
+.gacp-type-selector {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: $color-surface;
+    border-radius: $radius-xl $radius-xl 0 0;
+    z-index: $z-modal;
+    max-height: 75vh;
+    overflow-y: auto;
+    animation: gacpSlideUp 300ms ease;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+
+    @media (min-width: $bp-md) {
+        left: 50%;
+        right: auto;
+        bottom: 50%;
+        transform: translate(-50%, 50%);
+        border-radius: $radius-lg;
+        max-width: 480px;
+        width: 90%;
+        max-height: 70vh;
+        animation: gacpFadeScaleIn 250ms ease;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: $space-4 $space-5 $space-2;
+        border-bottom: 1px solid $color-border;
+        position: sticky;
+        top: 0;
+        background: $color-surface;
+    }
+
+    &__title {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+    }
+
+    &__close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: $space-2;
+        border-radius: $radius-md;
+        color: $color-text-secondary;
+        transition: background $transition-fast;
+        &:hover {
+            background: $color-surface-hover;
+        }
+    }
+
+    // ─── Grid ───────────────────────────────────
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: $space-2;
+        padding: $space-4 $space-5 $space-6;
+
+        @include respond-below($bp-sm) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    // ─── Each Item ──────────────────────────────
+    &__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $space-2;
+        padding: $space-3 $space-2;
+        border: 2px solid $color-border;
+        border-radius: $radius-lg;
+        background: $color-surface;
+        cursor: pointer;
+        transition: all $transition-base;
+        min-height: 80px;
+
+        &:hover {
+            border-color: var(--type-color, $color-brand-primary);
+            background: $color-surface-hover;
+            transform: translateY(-2px);
+            box-shadow: $shadow-md;
+        }
+
+        &:active {
+            transform: scale(0.96);
+        }
+    }
+
+    &__icon {
+        font-size: 1.6rem;
+        line-height: 1;
+    }
+
+    &__label {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        color: $color-text-primary;
+        text-align: center;
+        line-height: $line-height-tight;
+    }
+}
+
+// ─── Animations ─────────────────────────────────
+@keyframes gacpSlideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes gacpFadeScaleIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 50%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 50%) scale(1);
+    }
+}
+
+@keyframes gacpFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Search, User, Menu, Settings, LogOut, CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { useAuth } from '../../contexts/AuthContext';
 import useIsMobile from '../../hooks/useIsMobile';
 import './Header.scss';
 
@@ -19,7 +21,20 @@ const breadcrumbMap = {
     '/harvests': 'Thu hoạch',
     '/qr': 'QR Truy xuất',
     '/reports': 'Báo cáo',
-    '/admin/users': 'Quản trị',
+    '/admin/users': 'Quản trị User',
+    '/admin/dashboard': 'Dashboard Admin',
+    '/admin/permissions': 'Phân quyền',
+    '/admin/audit-log': 'Nhật ký HT',
+    '/cooperatives': 'Hợp tác xã',
+    '/lots': 'Lô hàng',
+    '/calendar': 'Lịch canh tác',
+    '/warehouse': 'Kho vật tư',
+    '/worker-stats': 'Thống kê nhân công',
+    '/profile': 'Hồ sơ cá nhân',
+    '/settings': 'Cài đặt',
+    '/notifications': 'Thông báo',
+    '/change-password': 'Đổi mật khẩu',
+    '/help': 'Hướng dẫn',
 };
 
 const Header = ({ onMenuToggle }) => {
@@ -27,6 +42,7 @@ const Header = ({ onMenuToggle }) => {
     const navigate = useNavigate();
     const { addToast } = useToast();
     const { locale, toggleLocale } = useI18n();
+    const { currentUser, roleLabel, logout } = useAuth();
     const isMobile = useIsMobile(768);
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -71,11 +87,7 @@ const Header = ({ onMenuToggle }) => {
     return (
         <header className="app-header" role="banner">
             <div className="app-header__left">
-                <button
-                    className="app-header__menu-btn"
-                    onClick={onMenuToggle}
-                    aria-label="Toggle menu"
-                >
+                <button className="app-header__menu-btn" onClick={onMenuToggle} aria-label="Toggle menu">
                     <Menu size={20} aria-hidden="true" />
                 </button>
                 <nav className="app-header__breadcrumb" aria-label="Breadcrumb">
@@ -87,7 +99,9 @@ const Header = ({ onMenuToggle }) => {
                 {/* Search - desktop only */}
                 <div className="app-header__search">
                     <Search size={16} className="app-header__search-icon" aria-hidden="true" />
-                    <label htmlFor="header-search" className="sr-only">Tìm kiếm</label>
+                    <label htmlFor="header-search" className="sr-only">
+                        Tìm kiếm
+                    </label>
                     <input
                         id="header-search"
                         type="text"
@@ -110,7 +124,10 @@ const Header = ({ onMenuToggle }) => {
                 <div className="app-header__icon-wrapper" ref={notifRef}>
                     <button
                         className={`app-header__icon-btn ${isNotifOpen ? 'app-header__icon-btn--active' : ''}`}
-                        onClick={() => { setIsNotifOpen(!isNotifOpen); setIsProfileOpen(false); }}
+                        onClick={() => {
+                            setIsNotifOpen(!isNotifOpen);
+                            setIsProfileOpen(false);
+                        }}
                         aria-label="Thông báo"
                     >
                         <Bell size={20} aria-hidden="true" />
@@ -121,10 +138,7 @@ const Header = ({ onMenuToggle }) => {
                         <>
                             {/* Mobile: full-screen overlay behind dropdown */}
                             {isMobile && (
-                                <div
-                                    className="app-header__dropdown-overlay"
-                                    onClick={() => setIsNotifOpen(false)}
-                                />
+                                <div className="app-header__dropdown-overlay" onClick={() => setIsNotifOpen(false)} />
                             )}
                             <div className="app-header__dropdown app-header__dropdown--notif">
                                 <div className="app-header__dropdown-header">
@@ -156,7 +170,9 @@ const Header = ({ onMenuToggle }) => {
                                             <AlertCircle size={16} />
                                         </div>
                                         <div className="app-header__notif-content">
-                                            <p><strong>Farm Long An</strong> phát hiện tỷ lệ rầy nâu vượt mức.</p>
+                                            <p>
+                                                <strong>Farm Long An</strong> phát hiện tỷ lệ rầy nâu vượt mức.
+                                            </p>
                                             <span>10 phút trước</span>
                                         </div>
                                     </div>
@@ -165,7 +181,9 @@ const Header = ({ onMenuToggle }) => {
                                             <CheckCircle2 size={16} />
                                         </div>
                                         <div className="app-header__notif-content">
-                                            <p><strong>Trần Văn Tài</strong> đã nộp bảng chấm công tuần.</p>
+                                            <p>
+                                                <strong>Trần Văn Tài</strong> đã nộp bảng chấm công tuần.
+                                            </p>
                                             <span>2 giờ trước</span>
                                         </div>
                                     </div>
@@ -174,16 +192,20 @@ const Header = ({ onMenuToggle }) => {
                                             <Info size={16} />
                                         </div>
                                         <div className="app-header__notif-content">
-                                            <p>Mùa vụ <strong>2026-DX</strong> được duyệt trạng thái In-progress.</p>
+                                            <p>
+                                                Mùa vụ <strong>2026-DX</strong> được duyệt trạng thái In-progress.
+                                            </p>
                                             <span>Hôm qua</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="app-header__dropdown-footer">
-                                    <button onClick={() => {
-                                        addToast('Đang tải danh sách thông báo đầy đủ...', 'info');
-                                        setIsNotifOpen(false);
-                                    }}>
+                                    <button
+                                        onClick={() => {
+                                            navigate('/notifications');
+                                            setIsNotifOpen(false);
+                                        }}
+                                    >
                                         Xem tất cả thông báo
                                     </button>
                                 </div>
@@ -196,24 +218,24 @@ const Header = ({ onMenuToggle }) => {
                 <div className="app-header__user-wrapper" ref={profileRef}>
                     <div
                         className={`app-header__user ${isProfileOpen ? 'app-header__user--active' : ''}`}
-                        onClick={() => { setIsProfileOpen(!isProfileOpen); setIsNotifOpen(false); }}
+                        onClick={() => {
+                            setIsProfileOpen(!isProfileOpen);
+                            setIsNotifOpen(false);
+                        }}
                     >
                         <div className="app-header__avatar" aria-hidden="true">
                             <User size={18} />
                         </div>
                         <div className="app-header__user-info">
-                            <span className="app-header__user-name">Nguyễn Thị Bình</span>
-                            <span className="app-header__user-role">Quản lý</span>
+                            <span className="app-header__user-name">{currentUser?.name || 'User'}</span>
+                            <span className="app-header__user-role">{roleLabel}</span>
                         </div>
                     </div>
 
                     {isProfileOpen && (
                         <>
                             {isMobile && (
-                                <div
-                                    className="app-header__dropdown-overlay"
-                                    onClick={() => setIsProfileOpen(false)}
-                                />
+                                <div className="app-header__dropdown-overlay" onClick={() => setIsProfileOpen(false)} />
                             )}
                             <div className="app-header__dropdown app-header__dropdown--profile">
                                 <div className="app-header__profile-header">
@@ -221,8 +243,8 @@ const Header = ({ onMenuToggle }) => {
                                         <User size={18} />
                                     </div>
                                     <div className="app-header__profile-info">
-                                        <span className="app-header__profile-name">Nguyễn Thị Bình</span>
-                                        <span className="app-header__profile-email">binh@sankit.vn</span>
+                                        <span className="app-header__profile-name">{currentUser?.name || 'User'}</span>
+                                        <span className="app-header__profile-email">{currentUser?.email || ''}</span>
                                     </div>
                                     {isMobile && (
                                         <button
@@ -238,7 +260,7 @@ const Header = ({ onMenuToggle }) => {
                                 <button
                                     className="app-header__dropdown-item"
                                     onClick={() => {
-                                        addToast('Trang Hồ sơ cá nhân đang phát triển...', 'info');
+                                        navigate('/profile');
                                         setIsProfileOpen(false);
                                     }}
                                 >
@@ -247,7 +269,7 @@ const Header = ({ onMenuToggle }) => {
                                 <button
                                     className="app-header__dropdown-item"
                                     onClick={() => {
-                                        addToast('Trang Cài đặt đang phát triển...', 'info');
+                                        navigate('/settings');
                                         setIsProfileOpen(false);
                                     }}
                                 >
@@ -255,8 +277,20 @@ const Header = ({ onMenuToggle }) => {
                                 </button>
                                 <div className="app-header__dropdown-divider" />
                                 <button
+                                    className="app-header__dropdown-item"
+                                    onClick={() => {
+                                        navigate('/change-password');
+                                        setIsProfileOpen(false);
+                                    }}
+                                >
+                                    <Settings size={16} /> Đổi mật khẩu
+                                </button>
+                                <button
                                     className="app-header__dropdown-item app-header__dropdown-item--danger"
-                                    onClick={() => navigate('/login')}
+                                    onClick={() => {
+                                        logout();
+                                        navigate('/login');
+                                    }}
                                 >
                                     <LogOut size={16} /> Đăng xuất
                                 </button>
@@ -267,6 +301,10 @@ const Header = ({ onMenuToggle }) => {
             </div>
         </header>
     );
+};
+
+Header.propTypes = {
+    onMenuToggle: PropTypes.func.isRequired,
 };
 
 export default Header;

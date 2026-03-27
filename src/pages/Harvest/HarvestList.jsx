@@ -1,52 +1,237 @@
-import React from 'react';
-import { Plus, Wheat, QrCode } from 'lucide-react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Plus, Wheat, Edit, Trash2, Save, X } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import DataTable from '../../components/DataTable';
 import StatusBadge from '../../components/StatusBadge';
+import Modal from '../../components/Modal';
+import { useData } from '../../contexts/DataContext';
+import { useToast } from '../../contexts/ToastContext';
 import './HarvestList.scss';
-const harvests = [
-    { id: 'H01', date: '25/10/2025', cycle: '2025-HT', plot: 'Ruộng lúa ST25', quantity: '8.5 tấn', quality: 'Loại A', lots: 3 },
-    { id: 'H02', date: '30/04/2026', cycle: '2026-DX-2', plot: 'Ruộng lúa nếp', quantity: '12 tấn (dự kiến)', quality: '—', lots: 0 },
-    { id: 'H03', date: '15/05/2026', cycle: '2026-XH', plot: 'Ruộng cà chua', quantity: '3 tấn', quality: 'Loại B', lots: 2 },
-];
-const productLots = [
-    { code: 'F01-VT01-2025HT-H01-P01', product: 'Gạo ST25 (5kg)', quantity: '2000 bao', date: '01/11/2025', qr: true },
-    { code: 'F01-VT01-2025HT-H01-P02', product: 'Gạo ST25 (10kg)', quantity: '500 bao', date: '01/11/2025', qr: true },
-    { code: 'F01-VT01-2025HT-H01-P03', product: 'Gạo ST25 (25kg)', quantity: '100 bao', date: '01/11/2025', qr: true },
-    { code: 'F01-VT02-2026XH-H03-P01', product: 'Cà chua hữu cơ (1kg)', quantity: '3000 gói', date: '20/05/2026', qr: true },
-    { code: 'F01-VT02-2026XH-H03-P02', product: 'Cà chua hữu cơ (3kg)', quantity: '500 gói', date: '20/05/2026', qr: true },
-];
-const harvestColumns = [
-    { key: 'id', label: 'Mã', sortable: true, render: (v) => <strong>{v}</strong> },
-    { key: 'date', label: 'Ngày', sortable: true },
-    { key: 'cycle', label: 'Mùa vụ', render: (v) => <code className="cycle-code">{v}</code> },
-    { key: 'plot', label: 'Vùng trồng' },
-    { key: 'quantity', label: 'Sản lượng', render: (v) => <span style={{ fontWeight: 600 }}>{v}</span> },
-    { key: 'quality', label: 'Phân loại' },
-    {
-        key: 'lots', label: 'Lô sản phẩm',
-        render: (v) => v > 0
-            ? <StatusBadge status="Active" label={`${v} lô`}/>
-            : <StatusBadge status="Draft" label="Chưa tách"/>
-    },
-];
-const lotColumns = [
-    { key: 'code', label: 'Mã lô', render: (v) => <code style={{ fontSize: 12, fontWeight: 600 }}>{v}</code> },
-    { key: 'product', label: 'Sản phẩm', render: (v) => <span style={{ fontWeight: 500 }}>{v}</span> },
-    { key: 'quantity', label: 'Số lượng' },
-    { key: 'date', label: 'Ngày đóng gói' },
-    {
-        key: 'qr', label: 'QR',
-        render: (v) => v && <button className="btn btn--outline" style={{ fontSize: 12, padding: '4px 12px' }} onClick={() => window.addToast('Đang tạo file in QR Code...', 'success')}><QrCode size={14}/> In QR</button>
-    },
-];
-const HarvestList = () => (<div className="page-container">
-        <PageHeader title="Thu hoạch & Lô sản phẩm" subtitle="Quản lý thu hoạch, đóng gói và sinh mã truy xuất" actions={<button className="btn btn--primary" onClick={() => window.addToast('Tính năng tạo đợt thu hoạch đang phát triển', 'info')}><Plus size={16}/> Tạo đợt thu hoạch</button>}/>
 
-        <h3 className="section-heading"><Wheat size={18}/> Đợt thu hoạch</h3>
-        <DataTable columns={harvestColumns} data={harvests} pageSize={5}/>
+const EMPTY_HARVEST = { date: '', cycleId: '', plotId: '', quantity: '', quality: '—', lots: 0 };
 
-        <h3 className="section-heading" style={{ marginTop: 24 }}><QrCode size={18}/> Lô sản phẩm</h3>
-        <DataTable columns={lotColumns} data={productLots} pageSize={5}/>
-    </div>);
+const HarvestList = () => {
+    const { harvestBatches, plots, cropCycles, addHarvestBatch, updateHarvestBatch, deleteHarvestBatch, isLoading } =
+        useData();
+    const { addToast } = useToast();
+    const [modalOpen, setModalOpen] = useState(false);
+    const [editItem, setEditItem] = useState(null);
+    const [formData, setFormData] = useState(EMPTY_HARVEST);
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+    const tableData = useMemo(() => {
+        return harvestBatches.map((h) => {
+            const plot = plots.find((p) => p.id === h.plotId);
+            return { ...h, plotName: plot?.name || h.plotId || '—' };
+        });
+    }, [harvestBatches, plots]);
+
+    const openEdit = useCallback((item) => {
+        setEditItem(item);
+        setFormData({
+            date: item.date,
+            cycleId: item.cycleId || '',
+            plotId: item.plotId || '',
+            quantity: item.quantity,
+            quality: item.quality,
+            lots: item.lots,
+        });
+        setModalOpen(true);
+    }, []);
+
+    const harvestColumns = useMemo(
+        () => [
+            { key: 'id', label: 'Mã', sortable: true, render: (v) => <strong>{v}</strong> },
+            { key: 'date', label: 'Ngày', sortable: true },
+            { key: 'cycleId', label: 'Mùa vụ', render: (v) => <code className="cycle-code">{v}</code> },
+            { key: 'plotName', label: 'Vùng trồng' },
+            { key: 'quantity', label: 'Sản lượng', render: (v) => <span className="harvest-list__quantity">{v}</span> },
+            { key: 'quality', label: 'Phân loại' },
+            {
+                key: 'lots',
+                label: 'Lô',
+                width: '100px',
+                render: (v) =>
+                    v > 0 ? (
+                        <StatusBadge status="Active" label={`${v} lô`} />
+                    ) : (
+                        <StatusBadge status="Draft" label="Chưa tách" />
+                    ),
+            },
+            {
+                key: '_actions',
+                label: '',
+                width: '80px',
+                render: (_, row) => (
+                    <div className="table-actions">
+                        <button className="btn-icon" title="Sửa" onClick={() => openEdit(row)}>
+                            <Edit size={14} />
+                        </button>
+                        <button className="btn-icon btn-icon--danger" title="Xóa" onClick={() => setDeleteConfirm(row)}>
+                            <Trash2 size={14} />
+                        </button>
+                    </div>
+                ),
+            },
+        ],
+        [openEdit],
+    );
+
+    const handleSave = useCallback(async () => {
+        if (!formData.date || !formData.quantity) {
+            addToast('Vui lòng nhập đủ thông tin', 'error');
+            return;
+        }
+        if (editItem) {
+            await updateHarvestBatch(editItem.id, formData);
+            addToast('Đã cập nhật đợt thu hoạch', 'success');
+        } else {
+            const newId = `H${String(harvestBatches.length + 1).padStart(2, '0')}`;
+            await addHarvestBatch({ id: newId, ...formData });
+            addToast('Đã tạo đợt thu hoạch mới', 'success');
+        }
+        setModalOpen(false);
+        setEditItem(null);
+        setFormData(EMPTY_HARVEST);
+    }, [formData, editItem, harvestBatches.length, addHarvestBatch, updateHarvestBatch, addToast]);
+
+    return (
+        <div className="page-container">
+            <PageHeader
+                title="Thu hoạch & Lô sản phẩm"
+                subtitle="Quản lý thu hoạch, đóng gói và sinh mã truy xuất"
+                actions={
+                    <button
+                        className="btn btn--primary"
+                        onClick={() => {
+                            setEditItem(null);
+                            setFormData(EMPTY_HARVEST);
+                            setModalOpen(true);
+                        }}
+                    >
+                        <Plus size={16} /> Tạo đợt thu hoạch
+                    </button>
+                }
+            />
+
+            <h3 className="section-heading">
+                <Wheat size={18} /> Đợt thu hoạch
+            </h3>
+            <div className="card">
+                <DataTable columns={harvestColumns} data={tableData} pageSize={10} />
+            </div>
+
+            {/* Create/Edit Modal */}
+            <Modal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title={editItem ? 'Cập nhật thu hoạch' : 'Tạo đợt thu hoạch mới'}
+                footer={
+                    <div className="modal-actions">
+                        <button className="btn btn--outline" onClick={() => setModalOpen(false)}>
+                            <X size={16} /> Hủy
+                        </button>
+                        <button className="btn btn--primary" onClick={handleSave} disabled={isLoading}>
+                            <Save size={16} /> {editItem ? 'Cập nhật' : 'Tạo'}
+                        </button>
+                    </div>
+                }
+            >
+                <div className="form-fields">
+                    <div className="form-field">
+                        <label className="form-field__label">Ngày thu hoạch *</label>
+                        <input
+                            className="form-field__input"
+                            value={formData.date}
+                            onChange={(e) => setFormData((p) => ({ ...p, date: e.target.value }))}
+                            placeholder="DD/MM/YYYY"
+                        />
+                    </div>
+                    <div className="form-field">
+                        <label className="form-field__label">Vùng trồng</label>
+                        <select
+                            className="form-field__input"
+                            value={formData.plotId}
+                            onChange={(e) => setFormData((p) => ({ ...p, plotId: e.target.value }))}
+                        >
+                            <option value="">-- Chọn --</option>
+                            {plots.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="form-field">
+                        <label className="form-field__label">Mùa vụ</label>
+                        <select
+                            className="form-field__input"
+                            value={formData.cycleId}
+                            onChange={(e) => setFormData((p) => ({ ...p, cycleId: e.target.value }))}
+                        >
+                            <option value="">-- Chọn --</option>
+                            {cropCycles.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                    {c.name} ({c.id})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="form-field">
+                        <label className="form-field__label">Sản lượng *</label>
+                        <input
+                            className="form-field__input"
+                            value={formData.quantity}
+                            onChange={(e) => setFormData((p) => ({ ...p, quantity: e.target.value }))}
+                            placeholder="VD: 8.5 tấn"
+                        />
+                    </div>
+                    <div className="form-field">
+                        <label className="form-field__label">Phân loại</label>
+                        <select
+                            className="form-field__input"
+                            value={formData.quality}
+                            onChange={(e) => setFormData((p) => ({ ...p, quality: e.target.value }))}
+                        >
+                            <option value="—">Chưa phân loại</option>
+                            <option value="Loại A">Loại A</option>
+                            <option value="Loại B">Loại B</option>
+                            <option value="Loại C">Loại C</option>
+                        </select>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Delete Confirm */}
+            <Modal
+                isOpen={!!deleteConfirm}
+                onClose={() => setDeleteConfirm(null)}
+                title="Xác nhận xóa"
+                footer={
+                    <div className="modal-actions">
+                        <button className="btn btn--outline" onClick={() => setDeleteConfirm(null)}>
+                            Hủy
+                        </button>
+                        <button
+                            className="btn btn--danger"
+                            onClick={async () => {
+                                await deleteHarvestBatch(deleteConfirm.id);
+                                addToast('Đã xóa', 'success');
+                                setDeleteConfirm(null);
+                            }}
+                            disabled={isLoading}
+                        >
+                            <Trash2 size={16} /> Xóa
+                        </button>
+                    </div>
+                }
+            >
+                <p>
+                    Xóa đợt thu hoạch <strong>{deleteConfirm?.id}</strong>?
+                </p>
+            </Modal>
+        </div>
+    );
+};
+
 export default HarvestList;

@@ -1,16 +1,21 @@
 import React, { useMemo } from 'react';
 import {
-    MapPin, CheckCircle2, Users, FileCheck,
-    AlertTriangle, ArrowRight, Calendar, TrendingUp,
-    Sprout, ClipboardList,
+    MapPin,
+    CheckCircle2,
+    Users,
+    FileCheck,
+    AlertTriangle,
+    ArrowRight,
+    Calendar,
+    TrendingUp,
+    Sprout,
+    ClipboardList,
 } from 'lucide-react';
 import StatusBadge from '../../components/StatusBadge';
 import PageHeader from '../../components/PageHeader';
 import { useAuth } from '../../contexts/AuthContext';
-import {
-    plots, getPlotsByFarm, taskLogs, attendance,
-    taskPlans, cropCycles, pestIncidents,
-} from '../../data/mockData';
+import { useData } from '../../contexts/DataContext';
+import { ENTITY_STATUS, TASK_LOG_STATUS, PEST_STATUS, SHIFT_LABEL } from '../../constants';
 import './Dashboard.scss';
 
 // --- Severity labels for alerts ---
@@ -22,39 +27,46 @@ const SEVERITY = {
 
 const Dashboard = () => {
     const { currentFarm, canSeeAllFarms } = useAuth();
+    const { plots, taskLogs, attendanceData, taskPlans, cropCycles, pestIncidents, getPlotsByFarm } = useData();
 
     // --- Compute KPIs from real mock data ---
     const farmPlots = useMemo(() => {
         if (canSeeAllFarms()) return plots;
         if (!currentFarm) return [];
         return getPlotsByFarm(currentFarm.id);
-    }, [currentFarm, canSeeAllFarms]);
+    }, [currentFarm, canSeeAllFarms, plots, getPlotsByFarm]);
 
     const totalPlots = farmPlots.length;
-    const activePlots = farmPlots.filter((p) => p.status === 'active').length;
+    const activePlots = farmPlots.filter((p) => p.status === ENTITY_STATUS.ACTIVE).length;
     const activePercent = totalPlots > 0 ? Math.round((activePlots / totalPlots) * 100) : 0;
 
     // Attendance: % valid workdays (full or approved exception)
     const validAttendance = useMemo(() => {
-        const total = attendance.length;
+        const total = attendanceData.length;
         if (total === 0) return 0;
-        const valid = attendance.filter(
-            (a) => a.status === 'full' || (a.exception && a.exception.approved)
-        ).length;
+        const valid = attendanceData.filter((a) => a.status === 'full' || (a.exception && a.exception.approved)).length;
         return Math.round((valid / total) * 100);
-    }, []);
+    }, [attendanceData]);
 
     // Pending approvals
-    const pendingLogs = taskLogs.filter((l) => l.status === 'pending').length;
-    const pendingAttendance = attendance.filter(
-        (a) => a.exception && a.exception.approved === null
-    ).length;
+    const pendingLogs = taskLogs.filter((l) => l.status === TASK_LOG_STATUS.PENDING).length;
+    const pendingAttendance = attendanceData.filter((a) => a.exception && a.exception.approved === null).length;
     const totalPending = pendingLogs + pendingAttendance;
 
     const stats = [
         { label: 'Vùng trồng', value: totalPlots, icon: MapPin, variant: 'info' },
-        { label: 'VT hoạt động', value: `${activePercent}%`, icon: CheckCircle2, variant: activePercent >= 80 ? 'success' : activePercent >= 50 ? 'warning' : 'error' },
-        { label: 'Ngày công hợp lệ', value: `${validAttendance}%`, icon: Users, variant: validAttendance >= 90 ? 'success' : validAttendance >= 70 ? 'warning' : 'error' },
+        {
+            label: 'VT hoạt động',
+            value: `${activePercent}%`,
+            icon: CheckCircle2,
+            variant: activePercent >= 80 ? 'success' : activePercent >= 50 ? 'warning' : 'error',
+        },
+        {
+            label: 'Ngày công hợp lệ',
+            value: `${validAttendance}%`,
+            icon: Users,
+            variant: validAttendance >= 90 ? 'success' : validAttendance >= 70 ? 'warning' : 'error',
+        },
         { label: 'Chờ duyệt', value: totalPending, icon: FileCheck, variant: totalPending > 0 ? 'warning' : 'success' },
     ];
 
@@ -64,7 +76,7 @@ const Dashboard = () => {
 
         // Check pest incidents still monitoring
         pestIncidents
-            .filter((p) => p.status === 'monitoring')
+            .filter((p) => p.status === PEST_STATUS.MONITORING)
             .forEach((p) => {
                 result.push({
                     severity: 'error',
@@ -78,10 +90,9 @@ const Dashboard = () => {
             if (!log.planId) return;
             const plan = taskPlans.find((p) => p.id === log.planId);
             if (plan && plan.shift !== log.shift) {
-                const shiftLabel = { morning: 'Sáng', afternoon: 'Trưa', evening: 'Chiều' };
                 result.push({
                     severity: 'warning',
-                    message: `${log.task} thực hiện buổi ${shiftLabel[log.shift]} (KH: ${shiftLabel[plan.shift]})`,
+                    message: `${log.task} thực hiện buổi ${SHIFT_LABEL[log.shift] || log.shift} (KH: ${SHIFT_LABEL[plan.shift] || plan.shift})`,
                     time: log.date,
                 });
             }
@@ -97,7 +108,7 @@ const Dashboard = () => {
         }
 
         return result;
-    }, [pendingLogs]);
+    }, [pendingLogs, pestIncidents, taskLogs, taskPlans]);
 
     // --- Today's tasks from plan ---
     const todayTasks = useMemo(() => {
@@ -120,7 +131,7 @@ const Dashboard = () => {
                     isPlanned: true,
                 };
             });
-    }, []);
+    }, [taskPlans, plots, taskLogs]);
 
     // Unplanned tasks (no planId)
     const unplannedRecent = taskLogs
@@ -142,11 +153,11 @@ const Dashboard = () => {
         return { date: plan.date.slice(0, 5), task: plan.task, plot: plot?.name || '' };
     });
 
-    const shiftLabel = { morning: 'Sáng', afternoon: 'Trưa', evening: 'Chiều' };
+    const shiftLabelMap = SHIFT_LABEL;
 
     // --- Recent approved logs ---
     const recentLogs = taskLogs
-        .filter((l) => l.status === 'approved')
+        .filter((l) => l.status === TASK_LOG_STATUS.APPROVED)
         .slice(0, 3)
         .map((l) => ({
             date: l.date.slice(0, 5),
@@ -157,17 +168,14 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard page-container">
-            <PageHeader
-                title="Dashboard"
-                subtitle="Tổng quan hoạt động sản xuất"
-            />
+            <PageHeader title="Dashboard" subtitle="Tổng quan hoạt động sản xuất" />
 
             {/* KPI Row */}
             <div className="dashboard__stats">
-                {stats.map((stat, i) => {
+                {stats.map((stat) => {
                     const Icon = stat.icon;
                     return (
-                        <div key={i} className={`dashboard__stat dashboard__stat--${stat.variant}`}>
+                        <div key={stat.label} className={`dashboard__stat dashboard__stat--${stat.variant}`}>
                             <div className="dashboard__stat-icon">
                                 <Icon size={20} aria-hidden="true" />
                             </div>
@@ -197,9 +205,7 @@ const Dashboard = () => {
                     <div className="dashboard__task-list">
                         {allTodayTasks.map((task) => (
                             <div key={task.id} className="dashboard__task-item">
-                                <div className="dashboard__task-shift">
-                                    {shiftLabel[task.shift] || '—'}
-                                </div>
+                                <div className="dashboard__task-shift">{shiftLabelMap[task.shift] || '—'}</div>
                                 <div className="dashboard__task-info">
                                     <span className="dashboard__task-name">{task.task}</span>
                                     {task.isPlanned ? (
@@ -228,11 +234,16 @@ const Dashboard = () => {
                             </h3>
                         </div>
                         <div className="dashboard__alerts">
-                            {alerts.map((alert, i) => (
-                                <div key={i} className={`dashboard__alert dashboard__alert--${alert.severity}`}>
+                            {alerts.map((alert) => (
+                                <div
+                                    key={`alert-${alert.severity}-${alert.message.slice(0, 20)}`}
+                                    className={`dashboard__alert dashboard__alert--${alert.severity}`}
+                                >
                                     <div className="dashboard__alert-top">
                                         <div className="dashboard__alert-dot" />
-                                        <span className={`dashboard__severity ${SEVERITY[alert.severity]?.className || ''}`}>
+                                        <span
+                                            className={`dashboard__severity ${SEVERITY[alert.severity]?.className || ''}`}
+                                        >
                                             {SEVERITY[alert.severity]?.label}
                                         </span>
                                     </div>
@@ -240,9 +251,7 @@ const Dashboard = () => {
                                     <span className="dashboard__alert-time">{alert.time}</span>
                                 </div>
                             ))}
-                            {alerts.length === 0 && (
-                                <p className="dashboard__empty-msg">Không có cảnh báo</p>
-                            )}
+                            {alerts.length === 0 && <p className="dashboard__empty-msg">Không có cảnh báo</p>}
                         </div>
                     </div>
 
@@ -255,8 +264,8 @@ const Dashboard = () => {
                             </h3>
                         </div>
                         <div className="dashboard__upcoming">
-                            {upcomingTasks.map((task, i) => (
-                                <div key={i} className="dashboard__upcoming-item">
+                            {upcomingTasks.map((task) => (
+                                <div key={`upcoming-${task.date}-${task.task}`} className="dashboard__upcoming-item">
                                     <span className="dashboard__upcoming-date">{task.date}</span>
                                     <div className="dashboard__upcoming-info">
                                         <span className="dashboard__upcoming-task">{task.task}</span>
@@ -283,8 +292,8 @@ const Dashboard = () => {
                         </a>
                     </div>
                     <div className="dashboard__recent-logs">
-                        {recentLogs.map((log, i) => (
-                            <div key={i} className="dashboard__log-item">
+                        {recentLogs.map((log) => (
+                            <div key={`log-${log.date}-${log.task}`} className="dashboard__log-item">
                                 <span className="dashboard__log-date">{log.date}</span>
                                 <span className="dashboard__log-task">{log.task}</span>
                                 <span className="dashboard__log-user">{log.user}</span>

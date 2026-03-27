@@ -1,23 +1,36 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, Edit2, MapPin, Info, LayoutGrid,
-    Sprout, FlaskConical, Bug, Leaf, Wheat, Factory,
-    Target, Navigation, Plus,
+    ArrowLeft,
+    Edit2,
+    MapPin,
+    Info,
+    LayoutGrid,
+    Sprout,
+    FlaskConical,
+    Bug,
+    Leaf,
+    Wheat,
+    Factory,
+    Target,
+    Navigation,
+    Plus,
 } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import DataTable from '../../components/DataTable';
 import StatusBadge from '../../components/StatusBadge';
 import TabNav from '../../components/TabNav';
 import { useToast } from '../../contexts/ToastContext';
+import { useData } from '../../contexts/DataContext';
+import { JOURNAL_TYPE, PEST_SEVERITY_LABEL, PEST_SEVERITY_VARIANT, SHIFT_LABEL } from '../../constants';
 import {
-    SeedJournalForm, FertilizerJournalForm, PestJournalForm,
-    FarmingJournalForm, HarvestJournalForm, ProcessingJournalForm,
+    SeedJournalForm,
+    FertilizerJournalForm,
+    PestJournalForm,
+    FarmingJournalForm,
+    HarvestJournalForm,
+    ProcessingJournalForm,
 } from '../Journal/JournalForms';
-import {
-    plots, farms, getCyclesByPlot, getLogsByPlot, getPestByPlot,
-    harvestBatches, cropCycles,
-} from '../../data/mockData';
 import './PlotDetail.scss';
 
 // --- Tab definitions ---
@@ -47,11 +60,9 @@ const journalColumns = [
     { key: 'task', label: 'Công việc' },
     { key: 'workerName', label: 'Người thực hiện', hideOnMobile: true },
     {
-        key: 'shift', label: 'Buổi',
-        render: (v) => {
-            const map = { morning: 'Sáng', afternoon: 'Trưa', evening: 'Chiều' };
-            return <span className="plot-detail__shift">{map[v] || v}</span>;
-        },
+        key: 'shift',
+        label: 'Buổi',
+        render: (v) => <span className="plot-detail__shift">{SHIFT_LABEL[v] || v}</span>,
     },
     { key: 'status', label: 'Trạng thái', render: (v) => <StatusBadge status={v} /> },
 ];
@@ -61,10 +72,11 @@ const pestColumns = [
     { key: 'date', label: 'Ngày phát hiện' },
     { key: 'type', label: 'Loại' },
     {
-        key: 'severity', label: 'Mức độ',
+        key: 'severity',
+        label: 'Mức độ',
         render: (v) => {
-            const cls = v === 'high' ? 'error' : v === 'medium' ? 'warning' : 'info';
-            const label = v === 'high' ? 'Nặng' : v === 'medium' ? 'Trung bình' : 'Nhẹ';
+            const cls = PEST_SEVERITY_VARIANT[v] || 'info';
+            const label = PEST_SEVERITY_LABEL[v] || v;
             return <StatusBadge status={cls} label={label} />;
         },
     },
@@ -80,10 +92,14 @@ const harvestColumns = [
     { key: 'quality', label: 'Chất lượng', hideOnMobile: true },
     { key: 'lotCode', label: 'Mã lô', render: (v) => <code className="cycle-code">{v}</code> },
     {
-        key: 'isolationOk', label: 'Cách ly',
-        render: (v) => v
-            ? <span className="plot-detail__badge plot-detail__badge--ok">✅ Đạt</span>
-            : <span className="plot-detail__badge plot-detail__badge--warn">⚠️ Chưa đạt</span>,
+        key: 'isolationOk',
+        label: 'Cách ly',
+        render: (v) =>
+            v ? (
+                <span className="plot-detail__badge plot-detail__badge--ok">✅ Đạt</span>
+            ) : (
+                <span className="plot-detail__badge plot-detail__badge--warn">⚠️ Chưa đạt</span>
+            ),
     },
     { key: 'status', label: 'Trạng thái', render: (v) => <StatusBadge status={v} /> },
 ];
@@ -92,35 +108,44 @@ const PlotDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { addToast } = useToast();
+    const { plots, farms, harvestBatches, getCyclesByPlot, getLogsByPlot, getPestByPlot } = useData();
     const [activeTab, setActiveTab] = useState('overview');
     const [openForm, setOpenForm] = useState(null); // 'seed' | 'fertilizer' | etc.
 
     // Find plot data
-    const plot = useMemo(() => plots.find((p) => p.id === id), [id]);
-    const farm = useMemo(() => (plot ? farms.find((f) => f.id === plot.farmId) : null), [plot]);
-    const cycles = useMemo(() => getCyclesByPlot(id), [id]);
-    const logs = useMemo(() => getLogsByPlot(id), [id]);
-    const pests = useMemo(() => getPestByPlot(id), [id]);
-    const harvests = useMemo(
-        () => harvestBatches.filter((h) => h.plotId === id),
-        [id]
-    );
+    const plot = useMemo(() => plots.find((p) => p.id === id), [id, plots]);
+    const farm = useMemo(() => (plot ? farms.find((f) => f.id === plot.farmId) : null), [plot, farms]);
+    const cycles = useMemo(() => getCyclesByPlot(id), [id, getCyclesByPlot]);
+    const logs = useMemo(() => getLogsByPlot(id), [id, getLogsByPlot]);
+    const pests = useMemo(() => getPestByPlot(id), [id, getPestByPlot]);
+    const harvests = useMemo(() => harvestBatches.filter((h) => h.plotId === id), [id, harvestBatches]);
 
     // Filter logs by journal type
-    const seedLogs = logs.filter((l) => l.type === 'seed');
-    const fertilizerLogs = logs.filter((l) => l.type === 'fertilizer');
-    const farmingLogs = logs.filter((l) => l.type === 'farming');
+    const seedLogs = logs.filter((l) => l.type === JOURNAL_TYPE.SEED);
+    const fertilizerLogs = logs.filter((l) => l.type === JOURNAL_TYPE.FERTILIZER);
+    const farmingLogs = logs.filter((l) => l.type === JOURNAL_TYPE.FARMING);
 
     // Tab counts
     const tabsWithCounts = TAB_DEFS.map((tab) => {
         let count;
         switch (tab.key) {
-            case 'seed': count = seedLogs.length; break;
-            case 'fertilizer': count = fertilizerLogs.length; break;
-            case 'pest': count = pests.length; break;
-            case 'farming': count = farmingLogs.length; break;
-            case 'harvest': count = harvests.length; break;
-            default: count = undefined;
+            case 'seed':
+                count = seedLogs.length;
+                break;
+            case 'fertilizer':
+                count = fertilizerLogs.length;
+                break;
+            case 'pest':
+                count = pests.length;
+                break;
+            case 'farming':
+                count = farmingLogs.length;
+                break;
+            case 'harvest':
+                count = harvests.length;
+                break;
+            default:
+                count = undefined;
         }
         return { ...tab, count };
     });
@@ -137,23 +162,20 @@ const PlotDetail = () => {
     }
 
     const renderAddButton = (formKey, label) => (
-        <button
-            className="btn btn--primary btn--sm"
-            onClick={() => setOpenForm(formKey)}
-            style={{ marginBottom: '12px' }}
-        >
+        <button className="btn btn--primary btn--sm plot-detail__add-btn" onClick={() => setOpenForm(formKey)}>
             <Plus size={14} /> Thêm {label}
         </button>
     );
 
     const renderEmptyState = (formKey, label) => (
-        <div className="plot-detail__empty">
-            <p>Chưa có dữ liệu {label}.</p>
-            <button
-                className="btn btn--outline btn--sm"
-                onClick={() => setOpenForm(formKey)}
-            >
-                <Plus size={14} /> Thêm {label}
+        <div className="empty-state">
+            <div className="empty-state__icon">
+                <Info size={40} />
+            </div>
+            <h3 className="empty-state__title">Chưa có dữ liệu</h3>
+            <p className="empty-state__description">Vùng trồng này chưa ghi nhận {label} nào.</p>
+            <button className="btn btn--outline plot-detail__empty-add-btn" onClick={() => setOpenForm(formKey)}>
+                <Plus size={16} /> Thêm {label}
             </button>
         </div>
     );
@@ -165,36 +187,50 @@ const PlotDetail = () => {
                     <>
                         {/* Plot info card */}
                         <div className="card">
-                            <div className="plot-detail__info-grid">
-                                <div className="plot-detail__field">
-                                    <label><Info size={14} /> Mã vùng</label>
-                                    <span className="plot-detail__value">{plot.id}</span>
-                                </div>
-                                <div className="plot-detail__field">
-                                    <label><LayoutGrid size={14} /> Tên vùng</label>
-                                    <span className="plot-detail__value">{plot.name}</span>
-                                </div>
-                                <div className="plot-detail__field">
-                                    <label><Target size={14} /> Farm</label>
-                                    <span className="plot-detail__value">{farm?.name || '—'}</span>
-                                </div>
-                                <div className="plot-detail__field">
-                                    <label><LayoutGrid size={14} /> Diện tích</label>
-                                    <span className="plot-detail__value">{plot.area}</span>
-                                </div>
-                                <div className="plot-detail__field">
-                                    <label><Sprout size={14} /> Cây trồng</label>
-                                    <span className="plot-detail__value">{plot.crop}</span>
-                                </div>
-                                <div className="plot-detail__field">
-                                    <label><Navigation size={14} /> Toạ độ</label>
-                                    <span className="plot-detail__value">
-                                        {plot.coords || 'Chưa cập nhật'}
-                                    </span>
-                                </div>
-                                <div className="plot-detail__field">
-                                    <label><MapPin size={14} /> Trạng thái</label>
-                                    <StatusBadge status={plot.status} />
+                            <div className="card__body">
+                                <div className="detail-grid">
+                                    <div className="detail-field">
+                                        <label>
+                                            <Info size={14} /> Mã vùng
+                                        </label>
+                                        <span className="plot-detail__value">{plot.id}</span>
+                                    </div>
+                                    <div className="detail-field">
+                                        <label>
+                                            <LayoutGrid size={14} /> Tên vùng
+                                        </label>
+                                        <span className="plot-detail__value">{plot.name}</span>
+                                    </div>
+                                    <div className="detail-field">
+                                        <label>
+                                            <Target size={14} /> Farm
+                                        </label>
+                                        <span className="plot-detail__value">{farm?.name || '—'}</span>
+                                    </div>
+                                    <div className="detail-field">
+                                        <label>
+                                            <LayoutGrid size={14} /> Diện tích
+                                        </label>
+                                        <span className="plot-detail__value">{plot.area}</span>
+                                    </div>
+                                    <div className="detail-field">
+                                        <label>
+                                            <Sprout size={14} /> Cây trồng
+                                        </label>
+                                        <span className="plot-detail__value">{plot.crop}</span>
+                                    </div>
+                                    <div className="detail-field">
+                                        <label>
+                                            <Navigation size={14} /> Toạ độ
+                                        </label>
+                                        <span className="plot-detail__value">{plot.coords || 'Chưa cập nhật'}</span>
+                                    </div>
+                                    <div className="detail-field">
+                                        <label>
+                                            <MapPin size={14} /> Trạng thái
+                                        </label>
+                                        <StatusBadge status={plot.status} />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -211,9 +247,13 @@ const PlotDetail = () => {
                 return (
                     <>
                         {renderAddButton('seed', 'nhật ký giống')}
-                        {seedLogs.length > 0
-                            ? <div className="card"><DataTable columns={journalColumns} data={seedLogs} pageSize={10} /></div>
-                            : renderEmptyState('seed', 'nhật ký giống')}
+                        {seedLogs.length > 0 ? (
+                            <div className="card">
+                                <DataTable columns={journalColumns} data={seedLogs} pageSize={10} />
+                            </div>
+                        ) : (
+                            renderEmptyState('seed', 'nhật ký giống')
+                        )}
                     </>
                 );
 
@@ -221,9 +261,13 @@ const PlotDetail = () => {
                 return (
                     <>
                         {renderAddButton('fertilizer', 'nhật ký phân bón')}
-                        {fertilizerLogs.length > 0
-                            ? <div className="card"><DataTable columns={journalColumns} data={fertilizerLogs} pageSize={10} /></div>
-                            : renderEmptyState('fertilizer', 'nhật ký phân bón')}
+                        {fertilizerLogs.length > 0 ? (
+                            <div className="card">
+                                <DataTable columns={journalColumns} data={fertilizerLogs} pageSize={10} />
+                            </div>
+                        ) : (
+                            renderEmptyState('fertilizer', 'nhật ký phân bón')
+                        )}
                     </>
                 );
 
@@ -231,9 +275,13 @@ const PlotDetail = () => {
                 return (
                     <>
                         {renderAddButton('pest', 'nhật ký sâu bệnh')}
-                        {pests.length > 0
-                            ? <div className="card"><DataTable columns={pestColumns} data={pests} pageSize={10} /></div>
-                            : renderEmptyState('pest', 'nhật ký sâu bệnh')}
+                        {pests.length > 0 ? (
+                            <div className="card">
+                                <DataTable columns={pestColumns} data={pests} pageSize={10} />
+                            </div>
+                        ) : (
+                            renderEmptyState('pest', 'nhật ký sâu bệnh')
+                        )}
                     </>
                 );
 
@@ -241,9 +289,13 @@ const PlotDetail = () => {
                 return (
                     <>
                         {renderAddButton('farming', 'nhật ký canh tác')}
-                        {farmingLogs.length > 0
-                            ? <div className="card"><DataTable columns={journalColumns} data={farmingLogs} pageSize={10} /></div>
-                            : renderEmptyState('farming', 'nhật ký canh tác')}
+                        {farmingLogs.length > 0 ? (
+                            <div className="card">
+                                <DataTable columns={journalColumns} data={farmingLogs} pageSize={10} />
+                            </div>
+                        ) : (
+                            renderEmptyState('farming', 'nhật ký canh tác')
+                        )}
                     </>
                 );
 
@@ -251,9 +303,13 @@ const PlotDetail = () => {
                 return (
                     <>
                         {renderAddButton('harvest', 'nhật ký thu hoạch')}
-                        {harvests.length > 0
-                            ? <div className="card"><DataTable columns={harvestColumns} data={harvests} pageSize={10} /></div>
-                            : renderEmptyState('harvest', 'nhật ký thu hoạch')}
+                        {harvests.length > 0 ? (
+                            <div className="card">
+                                <DataTable columns={harvestColumns} data={harvests} pageSize={10} />
+                            </div>
+                        ) : (
+                            renderEmptyState('harvest', 'nhật ký thu hoạch')
+                        )}
                     </>
                 );
 
@@ -277,11 +333,7 @@ const PlotDetail = () => {
                 subtitle={`${farm?.name || ''} · ${plot.area} · ${plot.crop}`}
                 actions={
                     <>
-                        <button
-                            className="btn-icon"
-                            onClick={() => navigate('/plots')}
-                            aria-label="Quay lại"
-                        >
+                        <button className="btn-icon" onClick={() => navigate('/plots')} aria-label="Quay lại">
                             <ArrowLeft size={20} />
                         </button>
                         <button
@@ -295,11 +347,7 @@ const PlotDetail = () => {
             />
 
             {/* Tab Navigation */}
-            <TabNav
-                tabs={tabsWithCounts}
-                active={activeTab}
-                onChange={setActiveTab}
-            />
+            <TabNav tabs={tabsWithCounts} active={activeTab} onChange={setActiveTab} />
 
             {/* Tab Content */}
             <div className="plot-detail__content" role="tabpanel" id={`tabpanel-${activeTab}`}>

@@ -5,20 +5,24 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { I18nProvider } from './contexts/I18nContext';
+import { DataProvider } from './contexts/DataContext';
 import Routers from './Routers';
 import './assets/scss/styles.scss';
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<React.StrictMode>
+root.render(
+    <React.StrictMode>
         <ErrorBoundary>
             <I18nProvider>
                 <AuthProvider>
                     <ToastProvider>
-                        <BrowserRouter>
-                            <Routers />
-                        </BrowserRouter>
+                        <DataProvider>
+                            <BrowserRouter>
+                                <Routers />
+                            </BrowserRouter>
+                        </DataProvider>
                     </ToastProvider>
                 </AuthProvider>
             </I18nProvider>
         </ErrorBoundary>
-    </React.StrictMode>);
-
+    </React.StrictMode>,
+);

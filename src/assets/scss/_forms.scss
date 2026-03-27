@@ -1,0 +1,191 @@
+@use './var' as *;
+
+// ============================================
+// FORM ELEMENTS
+// ============================================
+
+// --- Filter Bar ---
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    margin-bottom: $space-5;
+    flex-wrap: wrap;
+
+    &__search {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        flex: 1;
+        min-width: 200px;
+        max-width: 360px;
+        height: $input-height;
+        padding: 0 $space-3;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        background: $color-surface;
+        transition: all $transition-fast;
+        color: $color-text-muted;
+
+        &:focus-within {
+            border-color: $color-brand-primary;
+            box-shadow: 0 0 0 3px rgba($color-brand-primary, 0.1);
+        }
+
+        input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: $font-size-base;
+            font-family: $font-family;
+            color: $color-text-primary;
+
+            &::placeholder {
+                color: $color-text-muted;
+            }
+        }
+    }
+}
+
+// --- Form Grid/Group ---
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: $space-4;
+
+    @include respond-below($bp-sm) {
+        grid-template-columns: 1fr;
+        gap: $space-3;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+}
+
+.form-label {
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+}
+
+.form-input,
+.form-textarea {
+    height: $input-height;
+    padding: 0 $space-3;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    font-family: $font-family;
+    color: $color-text-primary;
+    background: $color-surface;
+    transition: all $transition-fast;
+    outline: none;
+
+    &::placeholder {
+        color: $color-text-muted;
+    }
+
+    &:focus {
+        border-color: $color-brand-primary;
+        box-shadow: 0 0 0 3px rgba($color-brand-primary, 0.1);
+    }
+}
+
+.form-textarea {
+    height: auto;
+    padding: $space-3;
+    resize: vertical;
+    min-height: 80px;
+}
+
+// --- Farm Card Grid ---
+.farm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: $space-5;
+
+    @include respond-below($bp-sm) {
+        grid-template-columns: 1fr;
+        gap: $space-4;
+    }
+}
+
+.farm-card {
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:hover {
+        box-shadow: $shadow-md;
+        transform: translateY(-2px);
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: $space-4;
+    }
+
+    &__icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, $color-primary-100, $color-primary-200);
+        color: $color-primary-700;
+        border-radius: $radius-md;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__code {
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+        font-weight: $font-weight-medium;
+    }
+
+    &__name {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+        margin-top: $space-1;
+    }
+
+    &__address {
+        font-size: $font-size-sm;
+        color: $color-text-secondary;
+        margin-top: $space-1;
+        line-height: $line-height-normal;
+    }
+
+    &__meta {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: $space-3;
+        margin-top: $space-5;
+        padding-top: $space-4;
+        border-top: 1px solid $color-border;
+    }
+
+    &__meta-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    &__meta-value {
+        font-size: $font-size-md;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+    }
+
+    &__meta-label {
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+        margin-top: 2px;
+    }
+}

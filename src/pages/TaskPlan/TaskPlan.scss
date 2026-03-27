@@ -97,9 +97,9 @@
     }
 
     &__count {
-        font-size: $font-size-xs !important;
-        font-weight: $font-weight-normal !important;
-        color: $color-text-secondary !important;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-normal;
+        color: $color-text-secondary;
     }
 
     // --- Scrollable table ---
@@ -115,7 +115,8 @@
         border-collapse: collapse;
         min-width: 600px;
 
-        th, td {
+        th,
+        td {
             padding: $space-3;
             border-bottom: 1px solid $color-border;
             vertical-align: top;
@@ -134,7 +135,10 @@
 
     &__date-col {
         width: 80px;
-        text-align: center !important;
+    }
+
+    &__table th.plan-timeline__date-col {
+        text-align: center;
     }
 
     &__shift-col {
@@ -143,8 +147,11 @@
 
     // --- Date cell ---
     &__date-cell {
-        text-align: center !important;
         position: relative;
+    }
+
+    &__table td.plan-timeline__date-cell {
+        text-align: center;
     }
 
     &__day-name {
@@ -178,11 +185,6 @@
         .plan-timeline__date-cell {
             border-left: 3px solid $color-primary-500;
         }
-    }
-
-    // --- Task cells ---
-    &__cell {
-        // default cell — no extra styles
     }
 
     &__empty-cell {

@@ -1,0 +1,17 @@
+@use '../../assets/scss/var' as *;
+
+.audit__time {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+    font-variant-numeric: tabular-nums;
+}
+
+.audit__user {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: $font-weight-medium;
+}

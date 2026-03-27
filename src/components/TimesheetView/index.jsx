@@ -1,14 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import {
-    ChevronLeft, ChevronRight, CheckCircle2, Clock,
-    AlertTriangle, XCircle, CheckCheck,
-} from 'lucide-react';
+import PropTypes from 'prop-types';
+import { ChevronLeft, ChevronRight, CheckCircle2, Clock, AlertTriangle, XCircle, CheckCheck } from 'lucide-react';
 import StatusBadge from '../StatusBadge';
 import { useAuth } from '../../contexts/AuthContext';
-import { attendance, getAttendanceByFarm } from '../../data/mockData';
+import { attendance } from '../../data/mockData';
 import './TimesheetView.scss';
 
-const SHIFT_LABELS = { morning: 'Sáng', afternoon: 'Trưa', evening: 'Chiều' };
 const STATUS_MAP = {
     full: { label: 'Đủ công', badge: 'active', icon: CheckCircle2 },
     partial: { label: 'Thiếu công', badge: 'warning', icon: AlertTriangle },
@@ -17,10 +14,6 @@ const STATUS_MAP = {
 
 function formatDateVN(d) {
     return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-}
-
-function formatDateShort(d) {
-    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
 const TimesheetView = ({ onApproveException }) => {
@@ -176,6 +169,10 @@ const TimesheetView = ({ onApproveException }) => {
                 ))}
         </div>
     );
+};
+
+TimesheetView.propTypes = {
+    onApproveException: PropTypes.func,
 };
 
 export default TimesheetView;

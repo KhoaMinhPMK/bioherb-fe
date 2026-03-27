@@ -1,0 +1,176 @@
+@use '../../assets/scss/var' as *;
+
+// ═══════════════════════════════════════════════════
+// GACP Notebook — "Quyển Sổ" Layout
+// Left: Vertical tabs grouped by phase
+// Right: Full-width spreadsheet workspace
+// ═══════════════════════════════════════════════════
+
+.gacp-notebook {
+    display: flex;
+    gap: 0;
+    min-height: calc(100vh - 280px);
+
+    // ─── Left: Vertical Tabs ────────────────────
+    &__tabs {
+        width: 160px;
+        min-width: 160px;
+        background: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: $radius-lg 0 0 $radius-lg;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    // ─── Phase Group ────────────────────────────
+    &__phase {
+        &:not(:last-child) {
+            border-bottom: 1px solid $color-border;
+        }
+    }
+
+    &__phase-header {
+        display: flex;
+        align-items: center;
+        gap: $space-1;
+        padding: $space-2 $space-3;
+        font-size: 10px;
+        font-weight: $font-weight-semibold;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: $color-text-muted;
+        background: $color-surface-hover;
+    }
+
+    // ─── Tab Item ───────────────────────────────
+    &__tab {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        width: 100%;
+        padding: $space-2 $space-2 $space-2 $space-3;
+        border: none;
+        border-left: 3px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        text-align: left;
+        transition: all $transition-fast;
+        font-size: $font-size-xs;
+        color: $color-text-secondary;
+
+        &:hover {
+            background: $color-surface-hover;
+            color: $color-text-primary;
+        }
+
+        &--active {
+            background: rgba($color-brand-primary, 0.04);
+            color: $color-text-primary;
+            font-weight: $font-weight-semibold;
+        }
+    }
+
+    &__tab-icon {
+        flex-shrink: 0;
+        line-height: 0;
+    }
+
+    &__tab-label {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__tab-count {
+        flex-shrink: 0;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: $font-weight-semibold;
+        background: $color-surface-hover;
+        border-radius: 9px;
+        color: $color-text-muted;
+    }
+
+    // ─── Right: Workspace ───────────────────────
+    &__workspace {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid $color-border;
+        border-left: none;
+        border-radius: 0 $radius-lg $radius-lg 0;
+        background: $color-surface;
+        overflow: hidden;
+    }
+
+    // ─── Footer ─────────────────────────────────
+    &__footer {
+        display: flex;
+        align-items: center;
+        gap: $space-3;
+        padding: $space-2 $space-3;
+        border-top: 1px solid $color-border;
+        background: $color-surface-hover;
+        font-size: $font-size-xs;
+        color: $color-text-secondary;
+
+        .btn {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: $space-1;
+        }
+    }
+
+    &__footer-stat {
+        strong {
+            font-weight: $font-weight-semibold;
+            color: $color-text-primary;
+        }
+    }
+
+    // ─── Responsive ─────────────────────────────
+    @media (max-width: 768px) {
+        flex-direction: column;
+
+        &__tabs {
+            width: 100%;
+            min-width: 0;
+            border-radius: $radius-lg $radius-lg 0 0;
+            display: flex;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        &__phase {
+            display: flex;
+            &:not(:last-child) {
+                border-bottom: none;
+                border-right: 1px solid $color-border;
+            }
+        }
+
+        &__phase-header {
+            display: none;
+        }
+
+        &__tab {
+            border-left: none;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            padding: $space-2 $space-3;
+        }
+
+        &__workspace {
+            border-left: 1px solid $color-border;
+            border-top: none;
+            border-radius: 0 0 $radius-lg $radius-lg;
+        }
+    }
+}

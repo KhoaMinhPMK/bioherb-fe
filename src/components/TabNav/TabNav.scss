@@ -32,7 +32,9 @@
         white-space: nowrap;
         flex-shrink: 0;
         border-bottom: 2px solid transparent;
-        transition: color $transition-fast, border-color $transition-fast;
+        transition:
+            color $transition-fast,
+            border-color $transition-fast;
         // Touch-friendly
         min-height: 44px;
 
@@ -50,10 +52,7 @@
 
     &__icon {
         flex-shrink: 0;
-    }
-
-    &__label {
-        // Hidden on very small mobile; show icon only  
+        margin-right: 6px;
     }
 
     &__count {

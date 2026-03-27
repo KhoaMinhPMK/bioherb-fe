@@ -1,0 +1,218 @@
+@use './var' as *;
+
+// ============================================
+// LAYOUT COMPONENTS
+// ============================================
+
+// --- Page Layout ---
+.page-container {
+    padding: $space-6;
+    max-width: 1400px;
+
+    @include respond-below($bp-md) {
+        padding: $space-4;
+    }
+
+    @include respond-below($bp-sm) {
+        padding: $space-3;
+    }
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $space-6;
+    gap: $space-4;
+
+    &__title {
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+        line-height: $line-height-tight;
+    }
+
+    &__subtitle {
+        font-size: $font-size-base;
+        color: $color-text-secondary;
+        margin-top: $space-1;
+    }
+
+    &__actions {
+        display: flex;
+        gap: $space-3;
+        align-items: center;
+        flex-shrink: 0;
+    }
+}
+
+// --- Card ---
+.card {
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-xs;
+    transition: box-shadow $transition-base;
+
+    &:hover {
+        box-shadow: $shadow-sm;
+    }
+
+    &__header {
+        padding: $space-4 $space-6;
+        border-bottom: 1px solid $color-border;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        @include respond-below($bp-sm) {
+            padding: $space-3 $space-4;
+            flex-wrap: wrap;
+            gap: $space-2;
+        }
+    }
+
+    &__body {
+        padding: $space-6;
+
+        @include respond-below($bp-sm) {
+            padding: $space-4;
+        }
+    }
+
+    &__footer {
+        padding: $space-4 $space-6;
+        border-top: 1px solid $color-border;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: $space-3;
+
+        @include respond-below($bp-sm) {
+            padding: $space-3 $space-4;
+            flex-direction: column-reverse;
+
+            button {
+                width: 100%;
+            }
+        }
+    }
+}
+
+// --- Empty State ---
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $space-16 $space-6;
+    text-align: center;
+
+    &__icon {
+        color: $color-neutral-300;
+        margin-bottom: $space-4;
+    }
+
+    &__title {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+        margin-bottom: $space-2;
+    }
+
+    &__description {
+        font-size: $font-size-base;
+        color: $color-text-secondary;
+        max-width: 400px;
+    }
+}
+
+// --- Table ---
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+        padding: $space-3 $space-4;
+        text-align: left;
+        border-bottom: 1px solid $color-border;
+    }
+
+    th {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $color-text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: $color-neutral-50;
+        position: sticky;
+        top: 0;
+    }
+
+    td {
+        font-size: $font-size-base;
+        color: $color-text-primary;
+    }
+
+    tbody tr {
+        transition: background $transition-fast;
+
+        &:hover {
+            background: $color-surface-hover;
+        }
+    }
+}
+
+// --- Table Actions ---
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    white-space: nowrap;
+}
+
+// --- Section Heading ---
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $space-3;
+
+    &--spaced {
+        margin-top: $space-6;
+    }
+}
+
+// --- Detail Grid ---
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: $space-6;
+}
+
+.detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+    padding: $space-3;
+    background: $color-neutral-50;
+    border-radius: $radius-md;
+    border: 1px solid $color-border;
+    overflow: hidden;
+
+    label {
+        font-size: $font-size-sm;
+        color: $color-text-secondary;
+        font-weight: $font-weight-medium;
+    }
+
+    span {
+        font-size: $font-size-md;
+        color: $color-text-primary;
+        word-break: break-word;
+    }
+}

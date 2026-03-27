@@ -1,0 +1,182 @@
+@use '../../../assets/scss/var' as v;
+
+.landing-footer {
+    @include v.landing-dark-block;
+    position: relative;
+
+    &__container {
+        max-width: v.$landing-max-width;
+        margin: 0 auto;
+        padding: v.$space-16 v.$space-8 v.$space-10;
+        display: grid;
+        grid-template-columns: 1.2fr 2.5fr;
+        gap: v.$space-16;
+
+        @include v.respond-below(v.$bp-md) {
+            grid-template-columns: 1fr;
+            gap: v.$space-10;
+        }
+    }
+
+    &__brand {
+        display: flex;
+        flex-direction: column;
+        gap: v.$space-5;
+    }
+
+    &__logo-link {
+        display: inline-flex;
+        align-items: center;
+        gap: v.$space-3;
+    }
+    &__logo {
+        height: 44px;
+        width: auto;
+        filter: brightness(0) invert(1);
+    }
+    &__logo-char {
+        height: 32px;
+        width: auto;
+        filter: brightness(0) invert(1);
+    }
+
+    &__tagline {
+        font-size: v.$font-size-sm;
+        line-height: v.$line-height-relaxed;
+        color: rgba(255, 255, 255, 0.35);
+        max-width: 260px;
+        margin: 0;
+    }
+
+    &__columns {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: v.$space-8;
+
+        @include v.respond-below(v.$bp-sm) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__column-title {
+        font-size: v.$font-size-xs;
+        font-weight: v.$font-weight-bold;
+        color: rgba(255, 255, 255, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin: 0 0 v.$space-5;
+    }
+
+    &__column-links {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: v.$space-3;
+    }
+
+    &__link {
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        font-size: v.$font-size-sm;
+        transition: color v.$transition-hover;
+
+        &:hover {
+            color: #fff;
+        }
+    }
+
+    &__newsletter-desc {
+        font-size: v.$font-size-sm;
+        color: rgba(255, 255, 255, 0.35);
+        margin: 0 0 v.$space-4;
+    }
+
+    &__newsletter-form {
+        display: flex;
+        gap: 0;
+    }
+
+    &__newsletter-input {
+        flex: 1;
+        padding: 10px v.$space-4;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-right: none;
+        color: #fff;
+        font-size: v.$font-size-sm;
+        font-family: v.$font-family;
+        outline: none;
+        transition: border-color v.$transition-hover;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+        &:focus {
+            border-color: v.$color-landing-gold;
+        }
+    }
+
+    &__newsletter-btn {
+        padding: 10px v.$space-5;
+        background: v.$color-landing-gold;
+        border: none;
+        color: v.$color-landing-green-dark;
+        font-size: v.$font-size-md;
+        font-weight: v.$font-weight-bold;
+        cursor: pointer;
+        transition: background v.$transition-hover;
+
+        &:hover {
+            background: darken(#b8962e, 8%);
+        }
+    }
+
+    &__bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    &__bottom-inner {
+        max-width: v.$landing-max-width;
+        margin: 0 auto;
+        padding: v.$space-5 v.$space-8;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: v.$space-4;
+
+        @include v.respond-below(v.$bp-sm) {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    &__copyright {
+        font-size: v.$font-size-xs;
+        color: rgba(255, 255, 255, 0.25);
+        margin: 0;
+    }
+
+    &__address {
+        font-size: v.$font-size-xs;
+        color: rgba(255, 255, 255, 0.25);
+        margin: 0;
+    }
+
+    &__socials {
+        display: flex;
+        gap: v.$space-5;
+    }
+
+    &__social {
+        color: rgba(255, 255, 255, 0.3);
+        transition: color v.$transition-hover;
+        display: flex;
+
+        &:hover {
+            color: v.$color-landing-gold;
+        }
+    }
+}

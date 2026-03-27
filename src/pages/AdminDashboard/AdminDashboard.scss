@@ -19,7 +19,9 @@
     background: white;
     border: 1px solid $color-neutral-200;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    transition: box-shadow 0.2s, transform 0.2s;
+    transition:
+        box-shadow 0.2s,
+        transform 0.2s;
 
     &:hover {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -98,7 +100,8 @@
         width: 100%;
         border-collapse: collapse;
 
-        th, td {
+        th,
+        td {
             padding: $space-3 $space-4;
             text-align: left;
             border-bottom: 1px solid $color-neutral-200;
@@ -118,8 +121,9 @@
         }
     }
 
-    &__center {
-        text-align: center !important;
+    &__table td.admin-htx-table__center,
+    &__table th.admin-htx-table__center {
+        text-align: center;
     }
 
     &__progress {

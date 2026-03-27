@@ -1,0 +1,14 @@
+@use '../../../assets/scss/var' as v;
+
+.landing-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: v.$color-landing-bg;
+    font-family: v.$font-family;
+    color: v.$color-landing-text;
+
+    &__content {
+        flex: 1;
+    }
+}

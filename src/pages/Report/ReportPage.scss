@@ -193,3 +193,62 @@
         background: $color-primary-400;
     }
 }
+
+// --- Pest Severity Chart ---
+.report__pest-chart {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+}
+
+.report__pest-item {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+}
+
+.report__pest-label {
+    width: 100px;
+    flex-shrink: 0;
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    text-align: right;
+}
+
+.report__pest-bar-track {
+    flex: 1;
+    height: 20px;
+    background: $color-neutral-100;
+    border-radius: $radius-sm;
+    overflow: hidden;
+}
+
+.report__pest-bar-fill {
+    height: 100%;
+    border-radius: $radius-sm;
+    transition: width 0.5s ease;
+
+    &--low {
+        background: $color-primary-400;
+    }
+
+    &--medium {
+        background: $color-warning;
+    }
+
+    &--high {
+        background: $color-error;
+    }
+
+    &--critical {
+        background: #7c2d12;
+    }
+}
+
+.report__pest-count {
+    width: 30px;
+    flex-shrink: 0;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+}

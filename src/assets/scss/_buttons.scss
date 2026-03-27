@@ -1,0 +1,97 @@
+@use './var' as *;
+
+// ============================================
+// BUTTONS
+// ============================================
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    padding: 0 $space-4;
+    height: $input-height;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    font-family: $font-family;
+    cursor: pointer;
+    transition: all $transition-fast;
+    border: 1px solid transparent;
+    white-space: nowrap;
+
+    // Touch-friendly on mobile
+    @include respond-below($bp-md) {
+        min-height: 44px;
+    }
+
+    &--primary {
+        background: linear-gradient(135deg, $color-primary-600, $color-primary-700);
+        color: white;
+        box-shadow: 0 1px 3px rgba($color-primary-600, 0.3);
+
+        &:hover {
+            background: linear-gradient(135deg, $color-primary-700, $color-primary-800);
+            box-shadow: 0 2px 6px rgba($color-primary-600, 0.4);
+            transform: translateY(-1px);
+        }
+    }
+
+    &--outline {
+        background: $color-surface;
+        color: $color-text-primary;
+        border-color: $color-border;
+
+        &:hover {
+            background: $color-surface-hover;
+            border-color: $color-border-strong;
+        }
+    }
+
+    &--ghost {
+        background: transparent;
+        color: $color-text-secondary;
+
+        &:hover {
+            background: $color-surface-hover;
+            color: $color-text-primary;
+        }
+    }
+
+    &--danger {
+        background: $color-destructive;
+        color: white;
+
+        &:hover {
+            background: $color-destructive-hover;
+        }
+    }
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: $color-text-secondary;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover {
+        background: $color-surface-hover;
+        color: $color-text-primary;
+    }
+
+    &--danger:hover {
+        background: #fef2f2;
+        color: $color-destructive;
+    }
+
+    @include respond-below($bp-md) {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}

@@ -1,0 +1,293 @@
+@use '../../../assets/scss/var' as v;
+
+.about-page {
+    &__container {
+        max-width: v.$landing-max-width;
+        margin: 0 auto;
+        padding: v.$landing-section-padding v.$space-8;
+    }
+
+    &__gold-line {
+        width: 48px;
+        height: 3px;
+        background: v.$color-landing-gold;
+        margin-bottom: v.$space-5;
+    }
+
+    &__section-header {
+        margin-bottom: v.$space-12;
+    }
+
+    &__section-title {
+        font-size: v.$font-size-4xl;
+        font-weight: v.$font-weight-bold;
+        color: v.$color-landing-text;
+        margin: 0 0 v.$space-4;
+        letter-spacing: -0.5px;
+    }
+
+    &__section-subtitle {
+        font-size: v.$font-size-md;
+        color: v.$color-landing-text-secondary;
+        margin: 0;
+        max-width: 560px;
+    }
+
+    // ===== HERO — Split layout =====
+    &__hero {
+        background: v.$color-landing-bg-alt;
+        padding-top: v.$space-16;
+    }
+
+    &__hero-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: v.$space-16;
+        align-items: center;
+
+        @include v.respond-below(v.$bp-md) {
+            grid-template-columns: 1fr;
+            gap: v.$space-8;
+        }
+    }
+
+    &__hero-title {
+        font-size: v.$font-size-5xl;
+        font-weight: v.$font-weight-bold;
+        color: v.$color-landing-text;
+        margin: 0 0 v.$space-6;
+        letter-spacing: -1px;
+        line-height: 1.1;
+
+        @include v.respond-below(v.$bp-md) {
+            font-size: v.$font-size-3xl;
+        }
+    }
+
+    &__hero-desc {
+        font-size: v.$font-size-md;
+        color: v.$color-landing-text-secondary;
+        line-height: v.$line-height-relaxed;
+        margin: 0;
+    }
+
+    &__hero-right {
+        display: flex;
+        align-items: center;
+    }
+
+    &__hero-quote {
+        font-size: v.$font-size-xl;
+        font-family: v.$font-family-serif;
+        font-style: italic;
+        color: v.$color-landing-green-medium;
+        margin: 0;
+        padding-left: v.$space-6;
+        border-left: 3px solid v.$color-landing-gold;
+        position: relative;
+        line-height: v.$line-height-relaxed;
+    }
+
+    &__quote-mark {
+        font-size: v.$font-size-6xl;
+        color: v.$color-landing-gold-light;
+        font-family: v.$font-family-serif;
+        line-height: 0;
+        position: absolute;
+        top: -10px;
+        left: -24px;
+    }
+
+    // ===== VISION & MISSION — Sharp cards =====
+    &__vm {
+        background: #fff;
+    }
+
+    &__vm-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+
+        @include v.respond-below(v.$bp-md) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__vm-card {
+        padding: v.$space-12;
+        transition: transform v.$transition-hover;
+
+        &--vision {
+            @include v.landing-dark-block;
+
+            .about-page__vm-label {
+                color: v.$color-landing-gold;
+            }
+            .about-page__vm-desc {
+                color: rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        &--mission {
+            background: #fff;
+            border: 1px solid v.$color-landing-border;
+            border-left: none;
+
+            .about-page__vm-label {
+                color: v.$color-landing-green-dark;
+            }
+            .about-page__vm-desc {
+                color: v.$color-landing-text-secondary;
+            }
+
+            @include v.respond-below(v.$bp-md) {
+                border-left: 1px solid v.$color-landing-border;
+            }
+        }
+    }
+
+    &__vm-label {
+        font-size: v.$font-size-xs;
+        font-weight: v.$font-weight-bold;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin: 0 0 v.$space-6;
+    }
+
+    &__vm-desc {
+        font-size: v.$font-size-md;
+        line-height: v.$line-height-relaxed;
+        margin: 0;
+    }
+
+    // ===== WHY SANKIT — Numbered cards =====
+    &__why {
+        background: v.$color-landing-bg-alt;
+    }
+
+    &__why-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: v.$space-6;
+
+        @include v.respond-below(v.$bp-md) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__why-card {
+        background: #fff;
+        @include v.sharp-border;
+        padding: v.$space-8;
+        position: relative;
+        transition:
+            box-shadow v.$transition-hover,
+            transform v.$transition-hover;
+
+        &:hover {
+            box-shadow: v.$shadow-landing-sharp-hover;
+            transform: translate(-2px, -2px);
+        }
+    }
+
+    &__why-top-line {
+        width: 32px;
+        height: 3px;
+        background: v.$color-landing-gold;
+        margin-bottom: v.$space-5;
+    }
+
+    &__why-num {
+        font-size: v.$font-size-xs;
+        font-weight: v.$font-weight-bold;
+        color: v.$color-landing-text-secondary;
+        letter-spacing: 2px;
+        display: block;
+        margin-bottom: v.$space-5;
+    }
+
+    &__why-icon {
+        color: v.$color-landing-green-medium;
+        margin-bottom: v.$space-5;
+    }
+
+    &__why-title {
+        font-size: v.$font-size-lg;
+        font-weight: v.$font-weight-bold;
+        color: v.$color-landing-text;
+        margin: 0 0 v.$space-3;
+    }
+
+    &__why-desc {
+        font-size: v.$font-size-base;
+        color: v.$color-landing-text-secondary;
+        line-height: v.$line-height-relaxed;
+        margin: 0;
+    }
+
+    // ===== CTA =====
+    &__cta {
+        @include v.landing-dark-block;
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            width: 1px;
+            height: 50%;
+            top: 25%;
+            right: 12%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+    }
+
+    &__cta-inner {
+        text-align: center;
+        position: relative;
+    }
+
+    &__cta-title {
+        font-size: v.$font-size-4xl;
+        font-weight: v.$font-weight-bold;
+        color: #fff;
+        margin: 0 0 v.$space-4;
+        letter-spacing: -0.5px;
+
+        @include v.respond-below(v.$bp-md) {
+            font-size: v.$font-size-2xl;
+        }
+    }
+
+    &__cta-desc {
+        font-size: v.$font-size-md;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0 0 v.$space-8;
+        max-width: 480px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    &__cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: v.$space-2;
+        padding: 14px v.$space-10;
+        background: #fff;
+        color: v.$color-landing-green-dark;
+        font-size: v.$font-size-xs;
+        font-weight: v.$font-weight-bold;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all v.$transition-hover;
+
+        span {
+            position: relative;
+        }
+
+        &:hover {
+            background: v.$color-landing-bg-alt;
+            transform: translateY(-2px);
+        }
+    }
+}

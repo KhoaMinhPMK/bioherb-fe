@@ -7,7 +7,7 @@ import DataTable from '../../components/DataTable';
 import StatusBadge from '../../components/StatusBadge';
 import DetailDrawer from '../../components/DetailDrawer';
 import { useAuth } from '../../contexts/AuthContext';
-import { plots as allPlots, getPlotsByFarm, farms } from '../../data/mockData';
+import { useData } from '../../contexts/DataContext';
 import './PlotList.scss';
 
 const statusFilter = [
@@ -19,6 +19,7 @@ const statusFilter = [
 const PlotList = () => {
     const navigate = useNavigate();
     const { currentFarm, canSeeAllFarms } = useAuth();
+    const { plots: allPlots, getPlotsByFarm } = useData();
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState({ status: '' });
     const [selected, setSelected] = useState(null);
@@ -28,7 +29,7 @@ const PlotList = () => {
         if (canSeeAllFarms()) return allPlots;
         if (!currentFarm) return [];
         return getPlotsByFarm(currentFarm.id);
-    }, [currentFarm, canSeeAllFarms]);
+    }, [currentFarm, canSeeAllFarms, allPlots, getPlotsByFarm]);
 
     // Sort by code (A-B-C) by default, then filter
     const filtered = useMemo(() => {
@@ -39,7 +40,7 @@ const PlotList = () => {
                 (p) =>
                     p.id.toLowerCase().includes(s) ||
                     p.name.toLowerCase().includes(s) ||
-                    p.crop.toLowerCase().includes(s)
+                    p.crop.toLowerCase().includes(s),
             );
         }
         if (filters.status) {
@@ -65,39 +66,24 @@ const PlotList = () => {
             },
         ];
 
-        // Only show Farm column when user can see all farms (admin/htx view)
-        if (canSeeAllFarms()) {
-            cols.push({
-                key: 'farmId',
-                label: 'Farm',
-                sortable: true,
-                render: (v) => {
-                    const farm = farms.find((f) => f.id === v);
-                    return farm ? farm.name : v;
-                },
-                hideOnMobile: true,
-            });
-        }
-
         cols.push(
             { key: 'area', label: 'Diện tích', sortable: true, hideOnMobile: true },
             { key: 'crop', label: 'Cây trồng' },
             {
                 key: 'activeCycle',
                 label: 'Mùa vụ',
-                render: (v) =>
-                    v ? <code className="cycle-code">{v}</code> : <span className="text-muted">—</span>,
+                render: (v) => (v ? <code className="cycle-code">{v}</code> : <span className="text-muted">—</span>),
                 hideOnMobile: true,
             },
             {
                 key: 'status',
                 label: 'Trạng thái',
                 render: (v) => <StatusBadge status={v} />,
-            }
+            },
         );
 
         return cols;
-    }, [canSeeAllFarms]);
+    }, []);
 
     const handleRowClick = (row) => {
         navigate(`/plots/${row.id}`);
@@ -117,17 +103,10 @@ const PlotList = () => {
             <FilterBar
                 onSearch={setSearch}
                 searchPlaceholder="Tìm theo mã hoặc tên vùng..."
-                filters={[
-                    { key: 'status', label: 'Trạng thái', options: statusFilter },
-                ]}
+                filters={[{ key: 'status', label: 'Trạng thái', options: statusFilter }]}
                 onFilterChange={(f) => setFilters((prev) => ({ ...prev, ...f }))}
             />
-            <DataTable
-                columns={columns}
-                data={filtered}
-                onRowClick={handleRowClick}
-                pageSize={8}
-            />
+            <DataTable columns={columns} data={filtered} onRowClick={handleRowClick} pageSize={8} />
 
             <DetailDrawer
                 isOpen={!!selected}
@@ -145,9 +124,7 @@ const PlotList = () => {
                         <div className="drawer-detail-grid__label">Cây trồng</div>
                         <div className="drawer-detail-grid__value">{selected.crop}</div>
                         <div className="drawer-detail-grid__label">Toạ độ</div>
-                        <div className="drawer-detail-grid__value">
-                            {selected.coords || 'Chưa cập nhật'}
-                        </div>
+                        <div className="drawer-detail-grid__value">{selected.coords || 'Chưa cập nhật'}</div>
                         <div className="drawer-detail-grid__label">Trạng thái</div>
                         <div className="drawer-detail-grid__value">
                             <StatusBadge status={selected.status} />

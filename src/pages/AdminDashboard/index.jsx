@@ -1,22 +1,28 @@
 import React, { useMemo } from 'react';
 import {
-    Building2, Tractor, MapPin, BookCheck, FileClock,
-    TrendingUp, AlertTriangle, CheckCircle2, Users,
+    Building2,
+    Tractor,
+    MapPin,
+    BookCheck,
+    FileClock,
+    TrendingUp,
+    AlertTriangle,
+    CheckCircle2,
+    Users,
 } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import StatusBadge from '../../components/StatusBadge';
-import { cooperatives, farms, plots, attendance, taskLogs } from '../../data/mockData';
+import { useData } from '../../contexts/DataContext';
 import './AdminDashboard.scss';
 
 const AdminDashboard = () => {
+    const { cooperatives, farms, plots, attendanceData, taskLogs } = useData();
     // System-level KPIs
     const stats = useMemo(() => {
         const htxCount = cooperatives.length;
         const farmCount = farms.length;
         const plotCount = plots.length;
-        const plotsWithWarning = plots.filter(
-            (p) => p.status === 'pest_alert' || p.status === 'inactive'
-        ).length;
+        const plotsWithWarning = plots.filter((p) => p.status === 'pest_alert' || p.status === 'inactive').length;
 
         // Journal completion: % of approved logs / total
         const totalLogs = taskLogs.length;
@@ -25,9 +31,7 @@ const AdminDashboard = () => {
 
         // Pending data: not-approved logs + pending attendance exceptions
         const pendingLogs = taskLogs.filter((l) => l.status === 'pending' || l.status === 'draft').length;
-        const pendingAttendance = attendance.filter(
-            (a) => a.exception?.approved === null
-        ).length;
+        const pendingAttendance = attendanceData.filter((a) => a.exception?.approved === null).length;
 
         return {
             htxCount,
@@ -39,7 +43,7 @@ const AdminDashboard = () => {
             pendingAttendance,
             totalPending: pendingLogs + pendingAttendance,
         };
-    }, []);
+    }, [cooperatives, farms, plots, taskLogs, attendanceData]);
 
     // HTX table data
     const htxTableData = useMemo(() => {
@@ -55,7 +59,7 @@ const AdminDashboard = () => {
                 completionRate: htxPlots.length > 0 ? Math.round((activePlots / htxPlots.length) * 100) : 0,
             };
         });
-    }, []);
+    }, [cooperatives, farms, plots]);
 
     const kpiCards = [
         {
@@ -163,7 +167,9 @@ const AdminDashboard = () => {
             {/* Quick Stats */}
             <div className="admin-quick-stats card">
                 <div className="card__header">
-                    <h3><TrendingUp size={18} /> Thống kê nhanh</h3>
+                    <h3>
+                        <TrendingUp size={18} /> Thống kê nhanh
+                    </h3>
                 </div>
                 <div className="admin-quick-stats__grid">
                     <div className="admin-quick-stats__item">
@@ -180,7 +186,9 @@ const AdminDashboard = () => {
                     </div>
                     <div className="admin-quick-stats__item">
                         <FileClock size={16} />
-                        <span>{stats.pendingLogs} nhật ký + {stats.pendingAttendance} chấm công chờ duyệt</span>
+                        <span>
+                            {stats.pendingLogs} nhật ký + {stats.pendingAttendance} chấm công chờ duyệt
+                        </span>
                     </div>
                 </div>
             </div>

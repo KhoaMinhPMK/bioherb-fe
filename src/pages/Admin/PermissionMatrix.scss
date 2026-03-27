@@ -1,0 +1,96 @@
+@use '../../assets/scss/var' as *;
+
+.perm__role-tabs {
+    display: flex;
+    gap: $space-2;
+    margin-bottom: $space-4;
+    flex-wrap: wrap;
+}
+
+.perm__role-tab {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    padding: $space-2 $space-3;
+    border: 1px solid $color-neutral-200;
+    border-radius: $radius-md;
+    background: $color-neutral-50;
+    font-size: $font-size-sm;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &--active {
+        background: $color-primary-500;
+        color: #fff;
+        border-color: $color-primary-500;
+    }
+}
+
+.perm__table-wrapper {
+    overflow-x: auto;
+}
+
+.perm__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: $font-size-sm;
+
+    th,
+    td {
+        padding: $space-2 $space-3;
+        border-bottom: 1px solid $color-neutral-100;
+        text-align: center;
+    }
+    th {
+        background: $color-neutral-50;
+        font-weight: $font-weight-semibold;
+        color: $color-text-secondary;
+        font-size: $font-size-xs;
+    }
+    th:first-child,
+    td:first-child {
+        text-align: left;
+    }
+}
+
+.perm__module-name {
+    font-weight: $font-weight-medium;
+}
+
+.perm__check-cell {
+    width: 70px;
+}
+
+.perm__checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    input {
+        display: none;
+    }
+
+    &-mark {
+        width: 18px;
+        height: 18px;
+        border: 2px solid $color-neutral-300;
+        border-radius: $radius-sm;
+        transition: all 0.15s;
+    }
+
+    input:checked + &-mark {
+        background: $color-primary-500;
+        border-color: $color-primary-500;
+        position: relative;
+
+        &::after {
+            content: '✓';
+            color: #fff;
+            font-size: 12px;
+            position: absolute;
+            top: -1px;
+            left: 2px;
+        }
+    }
+}

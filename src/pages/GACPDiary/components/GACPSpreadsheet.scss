@@ -1,0 +1,251 @@
+@use '../../../assets/scss/var' as *;
+
+// ─── Spreadsheet Container ──────────────────────
+.gacp-ss {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    // ─── Toolbar ────────────────────────────────
+    &__toolbar {
+        display: flex;
+        align-items: center;
+        gap: $space-3;
+        padding: $space-2 $space-3;
+        border-bottom: 1px solid $color-border;
+        background: $color-surface;
+        flex-shrink: 0;
+    }
+
+    &__toolbar-title {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        font-size: $font-size-sm;
+
+        strong {
+            font-weight: $font-weight-semibold;
+            color: $color-text-primary;
+        }
+    }
+
+    &__plot-select {
+        padding: $space-1 $space-2;
+        border: 1px solid $color-border;
+        border-radius: $radius-sm;
+        font-size: $font-size-xs;
+        color: $color-text-primary;
+        background: $color-surface;
+        cursor: pointer;
+        outline: none;
+        max-width: 130px;
+        &:focus {
+            border-color: $color-brand-primary;
+            box-shadow: 0 0 0 2px rgba($color-brand-primary, 0.1);
+        }
+    }
+
+    &__count {
+        font-size: $font-size-xs;
+        color: $color-text-secondary;
+        white-space: nowrap;
+    }
+
+    &__toolbar-right {
+        margin-left: auto;
+        display: flex;
+        gap: $space-2;
+        align-items: center;
+    }
+
+    // ─── Table Wrapper ──────────────────────────
+    &__table-wrapper {
+        flex: 1;
+        overflow: auto;
+    }
+
+    // ─── Table ──────────────────────────────────
+    &__table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: $font-size-sm;
+        table-layout: auto;
+    }
+
+    // ─── Header ─────────────────────────────────
+    &__th {
+        padding: $space-2;
+        text-align: left;
+        font-size: 11px;
+        font-weight: $font-weight-semibold;
+        color: $color-text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: $color-surface-hover;
+        border-bottom: 2px solid $color-border;
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+
+        &--stt {
+            width: 40px;
+            text-align: center;
+        }
+        &--date {
+            width: 100px;
+        }
+        &--note {
+            min-width: 80px;
+        }
+        &--actions {
+            width: 60px;
+        }
+    }
+
+    // ─── Row ────────────────────────────────────
+    &__row {
+        &:hover {
+            background: rgba($color-brand-primary, 0.02);
+        }
+
+        &--new {
+            background: rgba(#ffb300, 0.06);
+            &:hover {
+                background: rgba(#ffb300, 0.1);
+            }
+        }
+
+        &:not(:last-child) .gacp-ss__td {
+            border-bottom: 1px solid $color-border;
+        }
+    }
+
+    // ─── Cell ───────────────────────────────────
+    &__td {
+        padding: 0;
+        vertical-align: top;
+
+        &--stt {
+            text-align: center;
+            font-size: $font-size-xs;
+            color: $color-text-secondary;
+            padding: $space-2;
+        }
+
+        &--actions {
+            padding: $space-1;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+    }
+
+    // ─── Cell Display (read mode) ───────────────
+    &__cell-display {
+        padding: $space-2;
+        cursor: pointer;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        transition: background $transition-fast;
+        font-size: $font-size-sm;
+        color: $color-text-primary;
+        line-height: $line-height-tight;
+        word-break: break-word;
+
+        &:hover {
+            background: rgba($color-brand-primary, 0.04);
+        }
+
+        &--empty {
+            color: $color-text-secondary;
+        }
+
+        &--note {
+            font-style: italic;
+            color: $color-text-secondary;
+        }
+    }
+
+    &__placeholder {
+        color: $color-text-muted;
+        font-style: italic;
+        font-size: $font-size-xs;
+    }
+
+    // ─── Cell Edit (write mode) ─────────────────
+    &__cell-input,
+    &__cell-select,
+    &__cell-textarea {
+        width: 100%;
+        padding: $space-1 $space-2;
+        border: 2px solid $color-brand-primary;
+        border-radius: 0;
+        font-size: $font-size-sm;
+        font-family: inherit;
+        color: $color-text-primary;
+        background: rgba($color-brand-primary, 0.03);
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    &__cell-input {
+        height: 36px;
+    }
+    &__cell-select {
+        height: 36px;
+        cursor: pointer;
+    }
+    &__cell-textarea {
+        min-height: 48px;
+        resize: vertical;
+        line-height: $line-height-tight;
+    }
+
+    // ─── Action Buttons ─────────────────────────
+    &__btn-save,
+    &__btn-del {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: $radius-sm;
+        transition: all $transition-fast;
+        color: $color-text-secondary;
+    }
+
+    &__btn-save {
+        color: $color-success;
+        &:hover {
+            background: rgba($color-success, 0.1);
+        }
+    }
+
+    &__btn-del {
+        &:hover {
+            color: $color-destructive;
+            background: rgba($color-destructive, 0.1);
+        }
+    }
+
+    // ─── Empty state ────────────────────────────
+    &__empty {
+        text-align: center;
+        padding: $space-8 !important;
+        color: $color-text-secondary;
+        font-size: $font-size-sm;
+    }
+}
+
+// ─── btn--success utility ───────────────────────
+.btn--success {
+    background: $color-success;
+    color: white;
+    border-color: $color-success;
+    &:hover {
+        background: darken($color-success, 8%);
+    }
+}

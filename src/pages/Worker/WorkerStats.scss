@@ -1,0 +1,39 @@
+@use '../../assets/scss/var' as *;
+
+.worker-stats__summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $space-4;
+    margin-bottom: $space-5;
+
+    @include respond-below($bp-md) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    @include respond-below($bp-sm) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.worker-stats__card {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+}
+
+.worker-stats__card-icon {
+    color: $color-primary-500;
+    flex-shrink: 0;
+}
+
+.worker-stats__card-label {
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+    display: block;
+}
+
+.worker-stats__card-value {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    margin: 0;
+}

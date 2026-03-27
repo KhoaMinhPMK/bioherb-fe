@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 
 const translations = {
     vi: {
@@ -156,18 +157,18 @@ export const I18nProvider = ({ children }) => {
         (key) => {
             return translations[locale]?.[key] || translations.vi[key] || key;
         },
-        [locale]
+        [locale],
     );
 
     const toggleLocale = useCallback(() => {
         setLocale((prev) => (prev === 'vi' ? 'en' : 'vi'));
     }, []);
 
-    return (
-        <I18nContext.Provider value={{ locale, setLocale, toggleLocale, t }}>
-            {children}
-        </I18nContext.Provider>
-    );
+    return <I18nContext.Provider value={{ locale, setLocale, toggleLocale, t }}>{children}</I18nContext.Provider>;
+};
+
+I18nProvider.propTypes = {
+    children: PropTypes.node.isRequired,
 };
 
 export const useI18n = () => {

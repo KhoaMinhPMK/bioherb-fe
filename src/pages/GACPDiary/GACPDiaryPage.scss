@@ -1,0 +1,265 @@
+@use '../../assets/scss/var' as *;
+
+// ─── Page Layout ────────────────────────────────
+.gacp-diary {
+    position: relative;
+    padding-bottom: 80px;
+    min-height: 100vh;
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: $space-4;
+        margin-bottom: $space-5;
+        flex-wrap: wrap;
+    }
+
+    &__header-left {
+        display: flex;
+        align-items: center;
+        gap: $space-3;
+    }
+
+    &__header-icon {
+        color: $color-brand-primary;
+    }
+
+    &__title {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: $color-text-primary;
+        margin: 0;
+        line-height: $line-height-tight;
+    }
+
+    &__subtitle {
+        font-size: $font-size-xs;
+        color: $color-text-secondary;
+        margin: 0;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    &__header-actions {
+        display: flex;
+        gap: $space-2;
+        flex-wrap: wrap;
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: $space-2;
+            font-size: $font-size-sm;
+        }
+    }
+
+    // ─── Toolbar ────────────────────────────────
+    &__toolbar {
+        display: flex;
+        align-items: center;
+        gap: $space-3;
+        margin-bottom: $space-4;
+    }
+
+    &__plot-select {
+        flex: 1;
+        max-width: 300px;
+        padding: $space-2 $space-3;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        font-size: $font-size-base;
+        color: $color-text-primary;
+        background: $color-surface;
+        cursor: pointer;
+        outline: none;
+
+        &:focus {
+            border-color: $color-brand-primary;
+            box-shadow: 0 0 0 3px rgba($color-brand-primary, 0.1);
+        }
+    }
+
+    &__count {
+        font-size: $font-size-xs;
+        color: $color-text-secondary;
+        white-space: nowrap;
+    }
+
+    // ─── Filter Chips ───────────────────────────
+    &__filters {
+        display: flex;
+        gap: $space-2;
+        overflow-x: auto;
+        padding-bottom: $space-3;
+        margin-bottom: $space-4;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    &__filter-chip {
+        display: flex;
+        align-items: center;
+        gap: $space-1;
+        padding: $space-2 $space-3;
+        border: 1px solid $color-border;
+        border-radius: $radius-full;
+        background: $color-surface;
+        cursor: pointer;
+        transition: all $transition-base;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        &:hover {
+            border-color: var(--chip-color, $color-brand-primary);
+            background: $color-surface-hover;
+        }
+
+        &--active {
+            border-color: var(--chip-color, $color-brand-primary);
+            background: var(--chip-color, $color-brand-primary);
+
+            .gacp-diary__filter-label {
+                color: $color-surface;
+            }
+        }
+    }
+
+    &__filter-icon {
+        font-size: $font-size-base;
+        line-height: 1;
+    }
+
+    &__filter-label {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        color: $color-text-primary;
+        transition: color $transition-fast;
+    }
+
+    // ─── Timeline ───────────────────────────────
+    &__timeline {
+        max-width: 680px;
+    }
+
+    &__date-group {
+        margin-bottom: $space-2;
+    }
+
+    &__date-label {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $color-text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: $space-2 0 $space-2;
+        border-bottom: 1px dashed $color-border;
+        margin-bottom: $space-3;
+    }
+
+    &__empty {
+        text-align: center;
+        padding: $space-16 $space-5;
+        color: $color-text-secondary;
+
+        svg {
+            margin-bottom: $space-3;
+            opacity: 0.4;
+        }
+
+        p {
+            font-size: $font-size-md;
+            font-weight: $font-weight-medium;
+            margin: 0 0 $space-1;
+        }
+
+        span {
+            font-size: $font-size-sm;
+        }
+    }
+
+    // ─── Table View ─────────────────────────────
+    &__table-wrap {
+        overflow-x: auto;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        background: $color-surface;
+    }
+
+    &__table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: $font-size-sm;
+
+        th,
+        td {
+            padding: $space-3;
+            text-align: left;
+            border-bottom: 1px solid $color-border;
+            white-space: nowrap;
+        }
+
+        th {
+            background: $color-surface-hover;
+            font-weight: $font-weight-semibold;
+            color: $color-text-primary;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            color: $color-text-primary;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background: rgba($color-brand-primary, 0.03);
+        }
+    }
+
+    &__table-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-1;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $color-surface;
+        padding: 2px $space-2;
+        border-radius: $radius-sm;
+        white-space: nowrap;
+    }
+
+    // ─── FAB Button ─────────────────────────────
+    &__fab {
+        position: fixed;
+        bottom: $space-6;
+        right: $space-6;
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        padding: $space-3 $space-5;
+        background: $color-brand-primary;
+        color: $color-surface;
+        border: none;
+        border-radius: $radius-full;
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba($color-brand-primary, 0.35);
+        transition: all $transition-base;
+        z-index: $z-dropdown;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba($color-brand-primary, 0.45);
+        }
+
+        &:active {
+            transform: scale(0.96);
+        }
+    }
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './StatusBadge.scss';
 const STATUS_MAP = {
     approved: { label: 'Đã duyệt', variant: 'success' },
@@ -23,8 +24,11 @@ const StatusBadge = ({ status, label: customLabel, variant: customVariant }) => 
     const mapped = STATUS_MAP[status] || {};
     const variant = customVariant || mapped.variant || 'neutral';
     const label = customLabel || mapped.label || status;
-    return (<span className={`status-badge status-badge--${variant}`}>
-            {label}
-        </span>);
+    return <span className={`status-badge status-badge--${variant}`}>{label}</span>;
+};
+StatusBadge.propTypes = {
+    status: PropTypes.string,
+    label: PropTypes.string,
+    variant: PropTypes.oneOf(['success', 'info', 'warning', 'error', 'neutral']),
 };
 export default StatusBadge;
