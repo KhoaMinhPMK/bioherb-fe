@@ -33,11 +33,11 @@ const normalizeDate = (dateStr) => {
 
 // ─── Event type config ──────────────────────────
 const EVENT_TYPES = {
-    plan: { label: 'K\u1EBF ho\u1EA1ch', icon: Sprout, colorClass: 'plan' },
-    log: { label: 'Nh\u1EADt k\u00FD SX', icon: BookOpen, colorClass: 'log' },
+    plan: { label: 'Kế hoạch', icon: Sprout, colorClass: 'plan' },
+    log: { label: 'Nhật ký SX', icon: BookOpen, colorClass: 'log' },
     gacp: { label: 'GACP', icon: BookOpenCheck, colorClass: 'gacp' },
-    pest: { label: 'S\u00E2u b\u1EC7nh', icon: Bug, colorClass: 'pest' },
-    cycle: { label: 'M\u00F9a v\u1EE5', icon: CalendarDays, colorClass: 'cycle' },
+    pest: { label: 'Sâu bệnh', icon: Bug, colorClass: 'pest' },
+    cycle: { label: 'Mùa vụ', icon: CalendarDays, colorClass: 'cycle' },
 };
 
 const CalendarView = () => {
@@ -205,10 +205,7 @@ const CalendarView = () => {
 
     return (
         <div className="page-container">
-            <PageHeader
-                title="L\u1ECBch canh t\u00E1c"
-                subtitle="T\u1ED5ng h\u1EE3p k\u1EBF ho\u1EA1ch, nh\u1EADt k\u00FD, GACP, s\u00E2u b\u1EC7nh theo l\u1ECBch"
-            />
+            <PageHeader title="Lịch canh tác" subtitle="Tổng hợp kế hoạch, nhật ký, GACP, sâu bệnh theo lịch" />
 
             {/* ── Filter Toolbar ───────────────── */}
             <div className="calendar__filters">
@@ -217,7 +214,7 @@ const CalendarView = () => {
                         key={key}
                         className={`calendar__filter-btn calendar__filter-btn--${colorClass} ${filters[key] ? '' : 'calendar__filter-btn--off'}`}
                         onClick={() => toggleFilter(key)}
-                        title={filters[key] ? `\u1EA8n ${label}` : `Hi\u1EC7n ${label}`}
+                        title={filters[key] ? `Ẩn ${label}` : `Hiện ${label}`}
                     >
                         {filters[key] ? <Eye size={12} /> : <EyeOff size={12} />}
                         <span>{label}</span>
@@ -234,7 +231,7 @@ const CalendarView = () => {
                     </button>
                     <h3 className="calendar__month-name">{monthName}</h3>
                     <button className="btn btn--outline btn--xs" onClick={goToday}>
-                        H\u00F4m nay
+                        Hôm nay
                     </button>
                     <button className="btn-icon" onClick={nextMonth}>
                         <ChevronRight size={20} />
