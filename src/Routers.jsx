@@ -38,6 +38,7 @@ const WorkerStats = lazy(() => import('./pages/Worker/WorkerStats'));
 const Warehouse = lazy(() => import('./pages/Warehouse/Warehouse'));
 const ChangePassword = lazy(() => import('./pages/ChangePassword/ChangePassword'));
 const HelpPage = lazy(() => import('./pages/Help/HelpPage'));
+const FeatureFlags = lazy(() => import('./pages/Admin/FeatureFlags'));
 
 // Landing Pages
 const HomePage = lazy(() => import('./pages/Landing/HomePage/HomePage'));
@@ -124,6 +125,7 @@ function Routers() {
                                         <Route path="/admin/permissions" element={<PermissionMatrix />} />
                                         <Route path="/admin/audit-log" element={<AuditLog />} />
                                         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                                        <Route path="/admin/features" element={<FeatureFlags />} />
                                         {/* User */}
                                         <Route path="/profile" element={<Profile />} />
                                         <Route path="/settings" element={<Settings />} />

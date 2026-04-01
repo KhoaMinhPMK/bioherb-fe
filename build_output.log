@@ -1,0 +1,110 @@
+Creating an optimized production build...
+[BABEL] Note: The code generator has deoptimised the styling of E:\project\nong_nghiep\bioherb-fe\src\assets\images\logo_img.svg as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of undefined as it exceeds the max of 500KB.
+Compiled with warnings.
+
+[eslint] 
+src\pages\Admin\FeatureFlags.jsx
+  Line 21:5:  'ToggleLeft' is defined but never used. Allowed unused vars must match /^_/u  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+File sizes after gzip:
+
+  128.18 kB  build\static\js\389.b519a8db.chunk.js
+  100.55 kB  build\static\js\main.fd0d60f7.js
+  46.35 kB   build\static\js\239.85b5c501.chunk.js
+  33.56 kB   build\static\js\732.99dfc6d8.chunk.js
+  9.8 kB     build\static\js\857.03ac36ac.chunk.js
+  9.09 kB    build\static\js\489.db9b9773.chunk.js
+  8.74 kB    build\static\js\977.d04ba7b2.chunk.js
+  8.52 kB    build\static\js\934.1f749e78.chunk.js
+  7.58 kB    build\static\js\790.a04e8401.chunk.js
+  7.3 kB     build\static\js\560.74aaf377.chunk.js
+  6.53 kB    build\static\js\8.d8c612fb.chunk.js
+  6.03 kB    build\static\js\833.dd93e91b.chunk.js
+  5.91 kB    build\static\js\998.77ec91ed.chunk.js
+  5.86 kB    build\static\css\main.8769c862.css
+  5.68 kB    build\static\js\636.3f952b6e.chunk.js
+  5.65 kB    build\static\js\614.aec894b0.chunk.js
+  5.43 kB    build\static\js\472.3e1b5867.chunk.js
+  5.11 kB    build\static\js\763.01e93223.chunk.js
+  4.99 kB    build\static\js\62.200b7f91.chunk.js
+  4.78 kB    build\static\js\363.aff645b6.chunk.js
+  4.61 kB    build\static\js\953.cfaabd44.chunk.js
+  4.51 kB    build\static\js\73.e2e3b0c8.chunk.js
+  4.44 kB    build\static\js\81.d3211f5f.chunk.js
+  4.29 kB    build\static\js\987.347d073b.chunk.js
+  4.28 kB    build\static\css\790.3f6c6d7a.chunk.css
+  3.81 kB    build\static\js\964.ff307c47.chunk.js
+  3.73 kB    build\static\js\553.2dea7046.chunk.js
+  3.65 kB    build\static\js\686.d1375a5f.chunk.js
+  3.58 kB    build\static\js\189.03a8ddec.chunk.js
+  3.46 kB    build\static\css\833.455e6198.chunk.css
+  3.39 kB    build\static\css\8.1519da4c.chunk.css
+  3.36 kB    build\static\js\100.2472f59e.chunk.js
+  3.35 kB    build\static\js\574.2a556ddf.chunk.js
+  3.28 kB    build\static\css\363.c2bf1d98.chunk.css
+  3.28 kB    build\static\css\998.eb801f3a.chunk.css
+  3.22 kB    build\static\css\934.1ec2f640.chunk.css
+  3.16 kB    build\static\css\763.1ed0e977.chunk.css
+  3.14 kB    build\static\css\636.5b200f57.chunk.css
+  3.11 kB    build\static\css\472.55baefb5.chunk.css
+  3.11 kB    build\static\css\614.55baefb5.chunk.css
+  3.06 kB    build\static\js\634.4d25a6dd.chunk.js
+  2.78 kB    build\static\css\81.d21713d2.chunk.css
+  2.64 kB    build\static\js\739.cd9eb795.chunk.js
+  2.63 kB    build\static\css\553.0d98809a.chunk.css
+  2.53 kB    build\static\css\73.a334546a.chunk.css
+  2.43 kB    build\static\js\463.58f58090.chunk.js
+  2.43 kB    build\static\css\987.4d42d7fd.chunk.css
+  2.31 kB    build\static\js\120.19921a2f.chunk.js
+  2.26 kB    build\static\css\953.76c79521.chunk.css
+  2.24 kB    build\static\css\100.8d2bc2e3.chunk.css
+  2.19 kB    build\static\css\62.76e4c634.chunk.css
+  1.99 kB    build\static\css\686.619aa22b.chunk.css
+  1.94 kB    build\static\css\189.b916060b.chunk.css
+  1.93 kB    build\static\css\964.640f2daf.chunk.css
+  1.88 kB    build\static\css\477.5ff746e3.chunk.css
+  1.88 kB    build\static\css\71.387a9bae.chunk.css
+  1.85 kB    build\static\css\574.cdc77b05.chunk.css
+  1.85 kB    build\static\js\320.578f733f.chunk.js
+  1.84 kB    build\static\js\71.5bc99a72.chunk.js
+  1.83 kB    build\static\css\463.cf03956d.chunk.css
+  1.76 kB    build\static\css\634.dd20677d.chunk.css
+  1.75 kB    build\static\js\477.f276cc52.chunk.js
+  1.69 kB    build\static\js\218.0fd75084.chunk.js
+  1.67 kB    build\static\js\681.31f7d178.chunk.js
+  1.64 kB    build\static\css\489.4865b8b6.chunk.css
+  1.59 kB    build\static\js\696.90aba5a2.chunk.js
+  1.55 kB    build\static\js\30.e123aad2.chunk.js
+  1.53 kB    build\static\js\971.ccf7a13c.chunk.js
+  1.53 kB    build\static\js\344.342aa1ce.chunk.js
+  1.43 kB    build\static\css\739.e5be7832.chunk.css
+  1.41 kB    build\static\css\560.e4026a3a.chunk.css
+  1.31 kB    build\static\css\681.3afd41d7.chunk.css
+  1.24 kB    build\static\js\670.4fdd8fc7.chunk.js
+  1.24 kB    build\static\css\120.d729e95d.chunk.css
+  1.15 kB    build\static\css\344.11baa47d.chunk.css
+  1.1 kB     build\static\css\30.e1023a56.chunk.css
+  993 B      build\static\css\320.155e2c6e.chunk.css
+  985 B      build\static\css\696.34f21f57.chunk.css
+  960 B      build\static\css\218.b149ea95.chunk.css
+  881 B      build\static\css\670.2bb7e8d6.chunk.css
+  767 B      build\static\css\971.88c26f37.chunk.css
+  662 B      build\static\js\159.afbfb7a6.chunk.js
+  605 B      build\static\css\159.95206b8a.chunk.css
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+

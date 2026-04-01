@@ -24,8 +24,10 @@ import {
     HelpCircle,
     Activity,
     Handshake,
+    ToggleLeft,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useFeatureFlags } from '../../contexts/FeatureFlagContext';
 import logoImg from '../../assets/images/logo_img.svg';
 import logoChar from '../../assets/images/logo_char.svg';
 import './Sidebar.scss';
@@ -84,6 +86,7 @@ const menuItems = [
             { path: '/admin/users', icon: Shield, label: 'Quản trị user', roles: ['admin'] },
             { path: '/admin/permissions', icon: Lock, label: 'Phân quyền', roles: ['admin'] },
             { path: '/admin/audit-log', icon: Activity, label: 'Nhật ký HT', roles: ['admin'] },
+            { path: '/admin/features', icon: ToggleLeft, label: 'Quản lý tính năng', roles: ['admin'] },
         ],
     },
     {
@@ -96,6 +99,7 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { role } = useAuth();
+    const { isSidebarPathEnabled } = useFeatureFlags();
 
     const isActive = (path) => {
         if (path === '/') return location.pathname === '/' || location.pathname === '/dashboard';
@@ -109,10 +113,16 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
         }
     };
 
-    /** Check if a group or item is visible for the current role */
+    /** Check if a group or item is visible for the current role and feature flags */
     const isVisible = (entry) => {
         if (!entry.roles) return true;
         return entry.roles.includes(role);
+    };
+
+    /** Check role visibility AND feature flag for a menu item */
+    const isItemVisible = (item) => {
+        if (!isVisible(item)) return false;
+        return isSidebarPathEnabled(item.path, role);
     };
 
     const sidebarClasses = ['sidebar', collapsed ? 'sidebar--collapsed' : '', mobileOpen ? 'sidebar--open' : '']
@@ -139,8 +149,8 @@ const Sidebar = ({ collapsed, mobileOpen, onToggle, onMobileClose }) => {
                     // Skip entire group if role doesn't match
                     if (!isVisible(group)) return null;
 
-                    // Filter items within the group by role
-                    const visibleItems = group.items.filter(isVisible);
+                    // Filter items within the group by role and feature flags
+                    const visibleItems = group.items.filter(isItemVisible);
                     if (visibleItems.length === 0) return null;
 
                     return (

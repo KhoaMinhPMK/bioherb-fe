@@ -1,0 +1,326 @@
+@use '../../assets/scss/var' as *;
+
+.feature-flags {
+    // --- Summary Cards ---
+    &__summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: $space-4;
+        margin-bottom: $space-6;
+    }
+
+    &__summary-card {
+        display: flex;
+        align-items: center;
+        gap: $space-3;
+        padding: $space-4 $space-5;
+        background: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+
+        &--enabled {
+            border-left: 3px solid $color-success;
+            svg {
+                color: $color-success;
+            }
+        }
+
+        &--beta {
+            border-left: 3px solid $color-warning;
+            svg {
+                color: $color-warning;
+            }
+        }
+
+        &--disabled {
+            border-left: 3px solid $color-neutral-400;
+            svg {
+                color: $color-neutral-400;
+            }
+        }
+    }
+
+    &__summary-count {
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-bold;
+        color: $color-text-primary;
+    }
+
+    &__summary-label {
+        font-size: $font-size-sm;
+        color: $color-text-secondary;
+    }
+
+    // --- Reset Button ---
+    &__reset-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-2;
+        padding: $space-2 $space-4;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $color-text-secondary;
+        background: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        cursor: pointer;
+        transition: all $transition-fast;
+
+        &:hover {
+            color: $color-text-primary;
+            border-color: $color-border-strong;
+        }
+    }
+
+    // --- Groups ---
+    &__groups {
+        display: flex;
+        flex-direction: column;
+        gap: $space-8;
+        margin-top: $space-6;
+    }
+
+    &__group-title {
+        font-size: $font-size-md;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+        margin-bottom: $space-4;
+        padding-bottom: $space-2;
+        border-bottom: 2px solid $color-primary-100;
+    }
+
+    &__cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: $space-4;
+    }
+
+    // --- Feature Card ---
+    &__card {
+        background: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        padding: $space-5;
+        transition: box-shadow $transition-fast;
+
+        &:hover {
+            box-shadow: $shadow-md;
+        }
+
+        &--disabled {
+            opacity: 0.6;
+            background: $color-neutral-50;
+        }
+    }
+
+    &__card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: $space-3;
+        margin-bottom: $space-4;
+    }
+
+    &__card-info {
+        display: flex;
+        align-items: flex-start;
+        gap: $space-3;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__card-icon {
+        color: $color-brand-primary;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    &__card-title {
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: $color-text-primary;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+    }
+
+    &__card-desc {
+        font-size: $font-size-sm;
+        color: $color-text-secondary;
+        margin: $space-1 0 0;
+        line-height: $line-height-normal;
+    }
+
+    &__protected-icon {
+        color: $color-info;
+        flex-shrink: 0;
+    }
+
+    // --- Status Toggle Button ---
+    &__status-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-1;
+        padding: $space-1 $space-3;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        border: 1px solid;
+        border-radius: $radius-full;
+        cursor: pointer;
+        transition: all $transition-fast;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+    }
+
+    &__status--enabled {
+        color: #166534;
+        background: $color-primary-50;
+        border-color: $color-primary-200;
+    }
+
+    &__status--beta {
+        color: #92400e;
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    &__status--disabled {
+        color: $color-neutral-600;
+        background: $color-neutral-100;
+        border-color: $color-neutral-300;
+    }
+
+    // --- Roles ---
+    &__roles {
+        margin-bottom: $space-3;
+    }
+
+    &__roles-label {
+        display: block;
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+        margin-bottom: $space-2;
+        font-weight: $font-weight-medium;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    &__roles-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $space-2;
+    }
+
+    &__role-check {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-1;
+        padding: $space-1 $space-2;
+        font-size: $font-size-xs;
+        background: $color-neutral-50;
+        border: 1px solid $color-border;
+        border-radius: $radius-sm;
+        cursor: pointer;
+        transition: all $transition-fast;
+        user-select: none;
+
+        &:hover {
+            background: $color-primary-50;
+            border-color: $color-primary-200;
+        }
+
+        &--disabled {
+            cursor: not-allowed;
+            opacity: 0.4;
+
+            &:hover {
+                background: $color-neutral-50;
+                border-color: $color-border;
+            }
+        }
+
+        input[type='checkbox'] {
+            width: 14px;
+            height: 14px;
+            accent-color: $color-brand-primary;
+            cursor: inherit;
+        }
+    }
+
+    &__role-label {
+        color: $color-text-primary;
+        font-weight: $font-weight-medium;
+    }
+
+    // --- Card Footer ---
+    &__card-footer {
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+        padding-top: $space-3;
+        border-top: 1px solid $color-border;
+    }
+
+    // --- Empty State ---
+    &__empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $space-3;
+        padding: $space-16 0;
+        color: $color-text-muted;
+
+        p {
+            font-size: $font-size-base;
+        }
+    }
+
+    // --- Responsive ---
+    @include respond-below($bp-md) {
+        &__summary {
+            grid-template-columns: 1fr;
+            gap: $space-2;
+        }
+
+        &__summary-card {
+            padding: $space-3 $space-4;
+        }
+
+        &__cards {
+            grid-template-columns: 1fr;
+        }
+
+        &__card {
+            padding: $space-4;
+        }
+
+        &__card-header {
+            flex-direction: column;
+            gap: $space-3;
+        }
+
+        &__status-btn {
+            align-self: flex-start;
+        }
+
+        &__roles-grid {
+            gap: $space-1;
+        }
+
+        &__role-check {
+            font-size: 11px;
+            padding: 2px $space-2;
+        }
+    }
+
+    @include respond-below($bp-sm) {
+        &__summary-count {
+            font-size: $font-size-lg;
+        }
+    }
+}
