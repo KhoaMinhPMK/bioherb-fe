@@ -1,0 +1,548 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── IDENTITY & ADMIN ─────────────────────────────────────
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  code        String           @unique @db.VarChar(30)
+  name        String           @db.VarChar(100)
+  description String?          @db.VarChar(255)
+  users       User[]
+  permissions RolePermission[]
+  featureRoles FeatureFlagRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id     Int              @id @default(autoincrement())
+  module String           @db.VarChar(50)
+  action String           @db.VarChar(30)
+  code   String           @unique @db.VarChar(80)
+  roles  RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       Int
+  permissionId Int
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  cooperativeId  Int?      @map("cooperative_id")
+  farmId         Int?      @map("farm_id")
+  roleId         Int       @map("role_id")
+  name           String    @db.VarChar(150)
+  email          String    @unique @db.VarChar(150)
+  phone          String?   @db.VarChar(20)
+  passwordHash   String    @map("password_hash") @db.VarChar(255)
+  status         String    @default("active") @db.VarChar(20)
+  lastLoginAt    DateTime? @map("last_login_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  role          Role         @relation(fields: [roleId], references: [id])
+  cooperative   Cooperative? @relation(fields: [cooperativeId], references: [id])
+  farm          Farm?        @relation(fields: [farmId], references: [id])
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  tokenHash  String    @map("token_hash") @db.VarChar(255)
+  expiresAt  DateTime  @map("expires_at")
+  revokedAt  DateTime? @map("revoked_at")
+  deviceInfo String?   @map("device_info") @db.VarChar(255)
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model FeatureFlag {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique @db.VarChar(50)
+  label       String   @db.VarChar(100)
+  description String?  @db.VarChar(255)
+  groupName   String   @map("group_name") @db.VarChar(50)
+  icon        String?  @db.VarChar(50)
+  status      String   @default("enabled") @db.VarChar(20)
+  isProtected Boolean  @default(false) @map("is_protected")
+  updatedBy   Int?     @map("updated_by")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  roles FeatureFlagRole[]
+
+  @@map("feature_flags")
+}
+
+model FeatureFlagRole {
+  featureFlagId Int     @map("feature_flag_id")
+  roleId        Int     @map("role_id")
+  isEnabled     Boolean @default(true) @map("is_enabled")
+
+  featureFlag FeatureFlag @relation(fields: [featureFlagId], references: [id], onDelete: Cascade)
+  role        Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([featureFlagId, roleId])
+  @@map("feature_flag_roles")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?     @map("user_id")
+  entityType String   @map("entity_type") @db.VarChar(50)
+  entityId   String?  @map("entity_id") @db.VarChar(50)
+  action     String   @db.VarChar(30)
+  before     Json?    @map("before_json")
+  after      Json?    @map("after_json")
+  ipAddress  String?  @map("ip_address") @db.VarChar(45)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// ─── ORGANIZATION & FARM ──────────────────────────────────
+
+model Cooperative {
+  id           Int    @id @default(autoincrement())
+  code         String @unique @db.VarChar(20)
+  name         String @db.VarChar(200)
+  province     String? @db.VarChar(100)
+  address      String? @db.VarChar(300)
+  directorName String? @map("director_name") @db.VarChar(150)
+  phone        String? @db.VarChar(20)
+  email        String? @db.VarChar(150)
+  memberCount  Int     @default(0) @map("member_count")
+  status       String  @default("active") @db.VarChar(20)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  farms Farm[]
+  users User[]
+
+  @@map("cooperatives")
+}
+
+model Farm {
+  id            Int     @id @default(autoincrement())
+  cooperativeId Int     @map("cooperative_id")
+  code          String  @unique @db.VarChar(20)
+  name          String  @db.VarChar(200)
+  address       String? @db.VarChar(300)
+  managerUserId Int?    @map("manager_user_id")
+  status        String  @default("active") @db.VarChar(20)
+  timeMode      String  @default("hour") @map("time_mode") @db.VarChar(20)
+  workdayHours  Float   @default(8) @map("workday_hours")
+  timezone      String  @default("Asia/Ho_Chi_Minh") @db.VarChar(50)
+  currency      String  @default("VND") @db.VarChar(10)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  cooperative Cooperative @relation(fields: [cooperativeId], references: [id])
+  plots       Plot[]
+  users       User[]
+  workers     Worker[]
+  equipment   Equipment[]
+  attendances AttendanceRecord[]
+
+  @@map("farms")
+}
+
+model Plot {
+  id              Int     @id @default(autoincrement())
+  farmId          Int     @map("farm_id")
+  code            String  @unique @db.VarChar(20)
+  name            String  @db.VarChar(200)
+  areaHa          Float?  @map("area_ha")
+  defaultCropName String? @map("default_crop_name") @db.VarChar(100)
+  coordsText      String? @map("coords_text") @db.VarChar(100)
+  status          String  @default("active") @db.VarChar(20)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  farm          Farm           @relation(fields: [farmId], references: [id])
+  cropCycles    CropCycle[]
+  pestIncidents PestIncident[]
+  gacpEntries   GacpEntry[]
+
+  @@map("plots")
+}
+
+// ─── CROP CYCLE ───────────────────────────────────────────
+
+model Crop {
+  id             Int    @id @default(autoincrement())
+  code           String @unique @db.VarChar(30)
+  name           String @db.VarChar(100)
+  scientificName String? @map("scientific_name") @db.VarChar(200)
+  status         String @default("active") @db.VarChar(20)
+
+  cropCycles CropCycle[]
+
+  @@map("crops")
+}
+
+model CropCycle {
+  id                  Int       @id @default(autoincrement())
+  plotId              Int       @map("plot_id")
+  cropId              Int?      @map("crop_id")
+  code                String    @unique @db.VarChar(30)
+  startDate           DateTime  @map("start_date") @db.Date
+  endDate             DateTime? @map("end_date") @db.Date
+  expectedHarvestDate DateTime? @map("expected_harvest_date") @db.Date
+  status              String    @default("draft") @db.VarChar(20)
+  progressPct         Int       @default(0) @map("progress_pct")
+  notes               String?   @db.Text
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  plot           Plot            @relation(fields: [plotId], references: [id])
+  crop           Crop?           @relation(fields: [cropId], references: [id])
+  taskPlans      TaskPlan[]
+  taskLogs       TaskLog[]
+  harvestBatches HarvestBatch[]
+  pestIncidents  PestIncident[]
+  gacpEntries    GacpEntry[]
+
+  @@map("crop_cycles")
+}
+
+// ─── TASK PLAN & TASK LOG ─────────────────────────────────
+
+model TaskType {
+  id       Int    @id @default(autoincrement())
+  code     String @unique @db.VarChar(30)
+  name     String @db.VarChar(100)
+  category String? @db.VarChar(50)
+  status   String @default("active") @db.VarChar(20)
+
+  taskPlans TaskPlan[]
+  taskLogs  TaskLog[]
+
+  @@map("task_types")
+}
+
+model TaskPlan {
+  id             Int       @id @default(autoincrement())
+  cropCycleId    Int       @map("crop_cycle_id")
+  plotId         Int?      @map("plot_id")
+  taskTypeId     Int?      @map("task_type_id")
+  planDate       DateTime  @map("plan_date") @db.Date
+  shift          String?   @db.VarChar(20)
+  title          String    @db.VarChar(200)
+  notes          String?   @db.Text
+  assigneeUserId Int?      @map("assignee_user_id")
+  status         String    @default("planned") @db.VarChar(20)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  cropCycle CropCycle @relation(fields: [cropCycleId], references: [id])
+  taskType  TaskType? @relation(fields: [taskTypeId], references: [id])
+  taskLogs  TaskLog[]
+
+  @@map("task_plans")
+}
+
+model TaskLog {
+  id             Int       @id @default(autoincrement())
+  cropCycleId    Int       @map("crop_cycle_id")
+  plotId         Int?      @map("plot_id")
+  taskPlanId     Int?      @map("task_plan_id")
+  taskTypeId     Int?      @map("task_type_id")
+  workDate       DateTime  @map("work_date") @db.Date
+  shift          String?   @db.VarChar(20)
+  taskName       String    @map("task_name") @db.VarChar(200)
+  timeMode       String    @default("hour") @map("time_mode") @db.VarChar(20)
+  startTime      String?   @map("start_time") @db.VarChar(10)
+  endTime        String?   @map("end_time") @db.VarChar(10)
+  breakMinutes   Int?      @map("break_minutes")
+  hourQty        Float?    @map("hour_qty")
+  workdayQty     Float?    @map("workday_qty")
+  notes          String?   @db.Text
+  weatherNote    String?   @map("weather_note") @db.VarChar(200)
+  status         String    @default("draft") @db.VarChar(20)
+  createdBy      Int       @map("created_by")
+  submittedAt    DateTime? @map("submitted_at")
+  approvedBy     Int?      @map("approved_by")
+  approvedAt     DateTime? @map("approved_at")
+  rejectedReason String?   @map("rejected_reason") @db.Text
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  cropCycle CropCycle        @relation(fields: [cropCycleId], references: [id])
+  taskPlan  TaskPlan?        @relation(fields: [taskPlanId], references: [id])
+  taskType  TaskType?        @relation(fields: [taskTypeId], references: [id])
+  workers   TaskLogWorker[]
+  inputs    TaskLogInput[]
+  equipment TaskLogEquipment[]
+
+  @@map("task_logs")
+}
+
+model TaskLogWorker {
+  id          Int    @id @default(autoincrement())
+  taskLogId   Int    @map("task_log_id")
+  workerId    Int    @map("worker_id")
+  hoursUsed   Float? @map("hours_used")
+  workdayQty  Float? @map("workday_qty")
+  unitCost    Float  @default(0) @map("unit_cost")
+  totalCost   Float  @default(0) @map("total_cost")
+
+  taskLog TaskLog @relation(fields: [taskLogId], references: [id], onDelete: Cascade)
+  worker  Worker  @relation(fields: [workerId], references: [id])
+
+  @@map("task_log_workers")
+}
+
+model TaskLogInput {
+  id          Int    @id @default(autoincrement())
+  taskLogId   Int    @map("task_log_id")
+  inputItemId Int    @map("input_item_id")
+  qty         Float
+  unit        String @db.VarChar(20)
+  unitCost    Float  @default(0) @map("unit_cost")
+  totalCost   Float  @default(0) @map("total_cost")
+
+  taskLog   TaskLog   @relation(fields: [taskLogId], references: [id], onDelete: Cascade)
+  inputItem InputItem @relation(fields: [inputItemId], references: [id])
+
+  @@map("task_log_inputs")
+}
+
+model TaskLogEquipment {
+  id          Int    @id @default(autoincrement())
+  taskLogId   Int    @map("task_log_id")
+  equipmentId Int    @map("equipment_id")
+  hoursUsed   Float  @default(0) @map("hours_used")
+  unitCost    Float  @default(0) @map("unit_cost")
+  totalCost   Float  @default(0) @map("total_cost")
+
+  taskLog   TaskLog   @relation(fields: [taskLogId], references: [id], onDelete: Cascade)
+  equipment Equipment @relation(fields: [equipmentId], references: [id])
+
+  @@map("task_log_equipment")
+}
+
+// ─── ATTENDANCE ───────────────────────────────────────────
+
+model AttendanceRecord {
+  id              Int      @id @default(autoincrement())
+  farmId          Int      @map("farm_id")
+  userId          Int      @map("user_id")
+  workDate        DateTime @map("work_date") @db.Date
+  shiftMorning    Boolean  @default(false) @map("shift_morning")
+  shiftAfternoon  Boolean  @default(false) @map("shift_afternoon")
+  shiftEvening    Boolean  @default(false) @map("shift_evening")
+  status          String   @default("full") @db.VarChar(20)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  farm      Farm                   @relation(fields: [farmId], references: [id])
+  exception AttendanceException?
+
+  @@unique([farmId, userId, workDate])
+  @@map("attendance_records")
+}
+
+model AttendanceException {
+  id                 Int       @id @default(autoincrement())
+  attendanceRecordId Int       @unique @map("attendance_record_id")
+  type               String    @db.VarChar(50)
+  reason             String?   @db.Text
+  approvalStatus     String    @default("pending") @map("approval_status") @db.VarChar(20)
+  approvedBy         Int?      @map("approved_by")
+  approvedAt         DateTime? @map("approved_at")
+
+  attendanceRecord AttendanceRecord @relation(fields: [attendanceRecordId], references: [id], onDelete: Cascade)
+
+  @@map("attendance_exceptions")
+}
+
+// ─── RESOURCES & INVENTORY ────────────────────────────────
+
+model Worker {
+  id        Int    @id @default(autoincrement())
+  userId    Int?   @map("user_id")
+  farmId    Int    @map("farm_id")
+  code      String @unique @db.VarChar(20)
+  name      String @db.VarChar(150)
+  roleTitle String @default("Nhân viên") @map("role_title") @db.VarChar(50)
+  phone     String? @db.VarChar(20)
+  dailyRate Float  @default(250000) @map("daily_rate")
+  status    String @default("active") @db.VarChar(20)
+
+  farm        Farm              @relation(fields: [farmId], references: [id])
+  taskLogWork TaskLogWorker[]
+
+  @@map("workers")
+}
+
+model Equipment {
+  id         Int    @id @default(autoincrement())
+  farmId     Int    @map("farm_id")
+  code       String @unique @db.VarChar(20)
+  name       String @db.VarChar(200)
+  type       String @db.VarChar(50)
+  hourlyCost Float  @default(0) @map("hourly_cost")
+  fuelCost   Float  @default(0) @map("fuel_cost")
+  status     String @default("active") @db.VarChar(20)
+
+  farm         Farm               @relation(fields: [farmId], references: [id])
+  taskLogEquip TaskLogEquipment[]
+
+  @@map("equipment")
+}
+
+model InputItem {
+  id        Int    @id @default(autoincrement())
+  farmId    Int?   @map("farm_id")
+  code      String @unique @db.VarChar(20)
+  name      String @db.VarChar(200)
+  type      String @db.VarChar(50)
+  unit      String @db.VarChar(20)
+  supplier  String? @db.VarChar(200)
+  unitPrice Float  @default(0) @map("unit_price")
+  stockQty  Float  @default(0) @map("stock_qty")
+  minStock  Float  @default(10) @map("min_stock")
+  status    String @default("active") @db.VarChar(20)
+
+  taskLogInputs         TaskLogInput[]
+  inventoryTransactions InventoryTransaction[]
+
+  @@map("input_items")
+}
+
+model InventoryTransaction {
+  id            Int      @id @default(autoincrement())
+  inputItemId   Int      @map("input_item_id")
+  txType        String   @map("tx_type") @db.VarChar(10)
+  qty           Float
+  unitCost      Float?   @map("unit_cost")
+  totalCost     Float?   @map("total_cost")
+  referenceType String?  @map("reference_type") @db.VarChar(50)
+  referenceId   String?  @map("reference_id") @db.VarChar(50)
+  note          String?  @db.Text
+  createdBy     Int      @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  inputItem InputItem @relation(fields: [inputItemId], references: [id])
+
+  @@map("inventory_transactions")
+}
+
+// ─── PEST, HARVEST, LOT, QR ──────────────────────────────
+
+model PestIncident {
+  id              Int       @id @default(autoincrement())
+  cropCycleId     Int?      @map("crop_cycle_id")
+  plotId          Int       @map("plot_id")
+  incidentDate    DateTime  @map("incident_date") @db.Date
+  type            String    @db.VarChar(100)
+  severity        String    @db.VarChar(20)
+  areaAffected    String?   @map("area_affected") @db.VarChar(50)
+  treatment       String?   @db.Text
+  phiDays         Int?      @map("phi_days")
+  harvestSafeDate DateTime? @map("harvest_safe_date") @db.Date
+  status          String    @default("monitoring") @db.VarChar(20)
+  resultNote      String?   @map("result_note") @db.Text
+
+  cropCycle CropCycle? @relation(fields: [cropCycleId], references: [id])
+  plot      Plot       @relation(fields: [plotId], references: [id])
+
+  @@map("pest_incidents")
+}
+
+model HarvestBatch {
+  id            Int      @id @default(autoincrement())
+  cropCycleId   Int      @map("crop_cycle_id")
+  plotId        Int?     @map("plot_id")
+  code          String   @unique @db.VarChar(30)
+  harvestDate   DateTime @map("harvest_date") @db.Date
+  quantityKg    Float    @map("quantity_kg")
+  quality       String?  @db.VarChar(50)
+  status        String   @default("pending") @db.VarChar(20)
+  createdBy     Int      @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  cropCycle   CropCycle    @relation(fields: [cropCycleId], references: [id])
+  productLots ProductLot[]
+
+  @@map("harvest_batches")
+}
+
+model ProductLot {
+  id               Int       @id @default(autoincrement())
+  harvestBatchId   Int       @map("harvest_batch_id")
+  code             String    @unique @map("lot_code") @db.VarChar(60)
+  quantityKg       Float     @map("quantity_kg")
+  packedDate       DateTime? @map("packed_date") @db.Date
+  status           String    @default("pending") @db.VarChar(20)
+  qrStatus         String    @default("draft") @map("qr_status") @db.VarChar(20)
+  publicApprovedBy Int?      @map("public_approved_by")
+  publicApprovedAt DateTime? @map("public_approved_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  harvestBatch HarvestBatch @relation(fields: [harvestBatchId], references: [id])
+
+  @@map("product_lots")
+}
+
+// ─── GACP & NOTIFICATIONS ─────────────────────────────────
+
+model GacpEntry {
+  id          Int      @id @default(autoincrement())
+  plotId      Int      @map("plot_id")
+  cropCycleId Int?     @map("crop_cycle_id")
+  entryType   String   @map("entry_type") @db.VarChar(50)
+  entryDate   DateTime @map("entry_date") @db.Date
+  createdBy   Int      @map("created_by")
+  note        String?  @db.Text
+  dataJson    Json     @map("data_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  plot      Plot       @relation(fields: [plotId], references: [id])
+  cropCycle CropCycle? @relation(fields: [cropCycleId], references: [id])
+
+  @@map("gacp_entries")
+}
+
+model Notification {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  title      String    @db.VarChar(200)
+  message    String    @db.Text
+  type       String    @db.VarChar(30)
+  entityType String?   @map("entity_type") @db.VarChar(50)
+  entityId   String?   @map("entity_id") @db.VarChar(50)
+  readAt     DateTime? @map("read_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
