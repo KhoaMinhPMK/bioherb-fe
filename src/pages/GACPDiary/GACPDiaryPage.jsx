@@ -20,9 +20,9 @@ import {
     IncidentTrackingForm,
 } from './GACPFormsOps';
 import { useData } from '../../contexts/DataContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { exportGacpPdf } from './gacpPdfExport';
-import { gacpCoverData } from '../../data/gacpMockData';
 import './GACPDiaryPage.scss';
 
 // Map type → form component
@@ -49,8 +49,23 @@ const FORM_MAP = {
  * Notebook-style timeline UX optimized for non-tech-savvy farmers.
  */
 function GACPDiaryPage() {
-    const { gacpEntries, plots, users, deleteGacpEntry } = useData();
+    const { gacpEntries, plots, users, deleteGacpEntry, farms, cooperatives } = useData();
+    const { currentUser } = useAuth();
     const { addToast } = useToast();
+
+    // Build cover data from real farm/cooperative context
+    const gacpCoverData = useMemo(() => {
+        const farm = farms.find((f) => f.id === currentUser?.farmId) || farms[0];
+        const coop = cooperatives.find((c) => c.id === (farm?.htxId || currentUser?.htxId)) || cooperatives[0];
+        return {
+            companyName: coop?.name || farm?.name || 'SANKIT',
+            zoneName: farm?.name || 'Vùng trồng dược liệu',
+            address: farm?.address || coop?.address || '',
+            issueDate: new Date().toISOString().slice(0, 10),
+            lotCode: '',
+            herbName: '',
+        };
+    }, [farms, cooperatives, currentUser]);
 
     // ─── State ──────────────────────────────────
     const [selectedPlot, setSelectedPlot] = useState('all');
@@ -129,7 +144,7 @@ function GACPDiaryPage() {
         } catch (err) {
             addToast('Lỗi xuất PDF: ' + err.message, 'error');
         }
-    }, [filteredEntries, activeFilter, addToast]);
+    }, [filteredEntries, activeFilter, gacpCoverData, addToast]);
 
     // ─── Active Form Component ──────────────────
     const ActiveForm = activeFormType ? FORM_MAP[activeFormType] : null;

@@ -1,13 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
-    attendance as initialAttendance,
-    pestIncidents as initialPestIncidents,
-    notifications as initialNotifications,
-    activityLog as initialActivityLog,
-} from '../data/mockData';
-import { gacpEntries as initialGacpEntries } from '../data/gacpMockData';
-import {
     farmService,
     plotService,
     cropCycleService,
@@ -201,11 +194,11 @@ export function DataProvider({ children }) {
     const [cooperatives, setCooperatives] = useState([]);
     const [usersList] = useState([]);
 
-    // === Mock-backed state (no backend module yet) ===
-    const [attendanceData, setAttendanceData] = useState(initialAttendance);
-    const [pestIncidents, setPestIncidents] = useState(initialPestIncidents);
-    const [notificationsList, setNotificationsList] = useState(initialNotifications);
-    const [gacpEntries, setGacpEntries] = useState(initialGacpEntries);
+    // === Mock-backed state (no backend module yet — start empty, add API later) ===
+    const [attendanceData, setAttendanceData] = useState([]);
+    const [pestIncidents, setPestIncidents] = useState([]);
+    const [notificationsList, setNotificationsList] = useState([]);
+    const [gacpEntries, setGacpEntries] = useState([]);
 
     const [isLoading, setIsLoading] = useState(false);
     const [initialized, setInitialized] = useState(false);
@@ -595,7 +588,7 @@ export function DataProvider({ children }) {
             notifications: notificationsList,
             users: usersList,
             cooperatives,
-            activityLog: initialActivityLog,
+            activityLog: [],
             gacpEntries,
             isLoading,
             initialized,

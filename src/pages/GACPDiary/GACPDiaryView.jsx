@@ -4,9 +4,9 @@ import { GACP_ENTRY_TYPES, GACP_PHASES } from './gacpConstants';
 import GACPIconMap from './gacpIcons';
 import GACPSpreadsheet from './components/GACPSpreadsheet';
 import { useData } from '../../contexts/DataContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { exportGacpPdf } from './gacpPdfExport';
-import { gacpCoverData } from '../../data/gacpMockData';
 import './GACPDiaryView.scss';
 
 /**
@@ -18,8 +18,22 @@ import './GACPDiaryView.scss';
  * - Compact footer with count + PDF export
  */
 function GACPDiaryView() {
-    const { gacpEntries } = useData();
+    const { gacpEntries, farms, cooperatives } = useData();
+    const { currentUser } = useAuth();
     const { addToast } = useToast();
+
+    const gacpCoverData = useMemo(() => {
+        const farm = farms.find((f) => f.id === currentUser?.farmId) || farms[0];
+        const coop = cooperatives.find((c) => c.id === (farm?.htxId || currentUser?.htxId)) || cooperatives[0];
+        return {
+            companyName: coop?.name || farm?.name || 'SANKIT',
+            zoneName: farm?.name || 'Vùng trồng dược liệu',
+            address: farm?.address || coop?.address || '',
+            issueDate: new Date().toISOString().slice(0, 10),
+            lotCode: '',
+            herbName: '',
+        };
+    }, [farms, cooperatives, currentUser]);
 
     const [selectedType, setSelectedType] = useState(GACP_ENTRY_TYPES[0].id);
 
@@ -49,7 +63,7 @@ function GACPDiaryView() {
         } catch (err) {
             addToast('Lỗi xuất PDF: ' + err.message, 'error');
         }
-    }, [gacpEntries, addToast]);
+    }, [gacpEntries, gacpCoverData, addToast]);
 
     return (
         <div className="gacp-notebook">

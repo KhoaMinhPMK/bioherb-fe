@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { ChevronLeft, ChevronRight, CheckCircle2, Clock, AlertTriangle, XCircle, CheckCheck } from 'lucide-react';
 import StatusBadge from '../StatusBadge';
 import { useAuth } from '../../contexts/AuthContext';
-import { attendance } from '../../data/mockData';
+import { useData } from '../../contexts/DataContext';
 import './TimesheetView.scss';
 
 const STATUS_MAP = {
@@ -18,6 +18,7 @@ function formatDateVN(d) {
 
 const TimesheetView = ({ onApproveException }) => {
     const { currentFarm } = useAuth();
+    const { attendanceData } = useData();
     const [selectedDate, setSelectedDate] = useState(new Date());
 
     // Navigate days
@@ -36,9 +37,10 @@ const TimesheetView = ({ onApproveException }) => {
 
     // Get attendance for current farm + date
     const dayRecords = useMemo(() => {
-        const farmId = currentFarm?.id || 'F01';
-        return attendance.filter((a) => a.farmId === farmId && a.date === dateStr);
-    }, [currentFarm, dateStr]);
+        const farmId = currentFarm?.id;
+        if (!farmId) return [];
+        return attendanceData.filter((a) => a.farmId === String(farmId) && a.date === dateStr);
+    }, [currentFarm, attendanceData, dateStr]);
 
     // Summary stats
     const stats = useMemo(() => {
