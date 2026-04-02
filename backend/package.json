@@ -4,7 +4,8 @@
   "private": true,
   "description": "SANKIT agricultural management API",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build || tsc -p tsconfig.build.json",
+    "build:tsc": "tsc -p tsconfig.build.json",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
