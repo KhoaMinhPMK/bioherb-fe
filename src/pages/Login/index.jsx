@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, LogIn, ChevronDown } from 'lucide-react';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { users, roleLabels } from '../../data/mockData';
 import logoChar from '../../assets/images/logo_char.svg';
 import './Login.scss';
 
@@ -13,16 +12,15 @@ const Login = () => {
     const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [showDemoPanel, setShowDemoPanel] = useState(false);
     const navigate = useNavigate();
-    const { login, loginAsUser, isAuthenticated } = useAuth();
+    const { login, isAuthenticated } = useAuth();
 
     // Redirect if already logged in
     React.useEffect(() => {
         if (isAuthenticated) navigate('/');
     }, [isAuthenticated, navigate]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         if (!email.trim()) {
@@ -34,26 +32,13 @@ const Login = () => {
             return;
         }
         setIsLoading(true);
-        // Simulate network delay
-        setTimeout(() => {
-            const result = login(email, password);
-            setIsLoading(false);
-            if (result.success) {
-                navigate('/');
-            } else {
-                setError(result.error);
-            }
-        }, 800);
-    };
-
-    const handleDemoLogin = (userId) => {
-        setIsLoading(true);
-        setError('');
-        setTimeout(() => {
-            loginAsUser(userId);
-            setIsLoading(false);
+        const result = await login(email.trim(), password);
+        setIsLoading(false);
+        if (result.success) {
             navigate('/');
-        }, 600);
+        } else {
+            setError(result.error || 'Đăng nhập thất bại. Vui lòng thử lại.');
+        }
     };
 
     return (
@@ -142,46 +127,6 @@ const Login = () => {
                             )}
                         </button>
                     </form>
-
-                    {/* Demo Account Panel */}
-                    <div className="login-card__demo">
-                        <button
-                            type="button"
-                            className="login-card__demo-toggle"
-                            onClick={() => setShowDemoPanel(!showDemoPanel)}
-                        >
-                            <span>Đăng nhập nhanh (Demo)</span>
-                            <ChevronDown
-                                size={16}
-                                className={`login-card__demo-chevron ${showDemoPanel ? 'login-card__demo-chevron--open' : ''}`}
-                            />
-                        </button>
-                        {showDemoPanel && (
-                            <div className="login-card__demo-list">
-                                {users
-                                    .filter((u) => u.status === 'active')
-                                    .map((user) => (
-                                        <button
-                                            key={user.id}
-                                            type="button"
-                                            className="login-card__demo-item"
-                                            onClick={() => handleDemoLogin(user.id)}
-                                            disabled={isLoading}
-                                        >
-                                            <div className="login-card__demo-info">
-                                                <span className="login-card__demo-name">{user.name}</span>
-                                                <span className="login-card__demo-email">{user.email}</span>
-                                            </div>
-                                            <span
-                                                className={`login-card__demo-role login-card__demo-role--${user.role}`}
-                                            >
-                                                {roleLabels[user.role]}
-                                            </span>
-                                        </button>
-                                    ))}
-                            </div>
-                        )}
-                    </div>
 
                     <div className="login-card__footer">
                         <p>© 2026 BioHerb - Hệ thống quản lý nông nghiệp thông minh</p>

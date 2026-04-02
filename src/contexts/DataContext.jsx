@@ -1,191 +1,586 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
-    users as initialUsers,
-    cooperatives as initialCooperatives,
-    farms as initialFarms,
-    plots as initialPlots,
-    cropCycles as initialCropCycles,
-    taskPlans as initialTaskPlans,
-    taskLogs as initialTaskLogs,
     attendance as initialAttendance,
     pestIncidents as initialPestIncidents,
-    inputItems as initialInputItems,
-    workers as initialWorkers,
-    equipment as initialEquipment,
-    harvestBatches as initialHarvestBatches,
     notifications as initialNotifications,
     activityLog as initialActivityLog,
 } from '../data/mockData';
 import { gacpEntries as initialGacpEntries } from '../data/gacpMockData';
+import {
+    farmService,
+    plotService,
+    cropCycleService,
+    taskPlanService,
+    taskLogService,
+    workerService,
+    equipmentService,
+    inputItemService,
+    harvestService,
+    cooperativeService,
+} from '../services/entityServices';
 
 const DataContext = createContext(null);
 
-/**
- * DataProvider — Central state management for all mock data.
- * Provides CRUD + loading simulation for every entity.
- * All pages read from here; mutations update state in-place.
- */
+// ─── Normalizers (backend → frontend shape) ───────────────────
+
+function toStr(v) {
+    return v != null ? String(v) : null;
+}
+
+const normalizeFarm = (f) => ({
+    ...f,
+    id: toStr(f.id),
+    htxId: toStr(f.cooperativeId ?? f.htxId),
+    managerId: toStr(f.managerUserId ?? f.managerId),
+});
+
+const normalizePlot = (p) => ({
+    ...p,
+    id: toStr(p.id),
+    farmId: toStr(p.farmId),
+    area: p.areaHa != null ? `${p.areaHa} ha` : '—',
+    crop: p.defaultCropName || '—',
+    activeCycle: p.activeCycle || null,
+    status: p.status || 'active',
+    coords: p.coordsText || '',
+});
+
+const normalizeCropCycle = (c) => ({
+    ...c,
+    id: toStr(c.id),
+    plotId: toStr(c.plotId),
+    cropId: toStr(c.cropId),
+});
+
+const normalizeTaskPlan = (t) => ({
+    ...t,
+    id: toStr(t.id),
+    cropCycleId: toStr(t.cropCycleId),
+});
+
+const normalizeTaskLog = (t) => ({
+    ...t,
+    id: toStr(t.id),
+    cropCycleId: toStr(t.cropCycleId),
+    taskPlanId: toStr(t.taskPlanId),
+});
+
+const normalizeWorker = (w) => ({ ...w, id: toStr(w.id), farmId: toStr(w.farmId) });
+const normalizeEquipment = (e) => ({ ...e, id: toStr(e.id), farmId: toStr(e.farmId) });
+const normalizeInputItem = (i) => ({ ...i, id: toStr(i.id), farmId: toStr(i.farmId) });
+const normalizeHarvestBatch = (h) => ({ ...h, id: toStr(h.id), cropCycleId: toStr(h.cropCycleId) });
+const normalizeCooperative = (c) => ({ ...c, id: toStr(c.id) });
+
+// ─── Helpers: frontend form → backend DTO ────────────────────
+
+function genCode(name, prefix = '') {
+    const slug = (name || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .toUpperCase()
+        .slice(0, 8);
+    return `${prefix}${slug}${Date.now() % 10000}`;
+}
+
+const toFarmDto = (d) => ({
+    name: d.name,
+    code: d.code || genCode(d.name, 'F'),
+    address: d.address || '',
+    cooperativeId: parseInt(d.cooperativeId || d.htxId) || undefined,
+    managerUserId: parseInt(d.managerUserId || d.managerId) || undefined,
+    status: d.status,
+    timeMode: d.timeMode || 'hour',
+    workdayHours: d.workdayHours ? parseFloat(d.workdayHours) : 8,
+});
+
+const toPlotDto = (d) => {
+    const rawArea = String(d.areaHa || d.area || '').replace(/[^0-9.]/g, '');
+    return {
+        name: d.name,
+        code: d.code || genCode(d.name, 'P'),
+        farmId: parseInt(d.farmId) || undefined,
+        areaHa: rawArea ? parseFloat(rawArea) : undefined,
+        defaultCropName: d.defaultCropName || d.crop || undefined,
+        coordsText: d.coordsText || d.coords || undefined,
+        status: d.status,
+    };
+};
+
+const toCropCycleDto = (d) => ({
+    plotId: parseInt(d.plotId) || undefined,
+    code: d.code || genCode(d.name || 'MV', 'CC'),
+    startDate: d.startDate,
+    endDate: d.endDate || undefined,
+    expectedHarvestDate: d.expectedHarvestDate || undefined,
+    status: d.status || 'active',
+    notes: d.notes || undefined,
+    cropId: parseInt(d.cropId) || undefined,
+});
+
+const toTaskPlanDto = (d) => ({
+    cropCycleId: parseInt(d.cropCycleId) || undefined,
+    taskTypeId: parseInt(d.taskTypeId) || undefined,
+    plannedDate: d.plannedDate || d.date,
+    notes: d.notes || undefined,
+    status: d.status || 'pending',
+});
+
+const toTaskLogDto = (d) => ({
+    cropCycleId: parseInt(d.cropCycleId) || undefined,
+    taskTypeId: parseInt(d.taskTypeId) || undefined,
+    taskPlanId: parseInt(d.taskPlanId) || undefined,
+    workDate: d.workDate || d.date,
+    notes: d.notes || undefined,
+    status: d.status || 'draft',
+    timeMode: d.timeMode || 'hour',
+    hourQty: d.hourQty ? parseFloat(d.hourQty) : undefined,
+    workdayQty: d.workdayQty ? parseFloat(d.workdayQty) : undefined,
+});
+
+const toWorkerDto = (d) => ({
+    farmId: parseInt(d.farmId) || undefined,
+    name: d.name,
+    phone: d.phone || undefined,
+    role: d.role || undefined,
+    dailyWage: d.dailyWage ? parseFloat(d.dailyWage) : undefined,
+    status: d.status || 'active',
+});
+
+const toEquipmentDto = (d) => ({
+    farmId: parseInt(d.farmId) || undefined,
+    name: d.name,
+    type: d.type || undefined,
+    status: d.status || 'active',
+    hoursPerDay: d.hoursPerDay ? parseFloat(d.hoursPerDay) : undefined,
+    fuelCostPerHour: d.fuelCostPerHour ? parseFloat(d.fuelCostPerHour) : undefined,
+});
+
+const toInputItemDto = (d) => ({
+    farmId: parseInt(d.farmId) || undefined,
+    name: d.name,
+    category: d.category || undefined,
+    unit: d.unit || undefined,
+    unitPrice: d.unitPrice ? parseFloat(d.unitPrice) : undefined,
+    status: d.status || 'active',
+});
+
+const toHarvestDto = (d) => ({
+    cropCycleId: parseInt(d.cropCycleId) || undefined,
+    harvestDate: d.harvestDate || d.date,
+    weightKg: d.weightKg ? parseFloat(d.weightKg) : undefined,
+    grade: d.grade || undefined,
+    notes: d.notes || undefined,
+});
+
+const toCooperativeDto = (d) => ({
+    name: d.name,
+    code: d.code || genCode(d.name, 'HTX'),
+    province: d.province || undefined,
+    address: d.address || undefined,
+    directorName: d.directorName || undefined,
+    phone: d.phone || undefined,
+    email: d.email || undefined,
+    status: d.status || 'active',
+});
+
+// ─── Provider ────────────────────────────────────────────────
+
 export function DataProvider({ children }) {
-    // === STATE ===
-    const [farms, setFarms] = useState(initialFarms);
-    const [plots, setPlots] = useState(initialPlots);
-    const [cropCycles, setCropCycles] = useState(initialCropCycles);
-    const [taskPlans, setTaskPlans] = useState(initialTaskPlans);
-    const [taskLogs, setTaskLogs] = useState(initialTaskLogs);
+    // === API-backed state ===
+    const [farms, setFarms] = useState([]);
+    const [plots, setPlots] = useState([]);
+    const [cropCycles, setCropCycles] = useState([]);
+    const [taskPlans, setTaskPlans] = useState([]);
+    const [taskLogs, setTaskLogs] = useState([]);
+    const [workersList, setWorkersList] = useState([]);
+    const [equipmentList, setEquipmentList] = useState([]);
+    const [inputItems, setInputItems] = useState([]);
+    const [harvestBatches, setHarvestBatches] = useState([]);
+    const [cooperatives, setCooperatives] = useState([]);
+    const [usersList] = useState([]);
+
+    // === Mock-backed state (no backend module yet) ===
     const [attendanceData, setAttendanceData] = useState(initialAttendance);
     const [pestIncidents, setPestIncidents] = useState(initialPestIncidents);
-    const [inputItems, setInputItems] = useState(initialInputItems);
-    const [workersList, setWorkersList] = useState(initialWorkers);
-    const [equipmentList, setEquipmentList] = useState(initialEquipment);
-    const [harvestBatches, setHarvestBatches] = useState(initialHarvestBatches);
     const [notificationsList, setNotificationsList] = useState(initialNotifications);
-    const [usersList, setUsersList] = useState(initialUsers);
-    const [cooperatives, setCooperatives] = useState(initialCooperatives);
     const [gacpEntries, setGacpEntries] = useState(initialGacpEntries);
+
     const [isLoading, setIsLoading] = useState(false);
+    const [initialized, setInitialized] = useState(false);
 
-    // === LOADING SIMULATION ===
-    const withLoading = useCallback(async (fn) => {
+    // === Fetch all API entities ===
+    const fetchAll = useCallback(async () => {
         setIsLoading(true);
-        return new Promise((resolve) => {
+        try {
+            const [
+                farmsRes,
+                plotsRes,
+                cyclesRes,
+                plansRes,
+                logsRes,
+                workersRes,
+                equipRes,
+                inputsRes,
+                harvestRes,
+                coopsRes,
+            ] = await Promise.allSettled([
+                farmService.getAll(),
+                plotService.getAll(),
+                cropCycleService.getAll(),
+                taskPlanService.getAll(),
+                taskLogService.getAll(),
+                workerService.getAll(),
+                equipmentService.getAll(),
+                inputItemService.getAll(),
+                harvestService.getAll(),
+                cooperativeService.getAll(),
+            ]);
+
+            const ok = (res) => (res.status === 'fulfilled' ? (res.value?.data?.data ?? []) : []);
+
+            const rawCycles = ok(cyclesRes).map(normalizeCropCycle);
+            const activeCycleMap = {};
+            rawCycles.forEach((c) => {
+                if (c.status === 'active' && c.plotId) activeCycleMap[c.plotId] = c.code || c.id;
+            });
+
+            setFarms(ok(farmsRes).map(normalizeFarm));
+            setPlots(
+                ok(plotsRes).map((p) => normalizePlot({ ...p, activeCycle: activeCycleMap[String(p.id)] || null })),
+            );
+            setCropCycles(rawCycles);
+            setTaskPlans(ok(plansRes).map(normalizeTaskPlan));
+            setTaskLogs(ok(logsRes).map(normalizeTaskLog));
+            setWorkersList(ok(workersRes).map(normalizeWorker));
+            setEquipmentList(ok(equipRes).map(normalizeEquipment));
+            setInputItems(ok(inputsRes).map(normalizeInputItem));
+            setHarvestBatches(ok(harvestRes).map(normalizeHarvestBatch));
+            setCooperatives(ok(coopsRes).map(normalizeCooperative));
+            setInitialized(true);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    // === Listen for auth events ===
+    useEffect(() => {
+        const onLogin = () => fetchAll();
+        const onLogout = () => {
+            setFarms([]);
+            setPlots([]);
+            setCropCycles([]);
+            setTaskPlans([]);
+            setTaskLogs([]);
+            setWorkersList([]);
+            setEquipmentList([]);
+            setInputItems([]);
+            setHarvestBatches([]);
+            setCooperatives([]);
+            setInitialized(false);
+        };
+        window.addEventListener('sankit:login', onLogin);
+        window.addEventListener('sankit:logout', onLogout);
+        return () => {
+            window.removeEventListener('sankit:login', onLogin);
+            window.removeEventListener('sankit:logout', onLogout);
+        };
+    }, [fetchAll]);
+
+    // === Generic API CRUD helpers ===
+    const apiMutate = useCallback(async (fn, setter, normalizer) => {
+        setIsLoading(true);
+        try {
+            const { data } = await fn();
+            const normalized = normalizer(data);
+            if (setter) {
+                setter((prev) => {
+                    const idx = prev.findIndex((item) => item.id === normalized.id);
+                    return idx >= 0 ? prev.map((item, i) => (i === idx ? normalized : item)) : [...prev, normalized];
+                });
+            }
+            return normalized;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const apiDelete = useCallback(async (fn, setter, id) => {
+        setIsLoading(true);
+        try {
+            await fn();
+            if (setter) setter((prev) => prev.filter((item) => item.id !== String(id)));
+            return true;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    // === Farm CRUD ===
+    const addFarm = useCallback(
+        (d) => apiMutate(() => farmService.create(toFarmDto(d)), setFarms, normalizeFarm),
+        [apiMutate],
+    );
+    const updateFarm = useCallback(
+        (id, d) => apiMutate(() => farmService.update(parseInt(id), toFarmDto(d)), setFarms, normalizeFarm),
+        [apiMutate],
+    );
+    const deleteFarm = useCallback(
+        (id) => apiDelete(() => farmService.delete(parseInt(id)), setFarms, id),
+        [apiDelete],
+    );
+
+    // === Plot CRUD ===
+    const addPlot = useCallback(
+        (d) => apiMutate(() => plotService.create(toPlotDto(d)), setPlots, normalizePlot),
+        [apiMutate],
+    );
+    const updatePlot = useCallback(
+        (id, d) => apiMutate(() => plotService.update(parseInt(id), toPlotDto(d)), setPlots, normalizePlot),
+        [apiMutate],
+    );
+    const deletePlot = useCallback(
+        (id) => apiDelete(() => plotService.delete(parseInt(id)), setPlots, id),
+        [apiDelete],
+    );
+
+    // === Crop Cycle CRUD ===
+    const addCropCycle = useCallback(
+        (d) => apiMutate(() => cropCycleService.create(toCropCycleDto(d)), setCropCycles, normalizeCropCycle),
+        [apiMutate],
+    );
+    const updateCropCycle = useCallback(
+        (id, d) =>
+            apiMutate(
+                () => cropCycleService.update(parseInt(id), toCropCycleDto(d)),
+                setCropCycles,
+                normalizeCropCycle,
+            ),
+        [apiMutate],
+    );
+    const deleteCropCycle = useCallback(
+        (id) => apiDelete(() => cropCycleService.delete(parseInt(id)), setCropCycles, id),
+        [apiDelete],
+    );
+
+    // === Task Plan CRUD ===
+    const addTaskPlan = useCallback(
+        (d) => apiMutate(() => taskPlanService.create(toTaskPlanDto(d)), setTaskPlans, normalizeTaskPlan),
+        [apiMutate],
+    );
+    const updateTaskPlan = useCallback(
+        (id, d) =>
+            apiMutate(() => taskPlanService.update(parseInt(id), toTaskPlanDto(d)), setTaskPlans, normalizeTaskPlan),
+        [apiMutate],
+    );
+    const deleteTaskPlan = useCallback(
+        (id) => apiDelete(() => taskPlanService.delete(parseInt(id)), setTaskPlans, id),
+        [apiDelete],
+    );
+
+    // === Task Log CRUD ===
+    const addTaskLog = useCallback(
+        (d) => apiMutate(() => taskLogService.create(toTaskLogDto(d)), setTaskLogs, normalizeTaskLog),
+        [apiMutate],
+    );
+    const updateTaskLog = useCallback(
+        (id, d) => apiMutate(() => taskLogService.update(parseInt(id), toTaskLogDto(d)), setTaskLogs, normalizeTaskLog),
+        [apiMutate],
+    );
+    const deleteTaskLog = useCallback(
+        (id) => apiDelete(() => taskLogService.delete(parseInt(id)), setTaskLogs, id),
+        [apiDelete],
+    );
+    const approveTaskLog = useCallback(
+        (id) => apiMutate(() => taskLogService.approve(parseInt(id)), setTaskLogs, normalizeTaskLog),
+        [apiMutate],
+    );
+    const rejectTaskLog = useCallback(
+        (id) => apiMutate(() => taskLogService.reject(parseInt(id)), setTaskLogs, normalizeTaskLog),
+        [apiMutate],
+    );
+
+    // === Worker CRUD ===
+    const addWorker = useCallback(
+        (d) => apiMutate(() => workerService.create(toWorkerDto(d)), setWorkersList, normalizeWorker),
+        [apiMutate],
+    );
+    const updateWorker = useCallback(
+        (id, d) => apiMutate(() => workerService.update(parseInt(id), toWorkerDto(d)), setWorkersList, normalizeWorker),
+        [apiMutate],
+    );
+    const deleteWorker = useCallback(
+        (id) => apiDelete(() => workerService.delete(parseInt(id)), setWorkersList, id),
+        [apiDelete],
+    );
+
+    // === Equipment CRUD ===
+    const addEquipment = useCallback(
+        (d) => apiMutate(() => equipmentService.create(toEquipmentDto(d)), setEquipmentList, normalizeEquipment),
+        [apiMutate],
+    );
+    const updateEquipment = useCallback(
+        (id, d) =>
+            apiMutate(
+                () => equipmentService.update(parseInt(id), toEquipmentDto(d)),
+                setEquipmentList,
+                normalizeEquipment,
+            ),
+        [apiMutate],
+    );
+    const deleteEquipment = useCallback(
+        (id) => apiDelete(() => equipmentService.delete(parseInt(id)), setEquipmentList, id),
+        [apiDelete],
+    );
+
+    // === Input Item CRUD ===
+    const addInputItem = useCallback(
+        (d) => apiMutate(() => inputItemService.create(toInputItemDto(d)), setInputItems, normalizeInputItem),
+        [apiMutate],
+    );
+    const updateInputItem = useCallback(
+        (id, d) =>
+            apiMutate(
+                () => inputItemService.update(parseInt(id), toInputItemDto(d)),
+                setInputItems,
+                normalizeInputItem,
+            ),
+        [apiMutate],
+    );
+    const deleteInputItem = useCallback(
+        (id) => apiDelete(() => inputItemService.delete(parseInt(id)), setInputItems, id),
+        [apiDelete],
+    );
+
+    // === Harvest CRUD ===
+    const addHarvestBatch = useCallback(
+        (d) => apiMutate(() => harvestService.create(toHarvestDto(d)), setHarvestBatches, normalizeHarvestBatch),
+        [apiMutate],
+    );
+    const updateHarvestBatch = useCallback(
+        (id, d) =>
+            apiMutate(
+                () => harvestService.update(parseInt(id), toHarvestDto(d)),
+                setHarvestBatches,
+                normalizeHarvestBatch,
+            ),
+        [apiMutate],
+    );
+    const deleteHarvestBatch = useCallback(
+        (id) => apiDelete(() => harvestService.delete(parseInt(id)), setHarvestBatches, id),
+        [apiDelete],
+    );
+
+    // === Cooperative CRUD ===
+    const addCooperative = useCallback(
+        (d) => apiMutate(() => cooperativeService.create(toCooperativeDto(d)), setCooperatives, normalizeCooperative),
+        [apiMutate],
+    );
+    const updateCooperative = useCallback(
+        (id, d) =>
+            apiMutate(
+                () => cooperativeService.update(parseInt(id), toCooperativeDto(d)),
+                setCooperatives,
+                normalizeCooperative,
+            ),
+        [apiMutate],
+    );
+    const deleteCooperative = useCallback(
+        (id) => apiDelete(() => cooperativeService.delete(parseInt(id)), setCooperatives, id),
+        [apiDelete],
+    );
+
+    // === Mock CRUD helpers ===
+    const withLoadingMock = useCallback(async (fn) => {
+        setIsLoading(true);
+        return new Promise((resolve) =>
             setTimeout(() => {
-                const result = fn();
+                const r = fn();
                 setIsLoading(false);
-                resolve(result);
-            }, 500);
-        });
+                resolve(r);
+            }, 200),
+        );
     }, []);
 
-    // === GENERIC CRUD HELPERS ===
-    const addItem = useCallback(
-        (setter, item) => {
-            return withLoading(() => {
-                setter((prev) => [...prev, item]);
-                return item;
-            });
-        },
-        [withLoading],
+    const addAttendance = useCallback(
+        (e) => withLoadingMock(() => setAttendanceData((prev) => [...prev, e])),
+        [withLoadingMock],
+    );
+    const updateAttendance = useCallback(
+        (id, u) =>
+            withLoadingMock(() => setAttendanceData((prev) => prev.map((a) => (a.id === id ? { ...a, ...u } : a)))),
+        [withLoadingMock],
+    );
+    const addPestIncident = useCallback(
+        (i) => withLoadingMock(() => setPestIncidents((prev) => [...prev, i])),
+        [withLoadingMock],
+    );
+    const updatePestIncident = useCallback(
+        (id, u) =>
+            withLoadingMock(() => setPestIncidents((prev) => prev.map((p) => (p.id === id ? { ...p, ...u } : p)))),
+        [withLoadingMock],
+    );
+    const deletePestIncident = useCallback(
+        (id) => withLoadingMock(() => setPestIncidents((prev) => prev.filter((p) => p.id !== id))),
+        [withLoadingMock],
+    );
+    const addGacpEntry = useCallback(
+        (e) => withLoadingMock(() => setGacpEntries((prev) => [...prev, e])),
+        [withLoadingMock],
+    );
+    const updateGacpEntry = useCallback(
+        (id, u) => withLoadingMock(() => setGacpEntries((prev) => prev.map((g) => (g.id === id ? { ...g, ...u } : g)))),
+        [withLoadingMock],
+    );
+    const deleteGacpEntry = useCallback(
+        (id) => withLoadingMock(() => setGacpEntries((prev) => prev.filter((g) => g.id !== id))),
+        [withLoadingMock],
     );
 
-    const updateItem = useCallback(
-        (setter, id, updates) => {
-            return withLoading(() => {
-                setter((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)));
-                return true;
-            });
-        },
-        [withLoading],
-    );
-
-    const deleteItem = useCallback(
-        (setter, id) => {
-            return withLoading(() => {
-                setter((prev) => prev.filter((item) => item.id !== id));
-                return true;
-            });
-        },
-        [withLoading],
-    );
-
-    // === FARM CRUD ===
-    const addFarm = useCallback((farm) => addItem(setFarms, farm), [addItem]);
-    const updateFarm = useCallback((id, updates) => updateItem(setFarms, id, updates), [updateItem]);
-    const deleteFarm = useCallback((id) => deleteItem(setFarms, id), [deleteItem]);
-
-    // === PLOT CRUD ===
-    const addPlot = useCallback((plot) => addItem(setPlots, plot), [addItem]);
-    const updatePlot = useCallback((id, updates) => updateItem(setPlots, id, updates), [updateItem]);
-    const deletePlot = useCallback((id) => deleteItem(setPlots, id), [deleteItem]);
-
-    // === CROP CYCLE CRUD ===
-    const addCropCycle = useCallback((cycle) => addItem(setCropCycles, cycle), [addItem]);
-    const updateCropCycle = useCallback((id, updates) => updateItem(setCropCycles, id, updates), [updateItem]);
-    const deleteCropCycle = useCallback((id) => deleteItem(setCropCycles, id), [deleteItem]);
-
-    // === TASK PLAN CRUD ===
-    const addTaskPlan = useCallback((plan) => addItem(setTaskPlans, plan), [addItem]);
-    const updateTaskPlan = useCallback((id, updates) => updateItem(setTaskPlans, id, updates), [updateItem]);
-    const deleteTaskPlan = useCallback((id) => deleteItem(setTaskPlans, id), [deleteItem]);
-
-    // === TASK LOG CRUD ===
-    const addTaskLog = useCallback((log) => addItem(setTaskLogs, log), [addItem]);
-    const updateTaskLog = useCallback((id, updates) => updateItem(setTaskLogs, id, updates), [updateItem]);
-    const deleteTaskLog = useCallback((id) => deleteItem(setTaskLogs, id), [deleteItem]);
-    const approveTaskLog = useCallback((id) => updateItem(setTaskLogs, id, { status: 'approved' }), [updateItem]);
-    const rejectTaskLog = useCallback((id) => updateItem(setTaskLogs, id, { status: 'rejected' }), [updateItem]);
-
-    // === ATTENDANCE ===
-    const updateAttendance = useCallback((id, updates) => updateItem(setAttendanceData, id, updates), [updateItem]);
-    const addAttendance = useCallback((entry) => addItem(setAttendanceData, entry), [addItem]);
-
-    // === PEST INCIDENT CRUD ===
-    const addPestIncident = useCallback((incident) => addItem(setPestIncidents, incident), [addItem]);
-    const updatePestIncident = useCallback((id, updates) => updateItem(setPestIncidents, id, updates), [updateItem]);
-    const deletePestIncident = useCallback((id) => deleteItem(setPestIncidents, id), [deleteItem]);
-
-    // === INPUT ITEM CRUD ===
-    const addInputItem = useCallback((item) => addItem(setInputItems, item), [addItem]);
-    const updateInputItem = useCallback((id, updates) => updateItem(setInputItems, id, updates), [updateItem]);
-    const deleteInputItem = useCallback((id) => deleteItem(setInputItems, id), [deleteItem]);
-
-    // === WORKER CRUD ===
-    const addWorker = useCallback((worker) => addItem(setWorkersList, worker), [addItem]);
-    const updateWorker = useCallback((id, updates) => updateItem(setWorkersList, id, updates), [updateItem]);
-    const deleteWorker = useCallback((id) => deleteItem(setWorkersList, id), [deleteItem]);
-
-    // === EQUIPMENT CRUD ===
-    const addEquipment = useCallback((eq) => addItem(setEquipmentList, eq), [addItem]);
-    const updateEquipment = useCallback((id, updates) => updateItem(setEquipmentList, id, updates), [updateItem]);
-    const deleteEquipment = useCallback((id) => deleteItem(setEquipmentList, id), [deleteItem]);
-
-    // === HARVEST CRUD ===
-    const addHarvestBatch = useCallback((batch) => addItem(setHarvestBatches, batch), [addItem]);
-    const updateHarvestBatch = useCallback((id, updates) => updateItem(setHarvestBatches, id, updates), [updateItem]);
-    const deleteHarvestBatch = useCallback((id) => deleteItem(setHarvestBatches, id), [deleteItem]);
-
-    // === NOTIFICATIONS ===
+    // === Notifications ===
     const markNotificationRead = useCallback(
-        (id) => updateItem(setNotificationsList, id, { read: true }),
-        [updateItem],
+        (id) => setNotificationsList((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n))),
+        [],
     );
-    const markAllNotificationsRead = useCallback(() => {
-        setNotificationsList((prev) => prev.map((n) => ({ ...n, read: true })));
-    }, []);
+    const markAllNotificationsRead = useCallback(
+        () => setNotificationsList((prev) => prev.map((n) => ({ ...n, read: true }))),
+        [],
+    );
     const unreadNotifCount = useMemo(() => notificationsList.filter((n) => !n.read).length, [notificationsList]);
 
-    // === USER MANAGEMENT (Admin) ===
-    const addUser = useCallback((user) => addItem(setUsersList, user), [addItem]);
-    const updateUser = useCallback((id, updates) => updateItem(setUsersList, id, updates), [updateItem]);
-    const deleteUser = useCallback((id) => deleteItem(setUsersList, id), [deleteItem]);
-
-    // === COOPERATIVE CRUD ===
-    const addCooperative = useCallback((coop) => addItem(setCooperatives, coop), [addItem]);
-    const updateCooperative = useCallback((id, updates) => updateItem(setCooperatives, id, updates), [updateItem]);
-    const deleteCooperative = useCallback((id) => deleteItem(setCooperatives, id), [deleteItem]);
-
-    // === GACP DIARY CRUD ===
-    const addGacpEntry = useCallback((entry) => addItem(setGacpEntries, entry), [addItem]);
-    const updateGacpEntry = useCallback((id, updates) => updateItem(setGacpEntries, id, updates), [updateItem]);
-    const deleteGacpEntry = useCallback((id) => deleteItem(setGacpEntries, id), [deleteItem]);
-
-    // === COMPUTED HELPERS ===
-    const getPlotsByFarm = useCallback((farmId) => plots.filter((p) => p.farmId === farmId), [plots]);
-    const getFarmsByHtx = useCallback((htxId) => farms.filter((f) => f.htxId === htxId), [farms]);
-    const getLogsByPlot = useCallback((plotId) => taskLogs.filter((l) => l.plotId === plotId), [taskLogs]);
-    const getCyclesByPlot = useCallback((plotId) => cropCycles.filter((c) => c.plotId === plotId), [cropCycles]);
-    const getPestByPlot = useCallback((plotId) => pestIncidents.filter((p) => p.plotId === plotId), [pestIncidents]);
+    // === Computed helpers ===
+    const getPlotsByFarm = useCallback((farmId) => plots.filter((p) => p.farmId === String(farmId)), [plots]);
+    const getFarmsByHtx = useCallback((htxId) => farms.filter((f) => f.htxId === String(htxId)), [farms]);
+    const getLogsByPlot = useCallback(
+        (plotId) => {
+            const cycleIds = new Set(cropCycles.filter((c) => c.plotId === String(plotId)).map((c) => c.id));
+            return taskLogs.filter((l) => cycleIds.has(l.cropCycleId));
+        },
+        [taskLogs, cropCycles],
+    );
+    const getCyclesByPlot = useCallback(
+        (plotId) => cropCycles.filter((c) => c.plotId === String(plotId)),
+        [cropCycles],
+    );
+    const getPestByPlot = useCallback(
+        (plotId) => pestIncidents.filter((p) => p.plotId === String(plotId)),
+        [pestIncidents],
+    );
     const getAttendanceByFarm = useCallback(
-        (farmId) => attendanceData.filter((a) => a.farmId === farmId),
+        (farmId) => attendanceData.filter((a) => a.farmId === String(farmId)),
         [attendanceData],
     );
     const getAttendanceByDate = useCallback((date) => attendanceData.filter((a) => a.date === date), [attendanceData]);
-    const getGacpByPlot = useCallback((plotId) => gacpEntries.filter((e) => e.plotId === plotId), [gacpEntries]);
+    const getGacpByPlot = useCallback(
+        (plotId) => gacpEntries.filter((e) => e.plotId === String(plotId)),
+        [gacpEntries],
+    );
     const getGacpByType = useCallback((type) => gacpEntries.filter((e) => e.type === type), [gacpEntries]);
 
+    // === Value ===
     const value = useMemo(
         () => ({
-            // Data
             farms,
             plots,
             cropCycles,
@@ -203,68 +598,54 @@ export function DataProvider({ children }) {
             activityLog: initialActivityLog,
             gacpEntries,
             isLoading,
-            // Farm CRUD
+            initialized,
+            fetchAll,
             addFarm,
             updateFarm,
             deleteFarm,
-            // Plot CRUD
             addPlot,
             updatePlot,
             deletePlot,
-            // Crop Cycle CRUD
             addCropCycle,
             updateCropCycle,
             deleteCropCycle,
-            // Task Plan CRUD
             addTaskPlan,
             updateTaskPlan,
             deleteTaskPlan,
-            // Task Log CRUD
             addTaskLog,
             updateTaskLog,
             deleteTaskLog,
             approveTaskLog,
             rejectTaskLog,
-            // Attendance
             updateAttendance,
             addAttendance,
-            // Pest Incident CRUD
             addPestIncident,
             updatePestIncident,
             deletePestIncident,
-            // Input Item CRUD
             addInputItem,
             updateInputItem,
             deleteInputItem,
-            // Worker CRUD
             addWorker,
             updateWorker,
             deleteWorker,
-            // Equipment CRUD
             addEquipment,
             updateEquipment,
             deleteEquipment,
-            // Harvest CRUD
             addHarvestBatch,
             updateHarvestBatch,
             deleteHarvestBatch,
-            // Notifications
-            markNotificationRead,
-            markAllNotificationsRead,
-            unreadNotifCount,
-            // User Management
-            addUser,
-            updateUser,
-            deleteUser,
-            // Cooperative CRUD
             addCooperative,
             updateCooperative,
             deleteCooperative,
-            // GACP Diary CRUD
+            markNotificationRead,
+            markAllNotificationsRead,
+            unreadNotifCount,
+            addUser: () => Promise.resolve(),
+            updateUser: () => Promise.resolve(),
+            deleteUser: () => Promise.resolve(),
             addGacpEntry,
             updateGacpEntry,
             deleteGacpEntry,
-            // Helpers
             getPlotsByFarm,
             getFarmsByHtx,
             getLogsByPlot,
@@ -292,6 +673,8 @@ export function DataProvider({ children }) {
             cooperatives,
             gacpEntries,
             isLoading,
+            initialized,
+            fetchAll,
             addFarm,
             updateFarm,
             deleteFarm,
@@ -326,15 +709,12 @@ export function DataProvider({ children }) {
             addHarvestBatch,
             updateHarvestBatch,
             deleteHarvestBatch,
-            markNotificationRead,
-            markAllNotificationsRead,
-            unreadNotifCount,
-            addUser,
-            updateUser,
-            deleteUser,
             addCooperative,
             updateCooperative,
             deleteCooperative,
+            markNotificationRead,
+            markAllNotificationsRead,
+            unreadNotifCount,
             addGacpEntry,
             updateGacpEntry,
             deleteGacpEntry,

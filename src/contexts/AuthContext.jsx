@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { users as allUsers, farms, cooperatives, roleLabels } from '../data/mockData';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
 /**
- * Roles hierarchy:
+ * Roles hierarchy (maps to backend role.code):
  *   admin          → Toàn quyền hệ thống, xem tất cả HTX/Farm
  *   htx_manager    → Quản lý 1 HTX, xem các Farm trong HTX
  *   farm_manager   → Quản lý 1 Farm cụ thể
@@ -13,33 +13,70 @@ const AuthContext = createContext(null);
  *   worker         → Nhập nhật ký, xem thông tin Farm mình
  */
 
-const STORAGE_KEY = 'bioherb_auth_user';
+const ROLE_LABELS = {
+    admin: 'Admin',
+    htx_manager: 'Quản lý HTX',
+    farm_manager: 'Quản lý Farm',
+    approver: 'Người duyệt',
+    worker: 'Nhân viên',
+};
+
+const ACCESS_KEY = 'sankit_access_token';
+const REFRESH_KEY = 'sankit_refresh_token';
+
+/** Normalize /auth/me response → shape pages expect */
+function normalizeUser(apiUser) {
+    return {
+        id: String(apiUser.id),
+        name: apiUser.name,
+        email: apiUser.email,
+        phone: apiUser.phone || '',
+        status: apiUser.status,
+        role: apiUser.role?.code || apiUser.role || null,
+        htxId: apiUser.cooperative?.id != null ? String(apiUser.cooperative.id) : null,
+        farmId: apiUser.farm?.id != null ? String(apiUser.farm.id) : null,
+        avatarUrl: apiUser.avatarUrl || null,
+        lastLoginAt: apiUser.lastLoginAt || null,
+    };
+}
 
 export function AuthProvider({ children }) {
-    const [currentUserId, setCurrentUserId] = useState(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved || null;
-    });
-    const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return !!localStorage.getItem(STORAGE_KEY);
-    });
+    const [currentUser, setCurrentUser] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authLoading, setAuthLoading] = useState(true);
 
-    const currentUser = useMemo(() => {
-        if (!currentUserId) return null;
-        return allUsers.find((u) => u.id === currentUserId) || null;
-    }, [currentUserId]);
+    // ── Restore session on mount ──────────────────────────────
+    useEffect(() => {
+        const token = localStorage.getItem(ACCESS_KEY);
+        if (!token) {
+            setAuthLoading(false);
+            return;
+        }
+        api.get('/auth/me')
+            .then(({ data }) => {
+                const user = normalizeUser(data);
+                setCurrentUser(user);
+                setIsAuthenticated(true);
+                window.dispatchEvent(new CustomEvent('sankit:login', { detail: user }));
+            })
+            .catch(() => {
+                localStorage.removeItem(ACCESS_KEY);
+                localStorage.removeItem(REFRESH_KEY);
+            })
+            .finally(() => setAuthLoading(false));
+    }, []);
 
-    const currentFarm = useMemo(() => {
-        if (!currentUser?.farmId) return null;
-        return farms.find((f) => f.id === currentUser.farmId) || null;
-    }, [currentUser]);
+    // ── Listen for forced logout from api interceptor ─────────
+    useEffect(() => {
+        const handler = () => {
+            setCurrentUser(null);
+            setIsAuthenticated(false);
+        };
+        window.addEventListener('sankit:logout', handler);
+        return () => window.removeEventListener('sankit:logout', handler);
+    }, []);
 
-    const currentHtx = useMemo(() => {
-        if (!currentUser?.htxId) return null;
-        return cooperatives.find((c) => c.id === currentUser.htxId) || null;
-    }, [currentUser]);
-
-    // --- Permission helpers ---
+    // ── Permission helpers ────────────────────────────────────
     const role = currentUser?.role || null;
 
     const isAdmin = useCallback(() => role === 'admin', [role]);
@@ -48,72 +85,67 @@ export function AuthProvider({ children }) {
     const isApprover = useCallback(() => role === 'approver', [role]);
     const isWorker = useCallback(() => role === 'worker', [role]);
 
-    /** Can this user approve task logs / attendance? */
-    const canApprove = useCallback(() => {
-        return ['admin', 'htx_manager', 'farm_manager', 'approver'].includes(role);
-    }, [role]);
+    const canApprove = useCallback(() => ['admin', 'htx_manager', 'farm_manager', 'approver'].includes(role), [role]);
+    const canEdit = useCallback(
+        () => ['admin', 'htx_manager', 'farm_manager', 'approver', 'worker'].includes(role),
+        [role],
+    );
+    const canManageSystem = useCallback(() => role === 'admin', [role]);
+    const canSeeAllFarms = useCallback(() => ['admin', 'htx_manager'].includes(role), [role]);
 
-    /** Can this user create/edit task logs? */
-    const canEdit = useCallback(() => {
-        return ['admin', 'htx_manager', 'farm_manager', 'approver', 'worker'].includes(role);
-    }, [role]);
-
-    /** Can this user manage system settings / users? */
-    const canManageSystem = useCallback(() => {
-        return ['admin'].includes(role);
-    }, [role]);
-
-    /** Can this user see all farms (admin/htx level)? */
-    const canSeeAllFarms = useCallback(() => {
-        return ['admin', 'htx_manager'].includes(role);
-    }, [role]);
-
-    /** Login: match email + password from mockData */
-    const login = useCallback((email, password) => {
-        const user = allUsers.find((u) => u.email === email && u.password === password && u.status === 'active');
-        if (!user) {
-            return { success: false, error: 'Sai tên đăng nhập hoặc mật khẩu' };
+    // ── Login ─────────────────────────────────────────────────
+    const login = useCallback(async (email, password) => {
+        try {
+            const { data } = await api.post('/auth/login', { email, password });
+            localStorage.setItem(ACCESS_KEY, data.accessToken);
+            localStorage.setItem(REFRESH_KEY, data.refreshToken);
+            const { data: profile } = await api.get('/auth/me');
+            const user = normalizeUser(profile);
+            setCurrentUser(user);
+            setIsAuthenticated(true);
+            window.dispatchEvent(new CustomEvent('sankit:login', { detail: user }));
+            return { success: true, user };
+        } catch (err) {
+            const msg =
+                err.response?.data?.message ||
+                (Array.isArray(err.response?.data?.message)
+                    ? err.response.data.message[0]
+                    : 'Sai tên đăng nhập hoặc mật khẩu');
+            return { success: false, error: msg };
         }
-        setCurrentUserId(user.id);
-        setIsAuthenticated(true);
-        localStorage.setItem(STORAGE_KEY, user.id);
-        return { success: true, user };
     }, []);
 
-    /** Quick login by userId (for demo selector) */
-    const loginAsUser = useCallback((userId) => {
-        const user = allUsers.find((u) => u.id === userId);
-        if (!user) return false;
-        setCurrentUserId(user.id);
-        setIsAuthenticated(true);
-        localStorage.setItem(STORAGE_KEY, user.id);
-        return true;
-    }, []);
-
-    /** Logout */
-    const logout = useCallback(() => {
-        setCurrentUserId(null);
+    // ── Logout ────────────────────────────────────────────────
+    const logout = useCallback(async () => {
+        try {
+            await api.post('/auth/logout');
+        } catch (_) {
+            // ignore — still clear local session
+        }
+        localStorage.removeItem(ACCESS_KEY);
+        localStorage.removeItem(REFRESH_KEY);
+        setCurrentUser(null);
         setIsAuthenticated(false);
-        localStorage.removeItem(STORAGE_KEY);
+        window.dispatchEvent(new Event('sankit:logout'));
     }, []);
 
-    /** Check if a route is accessible for current role */
+    // ── canAccessRoute ────────────────────────────────────────
     const canAccessRoute = useCallback(
         (path) => {
             if (!role) return false;
-            // Admin can access everything
             if (role === 'admin') return true;
-            // Admin-only routes
             const adminOnly = ['/admin/users', '/admin/dashboard'];
-            if (adminOnly.includes(path)) return role === 'admin';
-            // Manager+ routes
+            if (adminOnly.includes(path)) return false;
             const managerPlus = ['/settings'];
             if (managerPlus.includes(path)) return ['admin', 'htx_manager', 'farm_manager'].includes(role);
-            // All authenticated users
             return true;
         },
         [role],
     );
+
+    // Lightweight stub — full farm object lives in DataContext.farms
+    const currentFarm = useMemo(() => (currentUser?.farmId ? { id: currentUser.farmId } : null), [currentUser]);
+    const currentHtx = useMemo(() => (currentUser?.htxId ? { id: currentUser.htxId } : null), [currentUser]);
 
     const value = useMemo(
         () => ({
@@ -121,8 +153,9 @@ export function AuthProvider({ children }) {
             currentFarm,
             currentHtx,
             role,
-            roleLabel: role ? roleLabels[role] : '',
+            roleLabel: role ? ROLE_LABELS[role] || role : '',
             isAuthenticated,
+            authLoading,
             // Role checks
             isAdmin,
             isHtxManager,
@@ -137,7 +170,6 @@ export function AuthProvider({ children }) {
             canAccessRoute,
             // Auth actions
             login,
-            loginAsUser,
             logout,
         }),
         [
@@ -146,6 +178,7 @@ export function AuthProvider({ children }) {
             currentHtx,
             role,
             isAuthenticated,
+            authLoading,
             isAdmin,
             isHtxManager,
             isFarmManager,
@@ -157,7 +190,6 @@ export function AuthProvider({ children }) {
             canSeeAllFarms,
             canAccessRoute,
             login,
-            loginAsUser,
             logout,
         ],
     );
